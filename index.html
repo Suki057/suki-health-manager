@@ -1,0 +1,2655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌸 Suki 健康管理</title>
+  <meta name="theme-color" content="#2a2d3a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Suki 健康管理" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+  <style>
+    :root {
+      --bg: #eef2f8;
+      --surface: #ffffff;
+      --text: #1c1c1e;
+      --muted: #8e8e93;
+      --border: rgba(0, 0, 0, 0.06);
+      --primary: #0a84ff;
+      --primary-hover: #339cff;
+      --secondary: #f1f3f8;
+      --secondary-hover: #e4e8ef;
+      --danger: #ff3b30;
+      --danger-hover: #ff5b52;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --warning-hover: #ffb340;
+      --intake: #ff9f0a;
+      --burn: #34c759;
+      --net: #5e5ce6;
+      --radius: 18px;
+      --radius-sm: 12px;
+      --shadow: 0 10px 24px rgba(16, 24, 40, 0.07);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 12% -12%, #e8f1ff 0%, rgba(232,241,255,0) 60%),
+        radial-gradient(1000px 520px at 100% 0%, #f1ecff 0%, rgba(241,236,255,0) 55%),
+        linear-gradient(180deg, #eef2f8 0%, #e6ecf4 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+      padding: 20px 24px;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: nowrap;
+    }
+    .app-header h1 {
+      font-size: 22px;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .title-emoji { font-size: 28px; line-height: 1; -webkit-text-fill-color: initial; background: none; }
+    .title-text {
+      background: linear-gradient(135deg, #0a84ff, #5e5ce6 65%, #bf5af2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .app-sub {
+      margin: 4px 0 0;
+      font-size: 12.5px;
+      color: var(--text-soft);
+    }
+    .tabs {
+      display: flex;
+      gap: 3px;
+      padding: 4px;
+      background: rgba(120, 120, 128, 0.14);
+      border-radius: 13px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 7px 15px;
+      border-radius: 10px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex: 0 0 auto;
+      transition: background 0.2s, box-shadow 0.2s, color 0.2s, transform 0.08s;
+    }
+    /* 底部固定导航栏：与顶部 header 同高、始终显示、类目一行横向拖动 */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 18px 10px calc(18px + env(safe-area-inset-bottom, 0px));
+      min-height: 72px;
+      background: rgba(248, 250, 255, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.07);
+      border-radius: 0;
+      max-width: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      scrollbar-width: none;
+    }
+    .bottom-nav::-webkit-scrollbar { display: none; }
+    .bottom-nav.dragging { cursor: grabbing; }
+    .bottom-nav .tab-btn {
+      flex: 0 0 auto;
+      text-align: center;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .bottom-nav .tab-btn.active {
+      background: linear-gradient(135deg, rgba(10, 132, 255, 0.16), rgba(94, 92, 230, 0.16));
+      color: #0a84ff;
+      box-shadow: none;
+    }
+    .bottom-nav .tab-btn:active { transform: scale(0.96); }
+    /* 手机端：标题不折行，底部导航保持一行拖动 */
+    @media (max-width: 700px) {
+      .app-header {
+        padding: 18px 20px;
+        min-height: 68px;
+      }
+      .app-header h1 { font-size: 20px; }
+      .title-emoji { font-size: 24px; }
+      .bottom-nav .tab-btn { padding: 9px 14px; font-size: 15px; }
+    }
+    .tab-btn:hover { background: rgba(255, 255, 255, 0.45); }
+    .tab-btn.active {
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10), 0 2px 7px rgba(0, 0, 0, 0.10);
+    }
+    .tab-btn:active { transform: scale(0.96); }
+    .container { padding: 24px; max-width: 1320px; margin: 0 auto; padding-bottom: 120px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeUp 0.35s ease both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .panel {
+      position: relative;
+      isolation: isolate;
+      background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 1px 2px rgba(16, 24, 40, 0.05),
+        0 10px 24px rgba(16, 24, 40, 0.07),
+        0 22px 48px rgba(16, 24, 40, 0.05);
+      margin-bottom: 22px;
+    }
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 52%;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0));
+      pointer-events: none;
+      z-index: 0;
+    }
+    .panel > * { position: relative; z-index: 1; }
+    .panel h2 {
+      margin-top: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .panel h2 small { color: var(--muted); font-weight: 500; font-size: 13px; margin-left: 8px; }
+    .date-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .date-bar label { font-weight: 600; font-size: 14px; }
+    /* 统计页日期栏：缩小日期框，– 居中，查看按钮与结束框留间距 */
+    #stats .row .field { min-width: 0; }
+    #stats-start, #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 128px; }
+    .date-group { display: flex; align-items: flex-end; gap: 8px; }
+    .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
+    .stats-datebar { gap: 18px; }
+    #stats-load-btn { padding: 4px 12px; font-size: 12px; }
+    /* 今日记录：饮食/运动录入框（小长框）整体收小，与卡片边缘协调 */
+    #today .two-col .field input,
+    #today .two-col .field select { padding: 8px 11px; font-size: 13px; }
+    #today .two-col .row .btn.primary { padding: 8px 14px; font-size: 13px; }
+    #diet-table th, #exercise-table th,
+    #diet-table td, #exercise-table td { padding: 9px 11px; font-size: 13px; }
+    input[type="date"], input[type="text"], input[type="number"], select {
+      padding: 9px 13px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 12px;
+      font-size: 14px;
+      background: #f1f3f8;
+      color: var(--text);
+      outline: none;
+      box-shadow: inset 0 1px 3px rgba(16, 24, 40, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.15), inset 0 1px 2px rgba(16, 24, 40, 0.05);
+    }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.15s, background 0.15s, filter 0.15s;
+      white-space: nowrap;
+      position: relative;
+    }
+    .btn:active { transform: translateY(1px) scale(0.99); }
+    .btn.primary {
+      color: #fff;
+      background: linear-gradient(180deg, #4aa3ff 0%, #0a84ff 100%);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 4px 12px rgba(10, 132, 255, 0.35), 0 1px 2px rgba(10, 132, 255, 0.4);
+    }
+    .btn.primary:hover { filter: brightness(1.04); }
+    .btn.secondary {
+      color: var(--text);
+      background: linear-gradient(180deg, #ffffff, #eef1f6);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 2px 6px rgba(16, 24, 40, 0.10);
+    }
+    .btn.secondary:hover { filter: brightness(0.99); }
+    .btn.danger {
+      color: #fff;
+      background: linear-gradient(180deg, #ff5b52, #ff3b30);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 4px 12px rgba(255, 59, 48, 0.35);
+    }
+    .btn.danger:hover { filter: brightness(1.04); }
+    .btn.success {
+      color: #fff;
+      background: linear-gradient(180deg, #4cd964, #34c759);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 4px 12px rgba(52, 199, 89, 0.35);
+    }
+    .btn.warning {
+      color: #fff;
+      background: linear-gradient(180deg, #ffb340, #ff9f0a);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 4px 12px rgba(255, 159, 10, 0.35);
+    }
+    .btn.warning:hover { filter: brightness(1.04); }
+    .btn.tiny { padding: 5px 11px; font-size: 12.5px; border-radius: 10px; }
+    .actions-col { white-space: nowrap; }
+    .actions-col .btn { margin-right: 6px; }
+    .trash-remain { font-size: 11px; color: var(--muted); }
+    .btn.small { padding: 5px 10px; font-size: 12.5px; border-radius: 10px; }
+    .row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 120px; }
+    .field label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
+    .field.small { flex: 0 0 110px; }
+    .field input, .field select { width: 100%; }
+    .autocomplete { position: relative; }
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 240px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 14px;
+      margin: 6px 0 0;
+      padding: 5px;
+      list-style: none;
+      box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18), 0 2px 6px rgba(16, 24, 40, 0.10);
+      z-index: 50;
+      display: none;
+    }
+    .suggestions li { padding: 9px 12px; cursor: pointer; font-size: 14px; border-radius: 9px; }
+    .suggestions li:hover, .suggestions li.active { background: rgba(10, 132, 255, 0.10); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    @media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+    /* 关键：让网格项可收缩到内容之外，否则宽表格会把面板/页面整体撑大 */
+    .two-col .panel { min-width: 0; }
+    .table-wrap {
+      border-radius: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    /* 宽表格在窄屏（手机）下不挤压列，改为横向拖动 */
+    #stats-table, #body-stats-table,
+    #food-lib-table-100g, #food-lib-table-serving,
+    #exercise-lib-table-ana, #exercise-lib-table-aer,
+    #diet-table { min-width: 640px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      background: linear-gradient(180deg, #f4f6fb, #eef1f7);
+      font-size: 12.5px;
+      letter-spacing: 0.02em;
+    }
+    tbody tr { transition: background 0.12s; }
+    tbody tr:hover { background: rgba(10, 132, 255, 0.04); }
+    tbody tr:last-child td { border-bottom: none; }
+    td.number { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 6px;
+      margin-bottom: 28px;
+    }
+    .card {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff, #f5f8ff);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 18px;
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 6px 16px rgba(16, 24, 40, 0.08), 0 14px 30px rgba(16, 24, 40, 0.05);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 0 rgba(255, 255, 255, 0.9) inset, 0 10px 22px rgba(16, 24, 40, 0.10), 0 18px 38px rgba(16, 24, 40, 0.07);
+    }
+    .card .label { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+    .card .value { display: block; font-size: 30px; font-weight: 800; margin: 6px 0 2px; letter-spacing: -0.02em; }
+    .card .unit { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .card.intake { background: linear-gradient(180deg, #fff7ed, #ffedd5); }
+    .card.intake .value { color: var(--intake); }
+    .card.burn { background: linear-gradient(180deg, #ecfdf3, #d1fadf); }
+    .card.burn .value { color: var(--burn); }
+    .card.net { background: linear-gradient(180deg, #eef0ff, #e0e3ff); }
+    .card.net .value { color: var(--net); }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 6px;
+    }
+    .form-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-start; margin-top: 4px; }
+    /* 饮食记录行内编辑：份量变成可输入数字框 */
+    .edit-portion-input {
+      width: 64px;
+      padding: 5px 7px;
+      border: 1px solid #0a84ff;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+      background: #fff;
+      color: #0a84ff;
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+    }
+    .edit-portion-input:focus { box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.25); }
+    td.editing-cell { background: rgba(10, 132, 255, 0.06); }
+    /* 点「修改」后编辑框高亮提示 */
+    .form-grid.editing-flash,
+    .food-form-grid.editing-flash {
+      animation: editFlash 1.2s ease;
+      border-radius: 14px;
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.45), var(--shadow);
+    }
+    /* 食物库：导入表单 8 个输入框，2 个一排 */
+    .food-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; align-items: end; margin-bottom: 6px; }
+    .food-form-grid .field { flex: none; min-width: 0; }
+    .food-form-grid .form-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-start; margin-top: 4px; }
+    .foods-head { justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .foods-head h2 { margin: 0; }
+    @media (max-width: 560px) { .food-form-grid { grid-template-columns: 1fr; } }
+    /* 分类板块 */
+    #food-categories .panel { margin-bottom: 18px; }
+    .food-cat-table { min-width: 640px; }
+    /* ===== 弹窗（自定义录入） ===== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-box {
+      background: rgba(250, 250, 250, 0.97);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-radius: 18px;
+      padding: 22px;
+      width: 440px; max-width: 92vw;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+    }
+    .modal-box h3 { margin: 0 0 4px; font-size: 17px; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; align-items: end; margin: 14px 0; }
+    .modal-grid .field { flex: none; min-width: 0; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    @media (max-width: 480px) { .modal-grid { grid-template-columns: 1fr; } }
+    @keyframes editFlash {
+      0% { box-shadow: 0 0 0 6px rgba(10, 132, 255, 0.55), var(--shadow); }
+      100% { box-shadow: 0 0 0 0 rgba(10, 132, 255, 0); }
+    }
+    .data-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .empty-state { color: var(--muted); text-align: center; padding: 26px; font-size: 14px; }
+    .hint { color: var(--muted); font-size: 13px; margin: 6px 0 16px; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 36px;
+      transform: translateX(-50%) translateY(10px);
+      background: rgba(28, 28, 30, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 11px 20px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 确认弹窗（iOS Alert 风格） */
+    .confirm-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .confirm-box {
+      background: rgba(250, 250, 250, 0.96);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-radius: 18px;
+      padding: 24px 22px 18px;
+      width: 300px; max-width: 86vw;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+      text-align: center;
+    }
+    .confirm-msg { font-size: 15px; color: #1c1c1e; margin-bottom: 20px; line-height: 1.5; font-weight: 500; }
+    .confirm-actions {
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      border-top: 1px solid rgba(0, 0, 0, 0.10);
+      margin: 0 -22px -18px;
+      border-radius: 0 0 18px 18px;
+      overflow: hidden;
+    }
+    .confirm-actions .btn {
+      flex: 1;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      font-size: 16px;
+      padding: 13px;
+      border: none;
+    }
+    .confirm-actions .btn:active { transform: none; background: rgba(0, 0, 0, 0.05); }
+    .confirm-actions #confirm-cancel { color: var(--primary); border-right: 1px solid rgba(0, 0, 0, 0.10); font-weight: 400; }
+    .confirm-actions #confirm-ok { color: var(--danger); font-weight: 600; }
+
+    /* ===== AI 饮食分析 ===== */
+    .analysis-body { margin-top: 8px; }
+    .analysis-summary {
+      font-weight: 700; margin-bottom: 14px; padding: 13px 16px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff, #fff4ec);
+      border: 1px solid rgba(255, 159, 10, 0.25);
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+      color: #7c3d12;
+    }
+    .analysis-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
+    .analysis-item {
+      display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px;
+      border-radius: 13px; background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 10px rgba(16, 24, 40, 0.03);
+    }
+    .analysis-item .ic { font-size: 16px; flex: none; line-height: 1.4; }
+    .analysis-item .txt { font-size: 13px; line-height: 1.55; color: #3a3a3c; }
+    .analysis-item .txt b { color: #1c1c1e; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-right: 6px; font-weight: 700; }
+    .tag.ok { background: #d1fadf; color: #027a48; }
+    .tag.warn { background: #fef3c7; color: #92600a; }
+    .tag.bad { background: #fee4e2; color: #b42318; }
+
+    /* ===== 初始基线 ===== */
+    .baseline-box { margin-bottom: 16px; }
+    .baseline-box details {
+      background: linear-gradient(180deg, #ffffff, #f5f8ff);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    .baseline-box summary { cursor: pointer; font-weight: 700; font-size: 14px; outline: none; }
+    .baseline-compare { margin-top: 16px; }
+    .baseline-compare table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .baseline-compare th, .baseline-compare td { padding: 8px 10px; text-align: center; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
+    .baseline-compare th { color: var(--muted); font-weight: 600; background: #f4f6fb; }
+    .baseline-compare tr:last-child td { border-bottom: none; }
+    .delta-down { color: var(--success); font-weight: 700; }
+    .delta-up { color: var(--danger); font-weight: 700; }
+    .delta-flat { color: var(--muted); }
+    .no-baseline { color: #9ca3af; font-size: 13px; margin-top: 8px; }
+    .cell-note { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+    h3 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1><span class="title-emoji">🌸</span><span class="title-text">Suki 健康管理</span></h1>
+  </header>
+
+  <main class="container">
+    <!-- 今日记录 -->
+    <section id="today" class="tab-panel active">
+      <div class="date-bar">
+        <input type="date" id="date-picker" />
+        <button id="today-btn" class="btn secondary">回到今天</button>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <h2>🍱 饮食记录</h2>
+          <div class="row">
+            <div class="field autocomplete">
+              <label>食物</label>
+              <input type="text" id="food-search" placeholder="输入食物名称" autocomplete="off" />
+              <input type="hidden" id="food-selected-id" />
+              <ul id="food-suggestions" class="suggestions"></ul>
+            </div>
+            <div class="field small">
+              <label>份量</label>
+              <input type="text" id="food-portion" placeholder="100 或 1份" autocomplete="off" />
+            </div>
+            <button id="add-food-btn" class="btn primary">添加</button>
+          </div>
+          <div class="row" style="margin-bottom:14px;">
+            <button id="custom-food-btn" class="btn secondary">＋ 另外添加（自定义食物）</button>
+          </div>
+          <div class="table-wrap">
+            <table id="diet-table">
+              <thead>
+                <tr>
+                  <th>食物</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>🏃 运动记录</h2>
+          <div class="row">
+            <div class="field autocomplete">
+              <label>运动 / 视频</label>
+              <input type="text" id="exercise-search" placeholder="输入运动名称" autocomplete="off" />
+              <input type="hidden" id="exercise-selected-id" />
+              <ul id="exercise-suggestions" class="suggestions"></ul>
+            </div>
+            <div class="field small">
+              <label>时长 (分)</label>
+              <input type="number" id="exercise-duration" placeholder="30" min="0" step="1" />
+            </div>
+            <div class="field small">
+              <label>热量 (kcal)</label>
+              <input type="number" id="exercise-kcal" placeholder="0" min="0" step="1" />
+            </div>
+            <button id="add-exercise-btn" class="btn primary">添加</button>
+            <button id="custom-exercise-btn" class="btn secondary">另外添加</button>
+          </div>
+          <div class="table-wrap">
+            <table id="exercise-table">
+              <thead>
+                <tr><th>运动</th><th>时长</th><th>消耗</th><th></th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="card intake"><span class="label">摄入热量</span><span class="value" id="total-intake-kcal">0</span><span class="unit">kcal</span></div>
+        <div class="card burn"><span class="label">运动消耗</span><span class="value" id="total-burn-kcal">0</span><span class="unit">kcal</span></div>
+        <div class="card net"><span class="label">净热量</span><span class="value" id="net-kcal">0</span><span class="unit">kcal</span></div>
+        <div class="card"><span class="label">蛋白质</span><span class="value" id="total-protein">0</span><span class="unit">g</span></div>
+        <div class="card"><span class="label">脂肪</span><span class="value" id="total-fat">0</span><span class="unit">g</span></div>
+        <div class="card"><span class="label">碳水</span><span class="value" id="total-carbs">0</span><span class="unit">g</span></div>
+        <div class="card"><span class="label">糖</span><span class="value" id="total-sugar">0</span><span class="unit">g</span></div>
+        <div class="card"><span class="label">钠</span><span class="value" id="total-sodium">0</span><span class="unit">mg</span></div>
+      </div>
+
+      <div class="panel analysis-panel">
+        <h2>🤖 AI 饮食分析 <small>当日摄入合理性评估</small></h2>
+        <p class="hint">基于你设置的「每日营养目标」（数据页）或通用参考，自动评估当日蛋白质是否吃足、碳水/钠是否过量等。</p>
+        <div id="diet-analysis" class="analysis-body">
+          <p class="empty-state">记录完饮食后，这里会给出当日营养合理性分析。</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>📏 身材管理 <small>每日量测记录</small></h2>
+        <div class="baseline-box">
+          <details>
+            <summary>🎯 初始基线（对比参考）· 点击设置</summary>
+            <p class="hint">填写你开始记录时的初始体重与各围度，之后每次录入都会显示与初始值的对比（变化量）。</p>
+            <div class="form-grid">
+              <div class="field"><label>体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" /></div>
+              <div class="field"><label>体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" /></div>
+              <div class="field"><label>小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" /></div>
+              <div class="field"><label>大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" /></div>
+              <div class="field"><label>腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" /></div>
+              <div class="field"><label>臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" /></div>
+              <div class="form-actions">
+                <button type="button" class="btn secondary" id="base-save-btn">保存初始基线</button>
+              </div>
+            </div>
+            <p class="hint" id="base-hint"></p>
+          </details>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>体重 (kg)</label><input type="number" id="body-weight" min="0" step="0.1" placeholder="如 55.5" /></div>
+          <div class="field"><label>体脂率 (%)</label><input type="number" id="body-fat" min="0" step="0.1" placeholder="如 22.5" /></div>
+          <div class="field"><label>小腿围 (cm)</label><input type="number" id="body-calf" min="0" step="0.1" placeholder="如 36" /></div>
+          <div class="field"><label>大腿围 (cm)</label><input type="number" id="body-thigh" min="0" step="0.1" placeholder="如 52" /></div>
+          <div class="field"><label>腰围 (cm)</label><input type="number" id="body-waist" min="0" step="0.1" placeholder="如 68" /></div>
+          <div class="field"><label>臀围 (cm)</label><input type="number" id="body-hip" min="0" step="0.1" placeholder="如 92" /></div>
+          <div class="form-actions">
+            <button type="button" class="btn primary" id="body-save-btn">保存身材数据</button>
+          </div>
+        </div>
+        <p class="hint" id="body-saved-hint"></p>
+        <div id="baseline-compare" class="baseline-compare"></div>
+      </div>
+    </section>
+
+    <!-- 食物库 -->
+    <section id="foods" class="tab-panel">
+      <div class="panel">
+        <div class="row foods-head">
+          <h2>🍎 食物库 <small>数据导入</small></h2>
+          <button id="clear-foods-btn" class="btn danger">消除食物库数据</button>
+        </div>
+        <p class="hint">填写「份量」基准（如 100g、1个、1份），下方热量 / 营养按该份量填写。添加后系统会按热量从小到大排序，并归入「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他 / 饮品 / 零食」对应板块；也可手动选择分类。</p>
+        <form id="food-form" class="food-form-grid form-grid">
+          <input type="hidden" class="food-edit-id" />
+          <div class="field"><label>名称</label><input type="text" class="food-name" placeholder="例如：米饭" /></div>
+          <div class="field"><label>份量（基准）</label><input type="text" class="food-portion" placeholder="100g / 1个 / 1份" autocomplete="off" /></div>
+          <div class="field"><label>热量 (kcal)</label><input type="text" inputmode="decimal" class="food-kcal" /></div>
+          <div class="field"><label>蛋白质 (g)</label><input type="text" inputmode="decimal" class="food-protein" /></div>
+          <div class="field"><label>脂肪 (g)</label><input type="text" inputmode="decimal" class="food-fat" /></div>
+          <div class="field"><label>碳水 (g)</label><input type="text" inputmode="decimal" class="food-carbs" /></div>
+          <div class="field"><label>糖 (g)</label><input type="text" inputmode="decimal" class="food-sugar" /></div>
+          <div class="field"><label>钠 (mg)</label><input type="text" inputmode="decimal" class="food-sodium" /></div>
+          <div class="field"><label>分类</label>
+            <select class="food-category">
+              <option value="">自动判断</option>
+              <option value="碳水">碳水</option>
+              <option value="蛋白质">蛋白质</option>
+              <option value="蔬菜">蔬菜</option>
+              <option value="水果">水果</option>
+              <option value="其他">其他</option>
+              <option value="饮品">饮品</option>
+              <option value="零食">零食</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary food-submit-btn">添加</button>
+            <button type="button" class="btn secondary food-cancel-btn">取消</button>
+          </div>
+        </form>
+      </div>
+      <div id="food-categories"></div>
+    </section>
+
+    <!-- 运动库 -->
+    <section id="exercises" class="tab-panel">
+      <div class="panel">
+        <div class="row foods-head">
+          <h2>🏋️ 运动库 <small>运动库</small></h2>
+          <button id="clear-exercises-btn" class="btn danger">消除运动库数据</button>
+        </div>
+        <h2>🏋️ 无氧运动 <small>力量 / 抗阻类</small></h2>
+        <form id="exercise-form-ana" class="form-grid" data-type="ana">
+          <input type="hidden" class="exercise-edit-id" />
+          <div class="field"><label>名称</label><input type="text" class="exercise-name" placeholder="例如：哑铃卧推" /></div>
+          <div class="field"><label>参考时长 (分)</label><input type="text" inputmode="decimal" class="exercise-duration-lib" /></div>
+          <div class="field"><label>参考消耗 (kcal)</label><input type="text" inputmode="decimal" class="exercise-kcal-lib" /></div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary exercise-submit-btn">添加</button>
+            <button type="button" class="btn secondary exercise-cancel-btn">取消</button>
+          </div>
+        </form>
+        <div class="table-wrap">
+          <table id="exercise-lib-table-ana">
+            <thead><tr><th>名称</th><th>时长</th><th>消耗</th><th>每分钟消耗</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>🏃 有氧运动 <small>跑步 / 骑行 / 跳绳等</small></h2>
+        <form id="exercise-form-aer" class="form-grid" data-type="aer">
+          <input type="hidden" class="exercise-edit-id" />
+          <div class="field"><label>名称</label><input type="text" class="exercise-name" placeholder="例如：Keep 燃脂跑" /></div>
+          <div class="field"><label>参考时长 (分)</label><input type="text" inputmode="decimal" class="exercise-duration-lib" /></div>
+          <div class="field"><label>参考消耗 (kcal)</label><input type="text" inputmode="decimal" class="exercise-kcal-lib" /></div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary exercise-submit-btn">添加</button>
+            <button type="button" class="btn secondary exercise-cancel-btn">取消</button>
+          </div>
+        </form>
+        <div class="table-wrap">
+          <table id="exercise-lib-table-aer">
+            <thead><tr><th>名称</th><th>时长</th><th>消耗</th><th>每分钟消耗</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 统计 -->
+    <section id="stats" class="tab-panel">
+      <div class="panel">
+        <h2>📊 统计</h2>
+        <div class="row stats-datebar">
+          <div class="date-group">
+            <div class="field"><label>开始日期</label><input type="date" id="stats-start" /></div>
+            <span class="date-sep">–</span>
+            <div class="field"><label>结束日期</label><input type="date" id="stats-end" /></div>
+          </div>
+          <button id="stats-load-btn" class="btn primary">查看</button>
+        </div>
+        <div class="table-wrap">
+          <table id="stats-table">
+            <thead><tr><th>日期</th><th>摄入</th><th>消耗</th><th>净热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th>操作</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>📐 身材管理 统计</h2>
+        <p class="hint">使用上方所选的日期区间（与「统计」共用）。</p>
+        <div class="table-wrap">
+          <table id="body-stats-table">
+            <thead><tr><th>日期</th><th>体重 (kg)</th><th>体脂率 (%)</th><th>小腿围 (cm)</th><th>大腿围 (cm)</th><th>腰围 (cm)</th><th>臀围 (cm)</th><th>操作</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <h3 style="margin-top:24px;">📈 趋势图</h3>
+        <div class="row">
+          <div class="field small">
+            <label>指标</label>
+            <select id="body-chart-metric">
+              <option value="weight">体重 (kg)</option>
+              <option value="bodyFat">体脂率 (%)</option>
+              <option value="calf">小腿围 (cm)</option>
+              <option value="thigh">大腿围 (cm)</option>
+              <option value="waist">腰围 (cm)</option>
+              <option value="hip">臀围 (cm)</option>
+            </select>
+          </div>
+        </div>
+        <div id="body-chart"></div>
+      </div>
+    </section>
+
+    <!-- 回收站 -->
+    <section id="trash" class="tab-panel">
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;align-items:center;">
+          <h2>🗑️ 回收站</h2>
+          <button id="empty-trash-btn" class="btn danger">清空回收站</button>
+        </div>
+        <p class="hint">该软件删除的数据全都会保留在回收站「保留7天」。可点击「恢复」还原，或点击「彻底删除」永久清除。超过7天的数据将在打开app时自动清空。</p>
+        <table id="trash-table">
+          <thead><tr><th>类型</th><th>内容</th><th>删除时间</th><th>操作</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 数据 -->
+    <section id="data" class="tab-panel">
+      <div class="panel">
+        <h2>💾 数据管理</h2>
+        <p class="hint">所有数据保存在你当前浏览器本地（localStorage），不会上传到任何服务器。可随时导出备份或导入恢复。</p>
+
+        <h3 style="margin-top:24px;">🎯 每日营养目标</h3>
+        <p class="hint">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
+        <div class="form-grid">
+          <div class="field"><label>热量 (kcal)</label><input type="number" id="goal-kcal" min="0" step="1" placeholder="如 1500" /></div>
+          <div class="field"><label>蛋白质 (g)</label><input type="number" id="goal-protein" min="0" step="1" placeholder="如 90" /></div>
+          <div class="field"><label>脂肪 (g)</label><input type="number" id="goal-fat" min="0" step="1" placeholder="如 50" /></div>
+          <div class="field"><label>碳水 (g)</label><input type="number" id="goal-carbs" min="0" step="1" placeholder="如 180" /></div>
+          <div class="field"><label>糖 (g)</label><input type="number" id="goal-sugar" min="0" step="1" placeholder="如 50" /></div>
+          <div class="field"><label>钠 (mg)</label><input type="number" id="goal-sodium" min="0" step="1" placeholder="如 2000" /></div>
+          <div class="form-actions">
+            <button type="button" class="btn primary" id="goal-save-btn">保存目标</button>
+          </div>
+        </div>
+        <p class="hint" id="goals-hint"></p>
+
+        <div class="data-actions">
+          <button id="export-btn" class="btn primary">导出 JSON 备份</button>
+          <button id="import-btn" class="btn secondary">导入 JSON 备份</button>
+          <button id="sample-btn" class="btn success">载入示例数据</button>
+          <button id="suki-image-foods-100g-btn" class="btn primary">＋ 添加图片食物表（100g）</button>
+          <button id="suki-image-foods-btn" class="btn secondary">＋ 添加图片食物表（单份）</button>
+        </div>
+        <h3 style="margin-top:24px;">🧹 精细化清空</h3>
+        <p class="hint">按需清空某一类数据，其它数据保留。</p>
+        <div class="data-actions">
+          <button id="clear-diet-btn" class="btn warning">清空饮食&amp;运动记录</button>
+          <button id="clear-body-btn" class="btn warning">清空身材数据</button>
+          <button id="reset-btn" class="btn danger">清空所有数据</button>
+        </div>
+
+        <h3 style="margin-top:24px;">📱 在手机上安装为 App</h3>
+        <div style="background:linear-gradient(135deg,#eaf3ff,#f3eeff);border:1px solid rgba(10,132,255,0.18);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+          <p class="hint" style="margin:0 0 8px;">部署到公网后，手机浏览器打开本页面即可「添加到主屏幕」，像原生 App 一样全屏使用、可离线打开。</p>
+          <ul style="margin:0;padding-left:18px;color:var(--text);font-size:13px;line-height:1.75;">
+            <li><b>iPhone / iPad：</b>用 Safari 打开页面 → 点底部「分享」按钮 → 选「添加到主屏幕」→ 命名后「添加」。</li>
+            <li><b>安卓：</b>用 Chrome 打开页面 → 点右上「⋮」→「安装应用」/「添加到主屏幕」。</li>
+            <li>换手机或重装后，先用上方「导出 JSON 备份」导出，新设备「导入 JSON 备份」即可恢复全部数据。</li>
+          </ul>
+        </div>
+
+        <input type="file" id="import-file" accept="application/json,.json" style="display:none" />
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs bottom-nav">
+    <button class="tab-btn active" data-tab="today">今日记录</button>
+    <button class="tab-btn" data-tab="stats">统计</button>
+    <button class="tab-btn" data-tab="foods">食物库</button>
+    <button class="tab-btn" data-tab="exercises">运动库</button>
+    <button class="tab-btn" data-tab="trash">回收站</button>
+    <button class="tab-btn" data-tab="data">数据</button>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- 通用确认弹窗（不依赖 window.confirm，预览面板中也可用） -->
+  <div id="confirm-overlay" class="confirm-overlay" style="display:none">
+    <div class="confirm-box">
+      <div class="confirm-msg" id="confirm-msg"></div>
+      <div class="confirm-actions">
+        <button class="btn" id="confirm-cancel">取消</button>
+        <button class="btn danger" id="confirm-ok">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自定义食物（直接登记到当天摄入） -->
+  <div id="custom-food-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <h3>➕ 自定义食物</h3>
+      <p class="hint">直接登记一条今日饮食，无需先加入食物库。热量 / 营养为这条记录的实际数值。</p>
+      <div class="modal-grid">
+        <div class="field"><label>食物名称</label><input type="text" id="cf-name" placeholder="例如：自制沙拉" autocomplete="off" /></div>
+        <div class="field"><label>份量</label><input type="text" id="cf-portion" placeholder="1碗 / 200g" autocomplete="off" /></div>
+        <div class="field"><label>热量 (kcal)</label><input type="text" inputmode="decimal" id="cf-kcal" /></div>
+        <div class="field"><label>蛋白质 (g)</label><input type="text" inputmode="decimal" id="cf-protein" /></div>
+        <div class="field"><label>脂肪 (g)</label><input type="text" inputmode="decimal" id="cf-fat" /></div>
+        <div class="field"><label>碳水 (g)</label><input type="text" inputmode="decimal" id="cf-carbs" /></div>
+        <div class="field"><label>糖 (g)</label><input type="text" inputmode="decimal" id="cf-sugar" /></div>
+        <div class="field"><label>钠 (mg)</label><input type="text" inputmode="decimal" id="cf-sodium" /></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="cf-cancel">取消</button>
+        <button class="btn primary" id="cf-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自定义运动（直接登记到当天运动） -->
+  <div id="custom-exercise-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <h3>🏃 自定义运动</h3>
+      <p class="hint">直接登记一条今日运动消耗，无需先加入运动库。</p>
+      <div class="modal-grid">
+        <div class="field"><label>运动名称</label><input type="text" id="ce-name" placeholder="例如：散步" autocomplete="off" /></div>
+        <div class="field"><label>时长 (分)</label><input type="text" inputmode="decimal" id="ce-duration" /></div>
+        <div class="field"><label>消耗 (kcal)</label><input type="text" inputmode="decimal" id="ce-kcal" /></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="ce-cancel">取消</button>
+        <button class="btn primary" id="ce-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== 状态 & 本地存储 ====================
+    const STORAGE_KEY = 'dietTrackerData';
+    let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {} };
+    const numericKeys = ['kcal', 'protein', 'sugar', 'fat', 'carbs', 'sodium'];
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') return parsed;
+        }
+      } catch (e) { console.error('读取本地数据失败', e); }
+      return { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {} };
+    }
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) { console.error('保存失败', e); toast('保存失败：' + e.message); }
+    }
+    function ensureDefaults() {
+      if (!Array.isArray(state.foods)) state.foods = [];
+      state.foods.forEach(f => { if (!f.unit || (f.unit !== '100g' && f.unit !== 'serving')) f.unit = '100g'; });
+      state.foods.forEach(f => normalizeFood(f));
+      if (!Array.isArray(state.exercises)) state.exercises = [];
+      state.exercises.forEach(x => { if (!x.type) x.type = 'ana'; });
+      if (!state.logs || typeof state.logs !== 'object') state.logs = {};
+      if (!Array.isArray(state.trash)) state.trash = [];
+      if (!state.baseline || typeof state.baseline !== 'object') state.baseline = {};
+      if (!state.goals || typeof state.goals !== 'object') state.goals = {};
+    }
+
+    function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+    function formatNum(n, digits = 1) {
+      if (n === undefined || n === null || Number.isNaN(n)) return '0';
+      let s = Number(n).toFixed(digits);
+      // 仅当存在小数点时才去掉末尾多余的 0，避免把整数 50 / 30 / 100 误删成 5 / 3 / 1
+      if (s.indexOf('.') >= 0) s = s.replace(/\.?0+$/, '');
+      return s;
+    }
+    // 把份量文本解析为数值：克重（每 100g 食物）或份数（单份食物）
+    function parseGrams(text) {
+      const n = parseFloat(text);
+      return Number.isNaN(n) ? 0 : n;
+    }
+    function parseServings(text) {
+      let t = String(text).replace(/份/g, '').replace(/\s/g, '');
+      if (t.indexOf('半') >= 0) return 0.5;
+      const n = parseFloat(t);
+      return Number.isNaN(n) ? 0 : n;
+    }
+    function getTodayStr() {
+      const d = new Date();
+      const off = d.getTimezoneOffset();
+      return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+    }
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    // 通用确认弹窗：返回 Promise<boolean>，不依赖被禁用的 window.confirm
+    function confirmDialog(message) {
+      return new Promise(resolve => {
+        const overlay = document.getElementById('confirm-overlay');
+        const msgEl = document.getElementById('confirm-msg');
+        const okBtn = document.getElementById('confirm-ok');
+        const cancelBtn = document.getElementById('confirm-cancel');
+        msgEl.textContent = message;
+        overlay.style.display = 'flex';
+        const cleanup = () => {
+          overlay.style.display = 'none';
+          okBtn.removeEventListener('click', onOk);
+          cancelBtn.removeEventListener('click', onCancel);
+        };
+        const onOk = () => { cleanup(); resolve(true); };
+        const onCancel = () => { cleanup(); resolve(false); };
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+      });
+    }
+
+    // ==================== 标签页 ====================
+    function setupTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab).classList.add('active');
+          if (btn.dataset.tab === 'stats') renderStats();
+          if (btn.dataset.tab === 'trash') renderTrash();
+        });
+      });
+    }
+
+    // 底部类目栏：鼠标可按下拖动横向滚动；触摸端用浏览器原生滑动
+    function enableNavDragScroll() {
+      const nav = document.querySelector('.bottom-nav');
+      if (!nav) return;
+      let isDown = false, startX = 0, scrollStart = 0, moved = false, pid = null;
+      nav.addEventListener('pointerdown', e => {
+        if (e.pointerType !== 'mouse') return; // 触摸交给原生滑动
+        isDown = true; moved = false; pid = e.pointerId;
+        startX = e.clientX; scrollStart = nav.scrollLeft;
+        if (nav.setPointerCapture) nav.setPointerCapture(pid);
+        nav.classList.add('dragging');
+      });
+      nav.addEventListener('pointermove', e => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 4) moved = true;
+        nav.scrollLeft = scrollStart - dx;
+      });
+      const end = e => {
+        if (!isDown) return;
+        isDown = false;
+        nav.classList.remove('dragging');
+        if (pid != null && nav.hasPointerCapture && nav.hasPointerCapture(pid)) nav.releasePointerCapture(pid);
+        // 拖动结束后拦截随后那次点击，避免误切换类目
+        if (moved) {
+          const block = ev => { ev.stopPropagation(); ev.preventDefault(); };
+          nav.addEventListener('click', block, { capture: true, once: true });
+        }
+      };
+      nav.addEventListener('pointerup', end);
+      nav.addEventListener('pointercancel', end);
+    }
+
+    // ==================== 今日记录 ====================
+    function setupTodayTab() {
+      const datePicker = document.getElementById('date-picker');
+      datePicker.value = getTodayStr();
+      datePicker.addEventListener('change', () => { renderToday(); renderBody(); });
+      document.getElementById('today-btn').addEventListener('click', () => {
+        datePicker.value = getTodayStr();
+        renderToday();
+        renderBody();
+      });
+
+      setupAutocomplete({
+        input: document.getElementById('food-search'),
+        list: document.getElementById('food-suggestions'),
+        hidden: document.getElementById('food-selected-id'),
+        source: () => state.foods,
+        label: item => {
+          const portion = item.portion || (item.unit === 'serving' ? '1份' : '100g');
+          return `${item.name} (${formatNum(item.kcal)} kcal/${portion})`;
+        },
+        onSelect: item => {
+          document.getElementById('food-portion').value = item.unit === 'serving' ? '1' : (item.baseGrams || 100);
+        },
+      });
+
+      setupAutocomplete({
+        input: document.getElementById('exercise-search'),
+        list: document.getElementById('exercise-suggestions'),
+        hidden: document.getElementById('exercise-selected-id'),
+        source: () => state.exercises,
+        label: item => `${item.name} · ${item.type === 'aer' ? '有氧' : '无氧'} (${item.durationMin}分 / ${formatNum(item.kcal)} kcal)`,
+        onSelect: item => {
+          document.getElementById('exercise-duration').value = item.durationMin;
+          document.getElementById('exercise-kcal').value = Math.round(item.kcal);
+        },
+      });
+
+      document.getElementById('add-food-btn').addEventListener('click', addFoodEntry);
+      document.getElementById('food-portion').addEventListener('keydown', e => { if (e.key === 'Enter') addFoodEntry(); });
+      document.getElementById('add-exercise-btn').addEventListener('click', addExerciseEntry);
+      document.getElementById('exercise-duration').addEventListener('keydown', e => { if (e.key === 'Enter') addExerciseEntry(); });
+
+      // 自定义录入弹窗
+      document.getElementById('custom-food-btn').addEventListener('click', () => openModal('custom-food-modal'));
+      document.getElementById('cf-cancel').addEventListener('click', () => closeModal('custom-food-modal'));
+      document.getElementById('cf-save').addEventListener('click', saveCustomFood);
+      document.getElementById('custom-exercise-btn').addEventListener('click', () => openModal('custom-exercise-modal'));
+      document.getElementById('ce-cancel').addEventListener('click', () => closeModal('custom-exercise-modal'));
+      document.getElementById('ce-save').addEventListener('click', saveCustomExercise);
+      ['custom-food-modal', 'custom-exercise-modal'].forEach(id => {
+        const ov = document.getElementById(id);
+        ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
+      });
+      ['cf-name', 'cf-portion', 'cf-kcal', 'cf-protein', 'cf-fat', 'cf-carbs', 'cf-sugar', 'cf-sodium'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') saveCustomFood(); });
+      });
+      ['ce-name', 'ce-duration', 'ce-kcal'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') saveCustomExercise(); });
+      });
+
+      document.getElementById('body-save-btn').addEventListener('click', saveBodyEntry);
+      document.getElementById('base-save-btn').addEventListener('click', saveBaseline);
+    }
+
+    const BODY_FIELDS = [
+      ['body-weight', 'weight'],
+      ['body-fat', 'bodyFat'],
+      ['body-calf', 'calf'],
+      ['body-thigh', 'thigh'],
+      ['body-waist', 'waist'],
+      ['body-hip', 'hip'],
+    ];
+
+    function saveBodyEntry() {
+      const day = getCurrentDate();
+      if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
+      const body = {};
+      let hasValue = false;
+      BODY_FIELDS.forEach(([inputId, key]) => {
+        const v = parseFloat(document.getElementById(inputId).value);
+        if (!Number.isNaN(v) && v > 0) { body[key] = v; hasValue = true; }
+        else { body[key] = null; }
+      });
+      if (!hasValue) return toast('请至少填写一项身材数据');
+      state.logs[day].body = body;
+      save();
+      renderBody();
+      renderBaseline();
+      // 保存后自动清空输入框，方便录入下一天的新数据
+      BODY_FIELDS.forEach(([inputId]) => { const el = document.getElementById(inputId); if (el) el.value = ''; });
+      const hint = document.getElementById('body-saved-hint');
+      if (hint) hint.textContent = '已保存 ' + day + ' 的身材数据，输入框已清空，可录入下一天。';
+      toast('身材数据已保存（' + day + '）');
+    }
+
+    const BASE_FIELDS = [
+      ['base-weight', 'weight'],
+      ['base-fat', 'bodyFat'],
+      ['base-calf', 'calf'],
+      ['base-thigh', 'thigh'],
+      ['base-waist', 'waist'],
+      ['base-hip', 'hip'],
+    ];
+
+    function saveBaseline() {
+      const b = {};
+      let has = false;
+      BASE_FIELDS.forEach(([inputId, key]) => {
+        const v = parseFloat(document.getElementById(inputId).value);
+        if (!Number.isNaN(v) && v > 0) { b[key] = v; has = true; }
+      });
+      if (!has) return toast('请至少填写一项初始值');
+      state.baseline = b;
+      save();
+      renderBaseline();
+      const labels = { weight: '体重', bodyFat: '体脂率', calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围' };
+      const units = { weight: 'kg', bodyFat: '%', calf: 'cm', thigh: 'cm', waist: 'cm', hip: 'cm' };
+      const parts = [];
+      for (const k in b) parts.push(labels[k] + ' ' + formatNum(b[k]) + units[k]);
+      document.getElementById('base-hint').textContent = '初始基线已保存：' + parts.join('，') + '。';
+      toast('初始基线已保存');
+    }
+
+    function renderBaseline() {
+      BASE_FIELDS.forEach(([inputId, key]) => {
+        const el = document.getElementById(inputId);
+        el.value = (state.baseline[key] !== undefined && state.baseline[key] !== null) ? state.baseline[key] : '';
+      });
+      const labels = { weight: '体重', bodyFat: '体脂率', calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围' };
+      const units = { weight: 'kg', bodyFat: '%', calf: 'cm', thigh: 'cm', waist: 'cm', hip: 'cm' };
+      const baseParts = Object.keys(labels).filter(k => state.baseline[k] !== undefined && state.baseline[k] !== null)
+        .map(k => labels[k] + ' ' + formatNum(state.baseline[k]) + units[k]);
+
+      const box = document.getElementById('baseline-compare');
+      if (baseParts.length === 0) {
+        box.innerHTML = '<p class="no-baseline">尚未设置初始基线，展开上方「初始基线」填写后，这里会显示与当日数据的对比。</p>';
+        return;
+      }
+      const day = getCurrentDate();
+      const body = (state.logs[day] && state.logs[day].body) || {};
+      let rows = '';
+      Object.keys(labels).forEach(k => {
+        if (state.baseline[k] === undefined || state.baseline[k] === null) return;
+        const cur = body[k];
+        const base = state.baseline[k];
+        let deltaHtml = '<td class="delta-flat">—</td>';
+        if (cur !== undefined && cur !== null) {
+          const d = cur - base;
+          const cls = d < 0 ? 'delta-down' : (d > 0 ? 'delta-up' : 'delta-flat');
+          const sign = d > 0 ? '+' : '';
+          deltaHtml = '<td class="' + cls + '">' + (sign + formatNum(d)) + '</td>';
+        }
+        const curTxt = (cur !== undefined && cur !== null) ? formatNum(cur) : '—';
+        rows += '<tr><td>' + labels[k] + '</td><td>' + curTxt + '</td><td>' + formatNum(base) + '</td>' + deltaHtml + '</tr>';
+      });
+      box.innerHTML = '<table><thead><tr><th>指标</th><th>今日</th><th>初始</th><th>变化</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    function renderBody() {
+      const day = getCurrentDate();
+      const body = (state.logs[day] && state.logs[day].body) || {};
+      BODY_FIELDS.forEach(([inputId, key]) => {
+        const el = document.getElementById(inputId);
+        el.value = (body[key] !== undefined && body[key] !== null) ? body[key] : '';
+      });
+      const hint = document.getElementById('body-saved-hint');
+      if (body.weight !== undefined && body.weight !== null) {
+        hint.textContent = '已记录 ' + day + ' 的身材数据。';
+      } else {
+        hint.textContent = '';
+      }
+    }
+
+    function addFoodEntry() {
+      const id = document.getElementById('food-selected-id').value;
+      const raw = document.getElementById('food-portion').value.trim();
+      if (!id) return toast('请先从下拉里选择食物');
+      if (!raw) return toast('请输入份量');
+      const food = state.foods.find(f => f.id === id);
+      if (!food) return;
+      const day = getCurrentDate();
+      if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
+      let portionG = 0, servings = 0;
+      if (food.unit === 'serving') {
+        servings = parseServings(raw);
+        if (!servings || servings <= 0) return toast('请输入有效份量（如 1份 / 半份）');
+      } else {
+        portionG = parseGrams(raw);
+        if (!portionG || portionG <= 0) return toast('请输入有效克重（如 100）');
+      }
+      state.logs[day].foods.push({ id: generateId(), foodId: id, portionG: portionG, servings: servings, portionRaw: raw });
+      save();
+      renderToday();
+      clearFoodInput();
+      toast('已添加：' + food.name);
+    }
+
+    function addExerciseEntry() {
+      const id = document.getElementById('exercise-selected-id').value;
+      const duration = parseFloat(document.getElementById('exercise-duration').value);
+      const kcal = parseFloat(document.getElementById('exercise-kcal').value);
+      if (!id) return toast('请先从下拉里选择运动');
+      if (!duration || duration <= 0) return toast('请输入有效时长');
+      const day = getCurrentDate();
+      if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
+      state.logs[day].exercises.push({ id: generateId(), exerciseId: id, durationMin: duration, kcal: kcal || 0 });
+      save();
+      renderToday();
+      clearExerciseInput();
+      toast('已添加运动记录');
+    }
+
+    function clearFoodInput() {
+      document.getElementById('food-search').value = '';
+      document.getElementById('food-selected-id').value = '';
+      document.getElementById('food-portion').value = '';
+    }
+    function clearExerciseInput() {
+      document.getElementById('exercise-search').value = '';
+      document.getElementById('exercise-selected-id').value = '';
+      document.getElementById('exercise-duration').value = '';
+      document.getElementById('exercise-kcal').value = '';
+    }
+    function getCurrentDate() { return document.getElementById('date-picker').value; }
+
+    // ==================== 自定义录入弹窗 ====================
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function saveCustomFood() {
+      const name = document.getElementById('cf-name').value.trim();
+      if (!name) return toast('请输入食物名称');
+      const day = getCurrentDate();
+      if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
+      state.logs[day].foods.push({
+        id: generateId(), custom: true, name,
+        portionRaw: document.getElementById('cf-portion').value.trim(),
+        kcal: parseFloat(document.getElementById('cf-kcal').value) || 0,
+        protein: parseFloat(document.getElementById('cf-protein').value) || 0,
+        fat: parseFloat(document.getElementById('cf-fat').value) || 0,
+        carbs: parseFloat(document.getElementById('cf-carbs').value) || 0,
+        sugar: parseFloat(document.getElementById('cf-sugar').value) || 0,
+        sodium: parseFloat(document.getElementById('cf-sodium').value) || 0,
+      });
+      save();
+      renderToday();
+      closeModal('custom-food-modal');
+      ['cf-name', 'cf-portion', 'cf-kcal', 'cf-protein', 'cf-fat', 'cf-carbs', 'cf-sugar', 'cf-sodium'].forEach(id => document.getElementById(id).value = '');
+      toast('已记录：' + name);
+    }
+    function saveCustomExercise() {
+      const name = document.getElementById('ce-name').value.trim();
+      if (!name) return toast('请输入运动名称');
+      const duration = parseFloat(document.getElementById('ce-duration').value);
+      const kcal = parseFloat(document.getElementById('ce-kcal').value) || 0;
+      if (!duration || duration <= 0) return toast('请输入有效时长');
+      const day = getCurrentDate();
+      if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
+      state.logs[day].exercises.push({ id: generateId(), custom: true, name, durationMin: duration, kcal: kcal });
+      save();
+      renderToday();
+      closeModal('custom-exercise-modal');
+      ['ce-name', 'ce-duration', 'ce-kcal'].forEach(id => document.getElementById(id).value = '');
+      toast('已记录运动：' + name);
+    }
+
+    function computeFoodEntry(entry) {
+      if (entry.custom) {
+        return {
+          name: entry.name || '自定义',
+          unit: 'serving',
+          kcal: entry.kcal || 0,
+          protein: entry.protein || 0,
+          sugar: entry.sugar || 0,
+          fat: entry.fat || 0,
+          carbs: entry.carbs || 0,
+          sodium: entry.sodium || 0,
+        };
+      }
+      const food = state.foods.find(f => f.id === entry.foodId) || {};
+      const ratio = food.unit === 'serving' ? (entry.servings || 0) : ((entry.portionG || 0) / (food.baseGrams || 100));
+      return {
+        name: food.name || '（已删除食物）',
+        unit: food.unit || '100g',
+        kcal: (food.kcal || 0) * ratio,
+        protein: (food.protein || 0) * ratio,
+        sugar: (food.sugar || 0) * ratio,
+        fat: (food.fat || 0) * ratio,
+        carbs: (food.carbs || 0) * ratio,
+        sodium: (food.sodium || 0) * ratio,
+      };
+    }
+
+    // 饮食记录行内编辑：点击「编辑」后份量变可输入数字框，修改时营养价值按比例实时更新
+    function parseNumFromPortion(text) {
+      const m = /(\d+(?:\.\d+)?)/.exec(String(text || ''));
+      return m ? parseFloat(m[1]) : null;
+    }
+    function round1(n) { return Math.round((Number(n) || 0) * 10) / 10; }
+
+    function enterDietEdit(tr, entry) {
+      const log = state.logs[getCurrentDate()] || { foods: [] };
+      const food = entry.custom ? null : state.foods.find(f => f.id === entry.foodId);
+      let isServing = false, unitSize = 1, baseVals, currentPortion, suffix;
+      if (entry.custom) {
+        currentPortion = parseNumFromPortion(entry.portionRaw);
+        if (currentPortion === null || currentPortion <= 0) currentPortion = 1;
+        baseVals = {
+          kcal: (entry.kcal || 0) / currentPortion,
+          protein: (entry.protein || 0) / currentPortion,
+          fat: (entry.fat || 0) / currentPortion,
+          carbs: (entry.carbs || 0) / currentPortion,
+          sugar: (entry.sugar || 0) / currentPortion,
+          sodium: (entry.sodium || 0) / currentPortion,
+        };
+        const m = /([a-zA-Z一-龥]+)$/.exec(entry.portionRaw || '');
+        suffix = m ? m[1] : ' 份';
+      } else if (food) {
+        isServing = food.unit === 'serving';
+        if (isServing) {
+          currentPortion = entry.servings || 0;
+          suffix = ' 份';
+        } else {
+          currentPortion = entry.portionG || 0;
+          unitSize = food.baseGrams || 100;
+          suffix = ' g';
+        }
+        baseVals = {
+          kcal: food.kcal || 0,
+          protein: food.protein || 0,
+          fat: food.fat || 0,
+          carbs: food.carbs || 0,
+          sugar: food.sugar || 0,
+          sodium: food.sodium || 0,
+        };
+      } else {
+        // 食物已删除：仅允许改份量标签，营养保持
+        currentPortion = parseNumFromPortion(entry.portionRaw) || 1;
+        baseVals = { kcal: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, sodium: 0 };
+        suffix = ' 份';
+      }
+
+      const portionTd = tr.querySelector('.c-portion');
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = '0';
+      input.step = '0.5';
+      input.className = 'edit-portion-input';
+      input.value = currentPortion;
+      portionTd.classList.add('editing-cell');
+      portionTd.innerHTML = '';
+      portionTd.appendChild(input);
+
+      const kcalTd = tr.querySelector('.c-kcal');
+      const protTd = tr.querySelector('.c-protein');
+      const fatTd = tr.querySelector('.c-fat');
+      const carbTd = tr.querySelector('.c-carbs');
+      const sugarTd = tr.querySelector('.c-sugar');
+      const sodTd = tr.querySelector('.c-sodium');
+
+      function recalc() {
+        const p = parseFloat(input.value);
+        if (isNaN(p) || p < 0) return;
+        const ratio = p / unitSize;
+        kcalTd.textContent = formatNum(baseVals.kcal * ratio);
+        protTd.textContent = formatNum(baseVals.protein * ratio);
+        fatTd.textContent = formatNum(baseVals.fat * ratio);
+        carbTd.textContent = formatNum(baseVals.carbs * ratio);
+        sugarTd.textContent = formatNum(baseVals.sugar * ratio);
+        sodTd.textContent = formatNum(baseVals.sodium * ratio);
+      }
+
+      const actions = tr.querySelector('.c-actions');
+      actions.innerHTML = `
+        <button class="btn small primary act-save">保存</button>
+        <button class="btn small secondary act-cancel">取消</button>`;
+
+      input.focus();
+      input.select();
+      input.addEventListener('input', recalc);
+
+      actions.querySelector('.act-save').addEventListener('click', () => {
+        const p = parseFloat(input.value);
+        if (isNaN(p) || p <= 0) return toast('请输入有效份量');
+        if (entry.custom) {
+          const ratio = p / currentPortion;
+          entry.kcal = round1((entry.kcal || 0) * ratio);
+          entry.protein = round1((entry.protein || 0) * ratio);
+          entry.fat = round1((entry.fat || 0) * ratio);
+          entry.carbs = round1((entry.carbs || 0) * ratio);
+          entry.sugar = round1((entry.sugar || 0) * ratio);
+          entry.sodium = round1((entry.sodium || 0) * ratio);
+          entry.portionRaw = (Number.isInteger(p) ? p : formatNum(p)) + suffix;
+        } else if (food) {
+          if (isServing) {
+            entry.servings = p;
+            entry.portionRaw = (Number.isInteger(p) ? p : formatNum(p)) + ' 份';
+          } else {
+            entry.portionG = p;
+            entry.portionRaw = (Number.isInteger(p) ? p : formatNum(p, 0)) + ' g';
+          }
+        } else {
+          entry.portionRaw = (Number.isInteger(p) ? p : formatNum(p)) + ' 份';
+        }
+        save();
+        renderToday();
+        toast('已保存修改后的份量与营养');
+      });
+      actions.querySelector('.act-cancel').addEventListener('click', () => renderToday());
+    }
+
+    function computeDayTotals(day) {
+      const log = state.logs[day] || { foods: [], exercises: [] };
+      const totals = { kcal: 0, protein: 0, sugar: 0, fat: 0, carbs: 0, sodium: 0, burn: 0 };
+      log.foods.forEach(e => {
+        const c = computeFoodEntry(e);
+        numericKeys.forEach(k => totals[k] += c[k]);
+      });
+      log.exercises.forEach(e => totals.burn += Number(e.kcal) || 0);
+      return totals;
+    }
+
+    function renderToday() {
+      const day = getCurrentDate();
+      const log = state.logs[day] || { foods: [], exercises: [] };
+
+      const dietBody = document.querySelector('#diet-table tbody');
+      dietBody.innerHTML = '';
+      if (log.foods.length === 0) {
+        dietBody.innerHTML = '<tr><td colspan="9" class="empty-state">还没有饮食记录</td></tr>';
+      }
+      log.foods.forEach(entry => {
+        const c = computeFoodEntry(entry);
+        let portionLabel;
+        if (entry.custom) {
+          portionLabel = entry.portionRaw || '—';
+        } else {
+          portionLabel = c.unit === 'serving'
+            ? (entry.portionRaw || (formatNum(entry.servings) + ' 份'))
+            : (formatNum(entry.portionG, 0) + ' g');
+        }
+        const tr = document.createElement('tr');
+        tr.dataset.entryId = entry.id;
+        tr.innerHTML = `
+          <td class="c-name">${escapeHtml(c.name)}</td>
+          <td class="c-portion number">${portionLabel}</td>
+          <td class="c-kcal number">${formatNum(c.kcal)}</td>
+          <td class="c-protein number">${formatNum(c.protein)}</td>
+          <td class="c-fat number">${formatNum(c.fat)}</td>
+          <td class="c-carbs number">${formatNum(c.carbs)}</td>
+          <td class="c-sugar number">${formatNum(c.sugar)}</td>
+          <td class="c-sodium number">${formatNum(c.sodium)}</td>
+          <td class="c-actions">
+            <button class="btn small secondary act-edit">编辑</button>
+            <button class="btn small danger act-del">删除</button>
+          </td>`;
+        tr.querySelector('.act-edit').addEventListener('click', () => enterDietEdit(tr, entry));
+        tr.querySelector('.act-del').addEventListener('click', () => {
+          log.foods = log.foods.filter(f => f.id !== entry.id);
+          save(); renderToday();
+        });
+        dietBody.appendChild(tr);
+      });
+
+      const exBody = document.querySelector('#exercise-table tbody');
+      exBody.innerHTML = '';
+      if (log.exercises.length === 0) {
+        exBody.innerHTML = '<tr><td colspan="4" class="empty-state">还没有运动记录</td></tr>';
+      }
+      log.exercises.forEach(entry => {
+        const ex = entry.custom ? { name: entry.name } : (state.exercises.find(x => x.id === entry.exerciseId) || null);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(ex ? ex.name : '（已删除运动）')}</td>
+          <td class="number">${formatNum(entry.durationMin, 0)} 分</td>
+          <td class="number">${formatNum(entry.kcal)} kcal</td>
+          <td><button class="btn small danger" data-id="${entry.id}">删除</button></td>`;
+        tr.querySelector('button').addEventListener('click', () => {
+          log.exercises = log.exercises.filter(x => x.id !== entry.id);
+          save(); renderToday();
+        });
+        exBody.appendChild(tr);
+      });
+
+      const t = computeDayTotals(day);
+      document.getElementById('total-intake-kcal').textContent = formatNum(t.kcal, 0);
+      document.getElementById('total-burn-kcal').textContent = formatNum(t.burn, 0);
+      document.getElementById('net-kcal').textContent = formatNum(t.kcal - t.burn, 0);
+      document.getElementById('total-protein').textContent = formatNum(t.protein);
+      document.getElementById('total-fat').textContent = formatNum(t.fat);
+      document.getElementById('total-carbs').textContent = formatNum(t.carbs);
+      document.getElementById('total-sugar').textContent = formatNum(t.sugar);
+      document.getElementById('total-sodium').textContent = formatNum(t.sodium);
+      renderDietAnalysis();
+      renderBaseline();
+    }
+
+    // ==================== AI 饮食分析（本地规则引擎） ====================
+    function estimateGoals(weight) {
+      const w = (weight && weight > 0) ? weight : 60;
+      return {
+        kcal: Math.round(w * 30),
+        protein: Math.round(w * 1.6),
+        fat: Math.round(w * 0.8),
+        carbs: Math.round(w * 3),
+        sugar: 50,
+        sodium: 2000,
+      };
+    }
+
+    function renderDietAnalysis() {
+      const el = document.getElementById('diet-analysis');
+      const day = getCurrentDate();
+      const t = computeDayTotals(day);
+      if (t.kcal <= 0) {
+        el.innerHTML = '<p class="empty-state">记录完饮食后，这里会给出当日营养合理性分析。</p>';
+        return;
+      }
+      const body = (state.logs[day] && state.logs[day].body) || {};
+      const weight = body.weight || state.baseline.weight;
+      const g = estimateGoals(weight);
+      const goals = Object.assign({}, g, state.goals || {});
+      Object.keys(goals).forEach(k => {
+        if (goals[k] === undefined || goals[k] === null || goals[k] === '') goals[k] = g[k];
+      });
+
+      const items = [];
+      let okCount = 0, badCount = 0, warnCount = 0;
+      const push = (tag, icon, text) => {
+        items.push('<li class="analysis-item"><span class="ic">' + icon + '</span><span class="txt">' + text + '</span></li>');
+        if (tag === 'ok') okCount++; else if (tag === 'bad') badCount++; else warnCount++;
+      };
+
+      if (goals.kcal) {
+        const p = t.kcal / goals.kcal * 100;
+        if (p > 115) push('bad', '🔴', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，超过目标 (' + formatNum(goals.kcal, 0) + ' kcal) 约 ' + formatNum(p - 100, 0) + '%，当天偏多。');
+        else if (p < 80) push('warn', '🟡', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，低于目标 (' + formatNum(goals.kcal, 0) + ' kcal) 约 ' + formatNum(100 - p, 0) + '%，长期偏低可能代谢下降。');
+        else push('ok', '🟢', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，落在目标区间内，合理。');
+      }
+      if (goals.protein) {
+        const p = t.protein / goals.protein * 100;
+        if (t.protein >= goals.protein * 0.9) push('ok', '🟢', '蛋白质 <b>' + formatNum(t.protein) + ' g</b>，已达目标 (' + formatNum(goals.protein) + ' g) 的 ' + formatNum(p, 0) + '%，吃足了 ✅');
+        else push('bad', '🔴', '蛋白质仅 <b>' + formatNum(t.protein) + ' g</b>，距目标 (' + formatNum(goals.protein) + ' g) 还差 ' + formatNum(goals.protein - t.protein) + ' g，建议加个蛋/鸡胸肉/牛奶。');
+      }
+      if (goals.carbs) {
+        if (t.carbs > goals.carbs * 1.15) push('bad', '🔴', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，超过目标 (' + formatNum(goals.carbs) + ' g)，摄入过量，注意精米面/甜食。');
+        else if (t.carbs < goals.carbs * 0.5) push('warn', '🟡', '碳水 <b>' + formatNum(t.carbs) + ' g</b> 偏低，可能能量不足、容易饿，可适量增加主食。');
+        else push('ok', '🟢', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，在目标范围内，合适。');
+      }
+      if (goals.fat) {
+        if (t.fat > goals.fat * 1.2) push('bad', '🔴', '脂肪 <b>' + formatNum(t.fat) + ' g</b> 超过目标 (' + formatNum(goals.fat) + ' g)，偏多，注意油炸/肥肉。');
+        else push('ok', '🟢', '脂肪 <b>' + formatNum(t.fat) + ' g</b>，未超过目标 (' + formatNum(goals.fat) + ' g)。');
+      }
+      if (goals.sugar) {
+        if (t.sugar > goals.sugar) push('bad', '🔴', '糖 <b>' + formatNum(t.sugar) + ' g</b> 超过上限 (' + formatNum(goals.sugar) + ' g)，游离糖偏高，少喝含糖饮料。');
+        else push('ok', '🟢', '糖 <b>' + formatNum(t.sugar) + ' g</b>，在上限内。');
+      }
+      if (goals.sodium) {
+        if (t.sodium > goals.sodium) push('bad', '🔴', '钠 <b>' + formatNum(t.sodium, 0) + ' mg</b> 超过上限 (' + formatNum(goals.sodium, 0) + ' mg)，注意饮食清淡、少加工食品。');
+        else push('ok', '🟢', '钠 <b>' + formatNum(t.sodium, 0) + ' mg</b>，在上限内。');
+      }
+
+      let summary;
+      if (badCount > 0) summary = '⚠️ 当日饮食有 ' + badCount + ' 项需注意，' + okCount + ' 项达标。';
+      else if (warnCount > 0) summary = '🟡 整体尚可，有 ' + warnCount + ' 项偏低可优化，' + okCount + ' 项达标。';
+      else summary = '✅ 当日营养结构均衡，各项均在目标范围内，继续保持！';
+
+      el.innerHTML = '<div class="analysis-summary">' + summary + '</div><ul class="analysis-list">' + items.join('') + '</ul>';
+    }
+
+    // ==================== 自动补全 ====================
+    function setupAutocomplete({ input, list, hidden, source, label, onSelect }) {
+      let activeIndex = -1;
+      function show() {
+        const term = input.value.trim().toLowerCase();
+        const items = source().filter(i => i.name.toLowerCase().includes(term));
+        list.innerHTML = '';
+        activeIndex = -1;
+        if (!term || items.length === 0) { list.style.display = 'none'; return; }
+        items.forEach((item, idx) => {
+          const li = document.createElement('li');
+          li.textContent = label(item);
+          li.addEventListener('mousedown', () => select(item));
+          li.addEventListener('mouseenter', () => { activeIndex = idx; highlight(); });
+          list.appendChild(li);
+        });
+        list.style.display = 'block';
+      }
+      function select(item) {
+        input.value = item.name;
+        hidden.value = item.id;
+        list.style.display = 'none';
+        if (onSelect) onSelect(item);
+      }
+      function highlight() {
+        Array.from(list.children).forEach((li, idx) => li.classList.toggle('active', idx === activeIndex));
+      }
+      input.addEventListener('input', () => { hidden.value = ''; show(); });
+      input.addEventListener('keydown', e => {
+        const items = Array.from(list.children);
+        if (list.style.display !== 'block' || items.length === 0) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); activeIndex = (activeIndex + 1) % items.length; highlight(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); activeIndex = (activeIndex - 1 + items.length) % items.length; highlight(); }
+        else if (e.key === 'Enter') { e.preventDefault(); items[Math.max(0, activeIndex)].dispatchEvent(new Event('mousedown')); }
+        else if (e.key === 'Escape') { list.style.display = 'none'; }
+      });
+      input.addEventListener('blur', () => setTimeout(() => { list.style.display = 'none'; }, 150));
+    }
+
+    // ==================== 食物分类 & 归一化 ====================
+    const FOOD_CATEGORIES = [
+      { key: '碳水', icon: '🍚' },
+      { key: '蛋白质', icon: '🥩' },
+      { key: '蔬菜', icon: '🥬' },
+      { key: '水果', icon: '🍎' },
+      { key: '其他', icon: '🍽️' },
+      { key: '饮品', icon: '🥤' },
+      { key: '零食', icon: '🍿' },
+    ];
+    function parseGramsInText(text) {
+      const m = /(\d+(?:\.\d+)?)\s*(?:g|克|G)/.exec(String(text || ''));
+      return m ? parseFloat(m[1]) : null;
+    }
+    function getBaseGrams(food) {
+      if (food.unit === 'serving') return 100;
+      return parseGramsInText(food.portion) || 100;
+    }
+    // 自动分类：根据名称关键词 + 每100g营养结构判断
+    function classifyFood(food) {
+      const name = (food.name || '').toLowerCase();
+      const DRINK = ['水', '茶', '咖啡', '可乐', '雪碧', '果汁', '饮', '汤', '酒', '奶茶', '酸奶', '牛奶', '豆浆', '奶', '汁', '啤酒', '温水', '气泡', '碧泉', '奇士', '柑桔', '西柚', '果立方'];
+      const CARB = ['米', '饭', '面', '粥', '饼', '粉', '薯', '麦', '谷', '糕', '包', '馒', '糖', '主食', '藜麦', '吐司', '土豆', '山药', '红薯', '紫薯', '玉米', '莲藕', '意大利面', '米线', '粉丝', '燕麦', '乌冬'];
+      const PROT = ['蛋', '肉', '鸡', '鱼', '虾', '牛', '羊', '猪', '蟹', '贝', '奶', '干', '酪', '蛋白', '蛋黄', '蛋清', '瘦肉', '腿', '丸', '鱿鱼', '豆腐', '豆浆', '肠', '排', '云吞', '饺', '牛筋'];
+      const VEG = ['菜', '瓜', '茄', '椒', '菇', '芹', '菠', '葱', '花', '蔬', '西兰花', '西蓝花', '生菜', '黄瓜', '番茄', '金针菇', '胡萝卜', '油麦菜', '冬瓜', '娃娃菜'];
+      const FRUIT = ['果', '莓', '梨', '苹', '蕉', '芒', '菠萝', '木瓜', '提', '橘', '橙', '柚', '圣女果', '蓝莓', '草莓', '樱桃', '西瓜', '哈密瓜', '猕猴桃'];
+      if (DRINK.some(x => name.includes(x))) return '饮品';
+      if (FRUIT.some(x => name.includes(x))) return '水果';
+      if (VEG.some(x => name.includes(x))) return '蔬菜';
+      if (CARB.some(x => name.includes(x))) return '碳水';
+      if (PROT.some(x => name.includes(x))) return '蛋白质';
+      // 按营养结构兜底
+      const bg = getBaseGrams(food) || 100;
+      const p = (food.protein || 0) * 100 / bg;
+      const c = (food.carbs || 0) * 100 / bg;
+      const f = (food.fat || 0) * 100 / bg;
+      const k = (food.kcal || 0) * 100 / bg;
+      if (p >= 10 && p >= c && p >= f * 0.7) return '蛋白质';
+      if (c >= 15 && c > p * 1.2) return '碳水';
+      if (k < 75 && (p < 3 && f < 3 && c < 15)) return '蔬菜';
+      return '其他';
+    }
+    // 支持显式 category；旧分类（维生素）映射到蔬菜
+    function getFoodCategory(food) {
+      const cat = food.category || classifyFood(food);
+      const MAP = { '维生素': '蔬菜', '饮品': '饮品', '其他': '其他', '零食': '零食' };
+      return MAP[cat] || cat || '其他';
+    }
+    function normalizeFood(o) {
+      if (!o.unit) o.unit = /[g克G]/.test(o.portion || '') ? '100g' : 'serving';
+      if (!o.portion) o.portion = o.unit === 'serving' ? (o.servingDesc || '1份') : '100g';
+      if (o.baseGrams === undefined || o.baseGrams === null) o.baseGrams = getBaseGrams(o);
+      if (!o.category) o.category = classifyFood(o);
+      return o;
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // ==================== 食物库 ====================
+    function setupFoodLibrary() {
+      setupFoodForm('food-form');
+      document.getElementById('clear-foods-btn').addEventListener('click', async () => {
+        if (!state.foods.length) return toast('食物库已经是空的');
+        if (!await confirmDialog('确定清除全部食物库数据吗？将整库移入回收站，7 天内可恢复。')) return;
+        pushToTrash({ type: 'food-all', foods: JSON.parse(JSON.stringify(state.foods)) });
+        state.foods = [];
+        save();
+        renderFoodLibrary();
+        renderToday();
+        toast('食物库数据已移入回收站');
+      });
+    }
+    function setupFoodForm(formId) {
+      const form = document.getElementById(formId);
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const id = form.querySelector('.food-edit-id').value;
+        const name = form.querySelector('.food-name').value.trim();
+        const portion = form.querySelector('.food-portion').value.trim();
+        if (!name) return toast('请输入食物名称');
+        const unit = /[g克G]/.test(portion) ? '100g' : 'serving';
+        const baseGrams = unit === '100g' ? (parseGramsInText(portion) || 100) : 100;
+        const categorySelect = form.querySelector('.food-category').value;
+        const item = {
+          id: id || generateId(),
+          name, portion, unit, baseGrams,
+          kcal: parseFloat(form.querySelector('.food-kcal').value) || 0,
+          protein: parseFloat(form.querySelector('.food-protein').value) || 0,
+          fat: parseFloat(form.querySelector('.food-fat').value) || 0,
+          carbs: parseFloat(form.querySelector('.food-carbs').value) || 0,
+          sugar: parseFloat(form.querySelector('.food-sugar').value) || 0,
+          sodium: parseFloat(form.querySelector('.food-sodium').value) || 0,
+          category: categorySelect || classifyFood({ name, portion }),
+        };
+        if (id) {
+          const old = state.foods.find(f => f.id === id);
+          if (old && old.servingDesc) item.servingDesc = old.servingDesc;
+          const idx = state.foods.findIndex(f => f.id === id);
+          if (idx >= 0) state.foods[idx] = Object.assign({}, state.foods[idx], item);
+        } else {
+          state.foods.push(item);
+        }
+        save();
+        renderFoodLibrary();
+        resetFoodForm(form);
+        toast(id ? '已保存' : '已添加食物');
+      });
+      form.querySelector('.food-cancel-btn').addEventListener('click', () => resetFoodForm(form));
+    }
+    function resetFoodForm(form) {
+      form.reset();
+      form.querySelector('.food-edit-id').value = '';
+      form.querySelector('.food-submit-btn').textContent = '添加';
+    }
+    function renderFoodLibrary() {
+      renderFoodCategories();
+    }
+    function renderFoodCategories() {
+      const container = document.getElementById('food-categories');
+      container.innerHTML = '';
+      if (state.foods.length === 0) {
+        container.innerHTML = '<div class="panel"><p class="empty-state">还没有食物，先在上方「数据导入」添加，或通过「数据」页载入示例 / 图片食物表。</p></div>';
+        return;
+      }
+      FOOD_CATEGORIES.forEach(cat => {
+        const list = state.foods
+          .filter(f => getFoodCategory(f) === cat.key)
+          .sort((a, b) => (a.kcal || 0) - (b.kcal || 0));
+        if (list.length === 0) return;
+        const panel = document.createElement('div');
+        panel.className = 'panel';
+        const rows = list.map(food => {
+          const note = (food.unit === 'serving' && food.servingDesc) ? `<div class="cell-note">${escapeHtml(food.servingDesc)}</div>` : '';
+          return `<tr>
+            <td>${escapeHtml(food.name)}${note}</td>
+            <td>${escapeHtml(food.portion || (food.unit === 'serving' ? '1份' : '100g'))}</td>
+            <td class="number">${formatNum(food.kcal)}</td>
+            <td class="number">${formatNum(food.protein)}</td>
+            <td class="number">${formatNum(food.fat)}</td>
+            <td class="number">${formatNum(food.carbs)}</td>
+            <td class="number">${formatNum(food.sugar)}</td>
+            <td class="number">${formatNum(food.sodium)}</td>
+            <td>
+              <button class="btn small secondary edit-food" data-id="${food.id}">编辑</button>
+              <button class="btn small danger delete-food" data-id="${food.id}">删除</button>
+            </td>`;
+        }).join('');
+        panel.innerHTML = `<h2>${cat.icon} ${cat.key} <small>按热量升序 · ${list.length} 项</small></h2>
+          <div class="table-wrap"><table class="food-cat-table">
+            <thead><tr><th>名称</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table></div>`;
+        panel.querySelectorAll('.edit-food').forEach(b => b.addEventListener('click', () => editFood(b.dataset.id)));
+        panel.querySelectorAll('.delete-food').forEach(b => b.addEventListener('click', () => deleteFood(b.dataset.id)));
+        container.appendChild(panel);
+      });
+    }
+    function editFood(id) {
+      const food = state.foods.find(f => f.id === id);
+      if (!food) return;
+      const form = document.getElementById('food-form');
+      form.querySelector('.food-edit-id').value = food.id;
+      form.querySelector('.food-name').value = food.name;
+      form.querySelector('.food-portion').value = food.portion || (food.unit === 'serving' ? '1份' : '100g');
+      form.querySelector('.food-kcal').value = food.kcal;
+      form.querySelector('.food-protein').value = food.protein;
+      form.querySelector('.food-fat').value = food.fat;
+      form.querySelector('.food-carbs').value = food.carbs;
+      form.querySelector('.food-sugar').value = food.sugar;
+      form.querySelector('.food-sodium').value = food.sodium;
+      form.querySelector('.food-category').value = getFoodCategory(food);
+      form.querySelector('.food-submit-btn').textContent = '保存';
+      // 跳转到上方对应的编辑框并高亮，名称/数值保持现状
+      try { form.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+      form.classList.add('editing-flash');
+      setTimeout(() => form.classList.remove('editing-flash'), 1200);
+      try { form.querySelector('.food-name').focus({ preventScroll: true }); } catch (e) {}
+      toast('正在编辑：' + food.name + '（已填入上方表单，改完点保存）');
+    }
+    async function deleteFood(id) {
+      const food = state.foods.find(f => f.id === id);
+      if (!food) return;
+      if (!await confirmDialog('确定删除食物「' + food.name + '」吗？将移入回收站，7 天内可恢复。')) return;
+      state.foods = state.foods.filter(f => f.id !== id);
+      pushToTrash({ type: 'food', food: JSON.parse(JSON.stringify(food)) });
+      save();
+      renderFoodLibrary();
+      renderToday();
+      toast('已移入回收站：' + food.name);
+    }
+
+    // ==================== 运动库 ====================
+    function setupExerciseLibrary() {
+      setupExerciseForm('ana', 'exercise-form-ana');
+      setupExerciseForm('aer', 'exercise-form-aer');
+      document.getElementById('clear-exercises-btn').addEventListener('click', async () => {
+        if (!state.exercises.length) return toast('运动库已经是空的');
+        if (!await confirmDialog('确定清除全部运动库数据吗？将整库移入回收站，7 天内可恢复。')) return;
+        pushToTrash({ type: 'exercise-all', exercises: JSON.parse(JSON.stringify(state.exercises)) });
+        state.exercises = [];
+        save();
+        renderExerciseLibrary();
+        renderToday();
+        toast('运动库数据已移入回收站');
+      });
+    }
+    function setupExerciseForm(type, formId) {
+      const form = document.getElementById(formId);
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const id = form.querySelector('.exercise-edit-id').value;
+        const duration = parseFloat(form.querySelector('.exercise-duration-lib').value) || 0;
+        const kcal = parseFloat(form.querySelector('.exercise-kcal-lib').value) || 0;
+        const item = {
+          id: id || generateId(),
+          name: form.querySelector('.exercise-name').value.trim(),
+          type: type,
+          durationMin: duration,
+          kcal: kcal,
+          kcalPerMin: duration > 0 ? kcal / duration : 0,
+        };
+        if (!item.name) return toast('请输入运动名称');
+        if (id) {
+          const idx = state.exercises.findIndex(x => x.id === id);
+          if (idx >= 0) state.exercises[idx] = Object.assign({}, state.exercises[idx], item);
+        } else {
+          state.exercises.push(item);
+        }
+        save();
+        renderExerciseLibrary();
+        resetExerciseForm(form);
+        toast(id ? '已保存' : '已添加运动');
+      });
+      form.querySelector('.exercise-cancel-btn').addEventListener('click', () => resetExerciseForm(form));
+    }
+    function resetExerciseForm(form) {
+      form.reset();
+      form.querySelector('.exercise-edit-id').value = '';
+      form.querySelector('.exercise-submit-btn').textContent = '添加';
+    }
+    function renderExerciseLibrary() {
+      renderExerciseTable('exercise-lib-table-ana', 'ana');
+      renderExerciseTable('exercise-lib-table-aer', 'aer');
+    }
+    function renderExerciseTable(tableId, type) {
+      const tbody = document.querySelector('#' + tableId + ' tbody');
+      tbody.innerHTML = '';
+      const list = state.exercises.filter(x => x.type === type);
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">（空）</td></tr>';
+        return;
+      }
+      list.slice().sort((a, b) => a.name.localeCompare(b.name, 'zh-CN')).forEach(ex => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${ex.name}</td>
+          <td class="number">${formatNum(ex.durationMin, 0)} 分</td>
+          <td class="number">${formatNum(ex.kcal)} kcal</td>
+          <td class="number">${formatNum(ex.kcalPerMin)}</td>
+          <td>
+            <button class="btn small secondary edit-exercise" data-id="${ex.id}">编辑</button>
+            <button class="btn small danger delete-exercise" data-id="${ex.id}">删除</button>
+          </td>`;
+        tr.querySelector('.edit-exercise').addEventListener('click', () => editExercise(ex.id));
+        tr.querySelector('.delete-exercise').addEventListener('click', () => deleteExercise(ex.id));
+        tbody.appendChild(tr);
+      });
+    }
+    function editExercise(id) {
+      const ex = state.exercises.find(x => x.id === id);
+      if (!ex) return;
+      const formId = ex.type === 'aer' ? 'exercise-form-aer' : 'exercise-form-ana';
+      const form = document.getElementById(formId);
+      form.querySelector('.exercise-edit-id').value = ex.id;
+      form.querySelector('.exercise-name').value = ex.name;
+      form.querySelector('.exercise-duration-lib').value = ex.durationMin;
+      form.querySelector('.exercise-kcal-lib').value = ex.kcal;
+      form.querySelector('.exercise-submit-btn').textContent = '保存';
+      toast('正在编辑：' + ex.name);
+    }
+    async function deleteExercise(id) {
+      const ex = state.exercises.find(x => x.id === id);
+      if (!ex) return;
+      if (!await confirmDialog('确定删除运动「' + ex.name + '」吗？将移入回收站，7 天内可恢复。')) return;
+      state.exercises = state.exercises.filter(x => x.id !== id);
+      pushToTrash({ type: 'exercise', exercise: JSON.parse(JSON.stringify(ex)) });
+      save();
+      renderExerciseLibrary();
+      renderToday();
+      toast('已移入回收站：' + ex.name);
+    }
+
+    // ==================== 统计 ====================
+    function setupStatsTab() {
+      const end = getTodayStr();
+      const start = new Date();
+      start.setDate(start.getDate() - 6);
+      const off = start.getTimezoneOffset();
+      document.getElementById('stats-end').value = end;
+      document.getElementById('stats-start').value = new Date(start.getTime() - off * 60000).toISOString().slice(0, 10);
+      document.getElementById('stats-load-btn').addEventListener('click', renderStats);
+      document.getElementById('body-chart-metric').addEventListener('change', renderBodyChart);
+    }
+    function renderStats() {
+      const start = document.getElementById('stats-start').value;
+      const end = document.getElementById('stats-end').value;
+      const tbody = document.querySelector('#stats-table tbody');
+      tbody.innerHTML = '';
+      if (!start || !end) { renderBodyStats(start, end); renderBodyChart(); return; }
+      const dates = Object.keys(state.logs).filter(d => d >= start && d <= end).sort();
+      if (dates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">该区间没有记录</td></tr>';
+        renderBodyStats(start, end);
+        renderBodyChart();
+        return;
+      }
+      dates.forEach(day => {
+        const t = computeDayTotals(day);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${day}</td>
+          <td class="number">${formatNum(t.kcal, 0)}</td>
+          <td class="number">${formatNum(t.burn, 0)}</td>
+          <td class="number">${formatNum(t.kcal - t.burn, 0)}</td>
+          <td class="number">${formatNum(t.protein)}</td>
+          <td class="number">${formatNum(t.fat)}</td>
+          <td class="number">${formatNum(t.carbs)}</td>
+          <td class="number">${formatNum(t.sugar)}</td>
+          <td class="number">${formatNum(t.sodium)}</td>
+          <td class="actions-col"><button class="btn tiny danger" data-del-day="${day}">删除</button></td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-del-day]').forEach(btn => {
+        btn.addEventListener('click', () => deleteDayRecord(btn.dataset.delDay));
+      });
+      renderBodyStats(start, end);
+      renderBodyChart();
+    }
+
+    // 把某一天的整条记录（饮食+运动+身材）移入回收站
+    async function deleteDayRecord(day) {
+      const rec = state.logs[day];
+      if (!rec) return;
+      const hasContent = (Array.isArray(rec.foods) && rec.foods.length) ||
+                         (Array.isArray(rec.exercises) && rec.exercises.length) ||
+                         (rec.body && Object.values(rec.body).some(v => v !== null && v !== undefined));
+      if (!hasContent) {
+        delete state.logs[day];
+        save();
+        renderStats();
+        return toast('该日期没有可删除的数据');
+      }
+      if (!await confirmDialog('确定删除 ' + day + ' 当天的全部记录吗？将移入回收站，7 天内可恢复。')) return;
+      pushToTrash({ type: 'record', date: day, record: JSON.parse(JSON.stringify(rec)) });
+      delete state.logs[day];
+      save();
+      renderStats();
+      renderToday();
+      toast(day + ' 的记录已移入回收站');
+    }
+
+    // ===== 回收站 =====
+    function logHasContent(rec) {
+      if (!rec) return false;
+      const f = Array.isArray(rec.foods) && rec.foods.length > 0;
+      const e = Array.isArray(rec.exercises) && rec.exercises.length > 0;
+      const b = rec.body && Object.values(rec.body).some(v => v !== null && v !== undefined);
+      return f || e || b;
+    }
+    function formatTime(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return '-';
+      const p = n => (n < 10 ? '0' + n : '' + n);
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+    // 通用：把任意条目移入回收站
+    function pushToTrash(item) {
+      if (!Array.isArray(state.trash)) state.trash = [];
+      item.deletedAt = new Date().toISOString();
+      state.trash.push(item);
+    }
+    // 7 天自动清理：删除超过 7 天的回收站条目
+    function cleanupTrash() {
+      if (!Array.isArray(state.trash) || !state.trash.length) return false;
+      const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+      const before = state.trash.length;
+      state.trash = state.trash.filter(it => {
+        const t = it.deletedAt ? new Date(it.deletedAt).getTime() : 0;
+        return t > cutoff;
+      });
+      if (state.trash.length !== before) { save(); return true; }
+      return false;
+    }
+    function remainDays(iso) {
+      if (!iso) return '';
+      const t = new Date(iso).getTime();
+      if (isNaN(t)) return '';
+      const days = Math.ceil((t + 7 * 86400000 - Date.now()) / 86400000);
+      if (days <= 0) return '即将清除';
+      if (days >= 7) return '7 天内清除';
+      return days + ' 天后清除';
+    }
+    function setupTrashTab() {
+      document.getElementById('empty-trash-btn').addEventListener('click', async () => {
+        if (!state.trash || !state.trash.length) return toast('回收站已是空的');
+        if (!await confirmDialog('确定清空回收站吗？其中的数据将永久删除，不可恢复。')) return;
+        state.trash = [];
+        save();
+        renderTrash();
+        toast('回收站已清空');
+      });
+    }
+    function renderTrash() {
+      cleanupTrash();
+      const tbody = document.querySelector('#trash-table tbody');
+      tbody.innerHTML = '';
+      if (!state.trash || !state.trash.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">回收站是空的</td></tr>';
+        return;
+      }
+      state.trash.forEach((item, i) => {
+        const type = item.type || 'record';
+        let typeLabel = '', summary = '';
+        if (type === 'record') {
+          const rec = item.record || {};
+          const foodsN = (rec.foods || []).length;
+          const exN = (rec.exercises || []).length;
+          const bodyHas = rec.body && Object.values(rec.body).some(v => v !== null && v !== undefined);
+          typeLabel = '每日记录';
+          summary = item.date + ' · 饮食 ' + foodsN + ' 项 / 运动 ' + exN + ' 项 / 身材 ' + (bodyHas ? '有' : '无');
+        } else if (type === 'food') {
+          typeLabel = '食物';
+          summary = escapeHtml(item.food.name) + ' · ' + formatNum(item.food.kcal) + ' kcal';
+        } else if (type === 'exercise') {
+          typeLabel = '运动';
+          summary = escapeHtml(item.exercise.name) + ' · ' + formatNum(item.exercise.kcal) + ' kcal';
+        } else if (type === 'food-all') {
+          typeLabel = '食物库';
+          summary = (item.foods || []).length + ' 种食物（整库）';
+        } else if (type === 'exercise-all') {
+          typeLabel = '运动库';
+          summary = (item.exercises || []).length + ' 种运动（整库）';
+        }
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${typeLabel}</td>
+          <td>${summary}</td>
+          <td>${formatTime(item.deletedAt)}<br><span class="trash-remain">${remainDays(item.deletedAt)}</span></td>
+          <td class="actions-col">
+            <button class="btn tiny primary" data-restore="${i}">恢复</button>
+            <button class="btn tiny danger" data-purge="${i}">彻底删除</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-restore]').forEach(b => b.addEventListener('click', () => restoreFromTrash(Number(b.dataset.restore))));
+      tbody.querySelectorAll('[data-purge]').forEach(b => b.addEventListener('click', () => purgeTrashItem(Number(b.dataset.purge))));
+    }
+    async function restoreFromTrash(index) {
+      const item = state.trash[index];
+      if (!item) return;
+      const type = item.type || 'record';
+      if (type === 'record') {
+        const day = item.date;
+        if (logHasContent(state.logs[day])) {
+          if (!await confirmDialog('日期 ' + day + ' 已有记录，恢复会覆盖该日现有记录，继续吗？')) return;
+        }
+        state.logs[day] = JSON.parse(JSON.stringify(item.record));
+        state.trash.splice(index, 1);
+        save();
+        renderTrash();
+        renderStats();
+        renderToday();
+        toast(day + ' 的记录已恢复');
+        return;
+      }
+      if (type === 'food') {
+        if (state.foods.some(f => f.id === item.food.id)) toast('该食物已在库中，无需恢复');
+        else { state.foods.push(JSON.parse(JSON.stringify(item.food))); toast('食物已恢复：' + item.food.name); }
+      } else if (type === 'exercise') {
+        if (state.exercises.some(x => x.id === item.exercise.id)) toast('该运动已在库中，无需恢复');
+        else { state.exercises.push(JSON.parse(JSON.stringify(item.exercise))); toast('运动已恢复：' + item.exercise.name); }
+      } else if (type === 'food-all') {
+        const exists = new Set(state.foods.map(f => f.id));
+        let added = 0;
+        (item.foods || []).forEach(f => { if (!exists.has(f.id)) { state.foods.push(JSON.parse(JSON.stringify(f))); added++; } });
+        toast('食物库已恢复 ' + added + ' 种食物');
+      } else if (type === 'exercise-all') {
+        const exists = new Set(state.exercises.map(x => x.id));
+        let added = 0;
+        (item.exercises || []).forEach(x => { if (!exists.has(x.id)) { state.exercises.push(JSON.parse(JSON.stringify(x))); added++; } });
+        toast('运动库已恢复 ' + added + ' 种运动');
+      }
+      state.trash.splice(index, 1);
+      save();
+      renderTrash();
+      renderFoodLibrary();
+      renderExerciseLibrary();
+      renderToday();
+    }
+    async function purgeTrashItem(index) {
+      const item = state.trash[index];
+      if (!item) return;
+      const type = item.type || 'record';
+      const label = type === 'record' ? (item.date + ' 的记录')
+        : type === 'food' ? ('食物「' + item.food.name + '」')
+        : type === 'exercise' ? ('运动「' + item.exercise.name + '」')
+        : type === 'exercise-all' ? '运动库整库数据'
+        : '食物库整库数据';
+      if (!await confirmDialog('彻底删除 ' + label + '？此操作不可恢复。')) return;
+      state.trash.splice(index, 1);
+      save();
+      renderTrash();
+      toast('已彻底删除');
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    const BODY_KEYS = ['weight', 'bodyFat', 'calf', 'thigh', 'waist', 'hip'];
+    const BODY_LABELS = {
+      weight: '体重 (kg)', bodyFat: '体脂率 (%)', calf: '小腿围 (cm)',
+      thigh: '大腿围 (cm)', waist: '腰围 (cm)', hip: '臀围 (cm)'
+    };
+
+    function renderBodyStats(start, end) {
+      const tbody = document.querySelector('#body-stats-table tbody');
+      tbody.innerHTML = '';
+      const dates = Object.keys(state.logs)
+        .filter(d => d >= start && d <= end && state.logs[d].body)
+        .sort();
+      if (dates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">该区间没有身材记录</td></tr>';
+        return;
+      }
+      dates.forEach(day => {
+        const b = state.logs[day].body || {};
+        let cells = `<td>${day}</td>`;
+        BODY_KEYS.forEach(k => {
+          const v = (b[k] !== undefined && b[k] !== null) ? formatNum(b[k]) : '-';
+          cells += `<td class="number">${v}</td>`;
+        });
+        cells += `<td class="actions-col"><button class="btn tiny danger" data-del-body-day="${day}">删除</button></td>`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = cells;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-del-body-day]').forEach(btn => {
+        btn.addEventListener('click', () => deleteDayRecord(btn.dataset.delBodyDay));
+      });
+    }
+
+    function renderBodyChart() {
+      const el = document.getElementById('body-chart');
+      if (!el) return;
+      const metric = document.getElementById('body-chart-metric').value;
+      const start = document.getElementById('stats-start').value;
+      const end = document.getElementById('stats-end').value;
+      const points = [];
+      if (start && end) {
+        Object.keys(state.logs)
+          .filter(d => d >= start && d <= end && state.logs[d].body)
+          .sort()
+          .forEach(d => {
+            const v = state.logs[d].body[metric];
+            if (v !== undefined && v !== null) points.push({ date: d, value: v });
+          });
+      }
+      if (points.length < 2) {
+        el.innerHTML = '<p class="empty-state">数据不足，至少需 2 天记录才能绘制趋势图。</p>';
+        return;
+      }
+      const W = 700, H = 280, padL = 50, padR = 18, padT = 20, padB = 34;
+      const xs = points.map((_, i) => padL + (W - padL - padR) * (i / (points.length - 1)));
+      const vals = points.map(p => p.value);
+      let min = Math.min(...vals), max = Math.max(...vals);
+      if (min === max) { min -= 1; max += 1; }
+      const range = max - min;
+      const yOf = v => padT + (H - padT - padB) * (1 - (v - min) / range);
+      const ys = vals.map(yOf);
+      let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block;">`;
+      [min, (min + max) / 2, max].forEach(g => {
+        const y = yOf(g);
+        svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e3e8f0" stroke-width="1" />`;
+        svg += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#8e8e93">${formatNum(g)}</text>`;
+      });
+      [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach(i => {
+        svg += `<text x="${xs[i]}" y="${H - 12}" text-anchor="middle" font-size="11" fill="#8e8e93">${points[i].date.slice(5)}</text>`;
+      });
+      const ptsStr = points.map((p, i) => `${xs[i]},${ys[i]}`).join(' ');
+      svg += `<polyline points="${ptsStr}" fill="none" stroke="#0a84ff" stroke-width="2" />`;
+      points.forEach((p, i) => { svg += `<circle cx="${xs[i]}" cy="${ys[i]}" r="3.5" fill="#0a84ff" />`; });
+      svg += `<text x="${padL}" y="14" font-size="12" fill="#1c1c1e">${BODY_LABELS[metric]} · 最新 ${formatNum(points[points.length - 1].value)}</text>`;
+      svg += `</svg>`;
+      el.innerHTML = svg;
+    }
+
+    // ==================== 数据管理 ====================
+    function setupDataTab() {
+      document.getElementById('export-btn').addEventListener('click', () => {
+        const data = JSON.stringify(state, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'diet-tracker-backup-' + getTodayStr() + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast('已导出备份文件');
+      });
+
+      document.getElementById('import-btn').addEventListener('click', () => {
+        document.getElementById('import-file').click();
+      });
+      document.getElementById('import-file').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            if (!data || typeof data !== 'object') throw new Error('格式不正确');
+            state = data;
+            ensureDefaults();
+            save();
+            renderAll();
+            toast('导入成功');
+          } catch (err) {
+            toast('导入失败：' + err.message);
+          }
+          e.target.value = '';
+        };
+        reader.readAsText(file);
+      });
+
+      document.getElementById('sample-btn').addEventListener('click', async () => {
+        if (state.foods.length || state.exercises.length || Object.keys(state.logs).length) {
+          if (!await confirmDialog('载入示例数据会追加到现有数据（不覆盖），继续吗？')) return;
+        }
+        loadSampleData();
+        save();
+        renderAll();
+        toast('已载入示例数据，去“今日记录”试试吧');
+      });
+
+      document.getElementById('suki-image-foods-btn').addEventListener('click', () => {
+        const added = addSukiImageFoods();
+        if (added === 0) toast('单份图片中的食物都已在食物库中，无需重复添加');
+        else toast(`已添加 ${added} 种单份图片食物，已按「其他 / 饮品 / 零食」归类，去「食物库」看看吧`);
+      });
+
+      document.getElementById('suki-image-foods-100g-btn').addEventListener('click', () => {
+        const added = addSukiImageFoods100g();
+        if (added === 0) toast('100g 图片食物都已在食物库中，无需重复添加');
+        else toast(`已添加 ${added} 种 100g 图片食物，已按「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他」归类，去「食物库」看看吧`);
+      });
+
+      document.getElementById('clear-diet-btn').addEventListener('click', async () => {
+        const has = Object.keys(state.logs).some(d => (state.logs[d].foods && state.logs[d].foods.length) || (state.logs[d].exercises && state.logs[d].exercises.length));
+        if (!has) return toast('没有可清空饮食/运动记录');
+        if (!await confirmDialog('确定清空所有日期的饮食&运动记录吗？（身材数据保留）')) return;
+        Object.keys(state.logs).forEach(d => { state.logs[d].foods = []; state.logs[d].exercises = []; });
+        save();
+        renderAll();
+        toast('已清空饮食&运动记录');
+      });
+
+      document.getElementById('clear-body-btn').addEventListener('click', async () => {
+        const has = Object.keys(state.logs).some(d => state.logs[d].body);
+        if (!has) return toast('没有可清空的身材数据');
+        if (!await confirmDialog('确定清空所有日期的身材数据吗？（饮食/运动记录保留）')) return;
+        Object.keys(state.logs).forEach(d => { delete state.logs[d].body; });
+        save();
+        renderAll();
+        toast('已清空身材数据');
+      });
+
+      document.getElementById('reset-btn').addEventListener('click', async () => {
+        if (!await confirmDialog('确定清空所有数据吗？此操作不可恢复（含回收站）。')) return;
+        state = { foods: [], exercises: [], logs: {}, trash: [] };
+        save();
+        renderAll();
+        toast('数据已清空');
+      });
+
+      document.getElementById('goal-save-btn').addEventListener('click', saveGoals);
+      renderGoals();
+    }
+
+    const GOAL_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium'];
+    const GOAL_IDS = { kcal: 'goal-kcal', protein: 'goal-protein', fat: 'goal-fat', carbs: 'goal-carbs', sugar: 'goal-sugar', sodium: 'goal-sodium' };
+
+    function saveGoals() {
+      const g = {};
+      GOAL_KEYS.forEach(k => {
+        const v = parseFloat(document.getElementById(GOAL_IDS[k]).value);
+        if (!Number.isNaN(v) && v > 0) g[k] = v;
+      });
+      state.goals = g;
+      save();
+      const n = Object.keys(g).length;
+      document.getElementById('goals-hint').textContent = n
+        ? ('已保存 ' + n + ' 项目标，去「今日记录」查看 AI 分析。')
+        : '已清空目标（将使用通用参考值估算）。';
+      toast('每日目标已保存');
+    }
+    function renderGoals() {
+      GOAL_KEYS.forEach(k => {
+        const el = document.getElementById(GOAL_IDS[k]);
+        el.value = (state.goals[k] !== undefined && state.goals[k] !== null) ? state.goals[k] : '';
+      });
+    }
+
+    function loadSampleData() {
+      const f = (name, kcal, protein, fat, carbs, sugar, sodium) => ({
+        id: generateId(), name, unit: '100g', kcal, protein, fat, carbs, sugar, sodium
+      });
+      const sampleFoods = [
+        f('米饭(熟)', 116, 2.6, 0.3, 25.9, 0.1, 2),
+        f('鸡蛋', 144, 13.3, 8.8, 2.8, 1.3, 131),
+        f('鸡胸肉', 133, 19.4, 5, 2.5, 0, 63),
+        f('西兰花', 34, 2.8, 0.4, 7, 1.7, 18),
+        f('全麦面包', 246, 8.8, 3.5, 46, 5, 380),
+        f('牛奶', 54, 3, 3.2, 3.4, 3.4, 37),
+        f('香蕉', 89, 1.1, 0.3, 23, 12, 1),
+        f('燕麦', 367, 15, 6.7, 61, 1, 6),
+        // 碳水类（来自 Suki 上传表格）
+        f('藜麦', 388.5, 14.2, 4.1, 68.3, 1.8, 10),
+        f('意大利面', 380.25, 12.9, 1.4, 73.5, 2.7, 57),
+        f('吐司', 336.75, 8.1, 5.2, 59.8, 6, 262),
+        f('白粥', 45, 1.1, 0.3, 10, 0.4, 0),
+        f('玉米', 107, 4, 1.2, 22.8, 5, 5),
+        f('红薯', 86, 1.6, 0.1, 20.1, 3.4, 36),
+        f('山药', 57, 1.9, 0.2, 12.4, 0.8, 18),
+        f('莲藕', 47, 1.2, 0.2, 11.5, 2.3, 40),
+        f('土豆', 81, 2.6, 0.1, 18.9, 1, 7),
+        f('紫薯', 123, 1.6, 0.2, 28.1, 4.5, 14),
+        f('熟米饭', 151, 3.23, 0.35, 33.96, 0.17, 1.31),
+      ];
+      const s = (name, kcal, protein, fat, carbs, sugar, sodium, servingDesc) => ({
+        id: generateId(), name, unit: 'serving', kcal, protein, fat, carbs, sugar, sodium, servingDesc
+      });
+      const sampleServing = [
+        s('鸡蛋（1个）', 144, 13.3, 8.8, 2.8, 1.3, 131, '1 个 ≈ 50g'),
+        s('全麦面包（1片）', 89, 3.2, 1.3, 17, 1.8, 138, '1 片 ≈ 36g'),
+        s('香蕉（1根）', 105, 1.3, 0.4, 27, 14, 1, '1 根 ≈ 118g'),
+      ];
+      const e = (name, durationMin, kcal, type) => ({
+        id: generateId(), name, type, durationMin, kcal, kcalPerMin: durationMin > 0 ? kcal / durationMin : 0
+      });
+      const sampleAna = [
+        e('哑铃卧推 20 分', 20, 160, 'ana'),
+        e('HIIT 20 分钟', 20, 200, 'ana'),
+      ];
+      const sampleAer = [
+        e('帕梅拉 15 分钟全身', 15, 120, 'aer'),
+        e('Keep 燃脂跑 30 分', 30, 260, 'aer'),
+        e('瑜伽拉伸 20 分', 20, 80, 'aer'),
+      ];
+      state.foods = state.foods.concat(sampleFoods.map(normalizeFood), sampleServing.map(normalizeFood));
+      state.exercises = state.exercises.concat(sampleAna, sampleAer);
+      // 给今天造一条记录，方便直接看到效果
+      const today = getTodayStr();
+      if (!state.logs[today]) state.logs[today] = { foods: [], exercises: [] };
+      state.logs[today].foods.push({ id: generateId(), foodId: sampleFoods[0].id, portionG: 200 });
+      state.logs[today].foods.push({ id: generateId(), foodId: sampleServing[0].id, servings: 1, portionRaw: '1份' });
+      state.logs[today].exercises.push({ id: generateId(), exerciseId: sampleAer[0].id, durationMin: 15, kcal: 120 });
+
+      // 造两条身材记录，方便直接看「身材管理 统计」与趋势图
+      state.logs[today].body = { weight: 55.5, bodyFat: 24, calf: 36, thigh: 52, waist: 68, hip: 92 };
+      const off = new Date().getTimezoneOffset();
+      const prevDay = new Date(Date.now() - 3 * 86400000);
+      const prevStr = new Date(prevDay.getTime() - off * 60000).toISOString().slice(0, 10);
+      if (!state.logs[prevStr]) state.logs[prevStr] = { foods: [], exercises: [] };
+      state.logs[prevStr].body = { weight: 56.4, bodyFat: 25, calf: 36.5, thigh: 53, waist: 69, hip: 93 };
+
+      // 造一组初始基线与每日目标，方便直接看 AI 分析与对比效果
+      state.baseline = { weight: 58, bodyFat: 27, calf: 37, thigh: 54, waist: 72, hip: 95 };
+      state.goals = { kcal: 1500, protein: 90, fat: 50, carbs: 180, sugar: 50, sodium: 2000 };
+    }
+
+    // 图片食物表（单份）：来自 Suki 新上传的两张图（饮品 + 其他/外卖）
+    // 已按用户要求分为「其他 / 饮品 / 零食」三个板块，unit 为 serving，portion 为 1份
+    const SUKI_IMAGE_FOODS = [
+      // 饮品（第二张图，16 种）
+      { name: '柠檬可乐', kcal: 76.5, protein: 0, fat: 0, carbs: 18, sodium: 12, sugar: 18, category: '饮品' },
+      { name: '小碧泉', kcal: 61.275, protein: 0, fat: 0, carbs: 14.44, sodium: 17.1, sugar: 14.44, category: '饮品' },
+      { name: '椰子水', kcal: 93.5, protein: 0, fat: 0, carbs: 22.1, sodium: 80.75, sugar: 22.1, category: '饮品' },
+      { name: '大碧泉', kcal: 152.625, protein: 0, fat: 0, carbs: 35.97, sodium: 29.7, sugar: 35.97, category: '饮品' },
+      { name: '可口可乐', kcal: 148.5, protein: 0, fat: 0, carbs: 34.98, sodium: 39.6, sugar: 34.98, category: '饮品' },
+      { name: '小新奇士', kcal: 94, protein: 0, fat: 0, carbs: 22.2, sodium: 0, sugar: 21, category: '饮品' },
+      { name: '青提气泡', kcal: 35.5, protein: 0, fat: 0, carbs: 8.4, sodium: 0, sugar: 8.2, category: '饮品' },
+      { name: '咸柑桔', kcal: 175, protein: 0, fat: 0, carbs: 38.5, sodium: 700, sugar: 38.5, category: '饮品' },
+      { name: '水溶c西柚', kcal: 100, protein: 0, fat: 0, carbs: 23.5, sodium: 67.5, sugar: 23.5, category: '饮品' },
+      { name: '果立方23度', kcal: 88, protein: 0, fat: 0, carbs: 7, sodium: 8.4, sugar: 7, category: '饮品' },
+      { name: '果立方15度', kcal: 65, protein: 0, fat: 0, carbs: 10, sodium: 8.4, sugar: 10, category: '饮品' },
+      { name: '味全牛奶', kcal: 185, protein: 9, fat: 10.25, carbs: 12.25, sodium: 130, sugar: 12.25, category: '饮品' },
+      { name: '绿茶', kcal: 1, protein: 0.1, fat: 0, carbs: 0.2, sodium: 2, sugar: 0.1, category: '饮品' },
+      { name: '西洋参茶', kcal: 2, protein: 0.1, fat: 0, carbs: 0.4, sodium: 1, sugar: 0.2, category: '饮品' },
+      { name: '西洋参+麦冬', kcal: 3, protein: 0.1, fat: 0, carbs: 1, sodium: 0.3, sugar: 0.4, category: '饮品' },
+      { name: '五指毛桃茯苓祛湿茶', kcal: 3, protein: 0.1, fat: 0, carbs: 0.7, sodium: 3, sugar: 0.4, category: '饮品' },
+
+      // 零食（第一张图里的小食）
+      { name: '太阳谷·鸡块', kcal: 43.55, protein: 1.98, fat: 2.56, carbs: 2.7, sodium: 91.2, sugar: 0, category: '零食' },
+      { name: '韩国版·紫菜', kcal: 22.24, protein: 0.42, fat: 1.464, carbs: 1.84, sodium: 41, sugar: 0, category: '零食' },
+      { name: '双仔·一根筋', kcal: 40.65, protein: 1.14, fat: 0.744, carbs: 6.804, sodium: 309.6, sugar: 0.24, category: '零食' },
+      { name: '宋大妈·豆干-烧烤', kcal: 44.5, protein: 3.1, fat: 2.425, carbs: 2.1, sodium: 175.75, sugar: 0.4, category: '零食' },
+      { name: '盐津铺子·豆干-香辣', kcal: 52.75, protein: 1.265, fat: 0.785, carbs: 0.13, sodium: 48.45, sugar: 0.04, category: '零食' },
+      { name: '盐津铺子·豆干-五香', kcal: 65.375, protein: 1.54375, fat: 0.9375, carbs: 0.2625, sodium: 60.125, sugar: 0.1, category: '零食' },
+      { name: '喜先生·一对鸡翅', kcal: 220, protein: 12, fat: 14, carbs: 8, sodium: 650, sugar: 0, category: '零食' },
+
+      // 其他（第一张图里的正餐/主食/肉类）
+      { name: '山药线面', kcal: 147.5, protein: 5, fat: 0.6, carbs: 28.4, sodium: 0, sugar: 0, category: '其他' },
+      { name: '大希地·原味鸡排', kcal: 76.7, protein: 6, fat: 0.46, carbs: 0.78, sodium: 100, sugar: 0, category: '其他' },
+      { name: '大希地·奥尔良鸡排', kcal: 72.8, protein: 10.4, fat: 0.88, carbs: 4.8, sodium: 512, sugar: 0, category: '其他' },
+      { name: '不倒翁泡面', kcal: 541.5, protein: 11.04, fat: 15.96, carbs: 81.6, sodium: 120, sugar: 0, category: '其他' },
+      { name: '皇家小虎·小白馒头', kcal: 56.9, protein: 1.7, fat: 0.58, carbs: 10.42, sodium: 67, sugar: 0, category: '其他' },
+      { name: '自制酸菜饺子', kcal: 40, protein: 1.6, fat: 2, carbs: 5.8, sodium: 100, sugar: 0, category: '其他' },
+      { name: '霸王米粉', kcal: 139.2, protein: 2.24, fat: 3.84, carbs: 30, sodium: 0, sugar: 0, category: '其他' },
+      { name: '村驴·冷面', kcal: 273.25, protein: 4.4, fat: 0, carbs: 59.9, sodium: 899, sugar: 0, category: '其他' },
+      { name: '康师傅·香辣拌面', kcal: 591.1, protein: 2.38625, fat: 7.10125, carbs: 16.93375, sodium: 360.2375, sugar: 0.46, category: '其他' },
+      { name: '沙县·蒸饺', kcal: 336, protein: 13.1, fat: 13.3, carbs: 46.4, sodium: 896, sugar: 0, category: '其他' },
+      { name: '沙县·云吞', kcal: 290, protein: 23.8, fat: 7.7, carbs: 31.1, sodium: 918, sugar: 0, category: '其他' },
+      { name: '海底捞·烤牛肉饭', kcal: 400, protein: 7, fat: 15, carbs: 60, sodium: 1500, sugar: 0, category: '其他' },
+      { name: 'MIMI·珍珠奶茶', kcal: 370, protein: 14, fat: 15, carbs: 100, sodium: 170, sugar: 0, category: '饮品' },
+      { name: '库迪·小黄油美式', kcal: 160, protein: 3.6, fat: 9.2, carbs: 18.5, sodium: 60, sugar: 0, category: '饮品' },
+      { name: '周新记·猪肉肠粉', kcal: 360, protein: 32, fat: 12, carbs: 9, sodium: 1400, sugar: 0, category: '其他' },
+      { name: 'kfc·芝士猪排帕帕尼', kcal: 360, protein: 15, fat: 18, carbs: 35, sodium: 850, sugar: 0, category: '其他' },
+      { name: '少糖熟番茄百香果气泡', kcal: 100, protein: 0, fat: 0, carbs: 25, sodium: 0, sugar: 20, category: '饮品' },
+    ];
+
+    // 图片食物表（100g）：来自 Suki 新上传的三张图（碳水 / 蛋白质 / 蔬菜 / 水果 / 其他）
+    const SUKI_IMAGE_FOODS_100G = [
+      // 碳水（11 种）
+      { name: '藜麦', kcal: 388.5, protein: 14.2, fat: 4.1, carbs: 68.3, sodium: 10, sugar: 1.8, category: '碳水' },
+      { name: '意大利面', kcal: 380.25, protein: 12.9, fat: 1.4, carbs: 73.5, sodium: 57, sugar: 2.7, category: '碳水' },
+      { name: '吐司', kcal: 336.75, protein: 8.1, fat: 5.2, carbs: 59.8, sodium: 262, sugar: 6, category: '碳水' },
+      { name: '白粥', kcal: 45, protein: 1.1, fat: 0.3, carbs: 10, sodium: 0, sugar: 0.4, category: '碳水' },
+      { name: '玉米', kcal: 107, protein: 4, fat: 1.2, carbs: 22.8, sodium: 5, sugar: 5, category: '碳水' },
+      { name: '红薯', kcal: 86, protein: 1.6, fat: 0.1, carbs: 20.1, sodium: 36, sugar: 3.4, category: '碳水' },
+      { name: '山药', kcal: 57, protein: 1.9, fat: 0.2, carbs: 12.4, sodium: 18, sugar: 0.8, category: '碳水' },
+      { name: '莲藕', kcal: 47, protein: 1.2, fat: 0.2, carbs: 11.5, sodium: 40, sugar: 2.3, category: '碳水' },
+      { name: '土豆', kcal: 81, protein: 2.6, fat: 0.1, carbs: 18.9, sodium: 7, sugar: 1, category: '碳水' },
+      { name: '紫薯', kcal: 123, protein: 1.6, fat: 0.2, carbs: 28.1, sodium: 14, sugar: 4.5, category: '碳水' },
+      { name: '熟米饭', kcal: 151, protein: 3.23, fat: 0.35, carbs: 33.96, sodium: 1.31, sugar: 0.17, category: '碳水' },
+      // 蛋白质（12 种）
+      { name: '干鱿鱼', kcal: 313, protein: 60, fat: 4.6, carbs: 7.8, sodium: 1000, sugar: 0, category: '蛋白质' },
+      { name: '蟹柳', kcal: 94.25, protein: 8.3, fat: 0.9, carbs: 11.4, sodium: 670, sugar: 0, category: '蛋白质' },
+      { name: '鸡胸肉', kcal: 118, protein: 22, fat: 2.6, carbs: 0, sodium: 42, sugar: 0, category: '蛋白质' },
+      { name: '去皮鸡腿', kcal: 155, protein: 19, fat: 7.5, carbs: 0, sodium: 60, sugar: 0, category: '蛋白质' },
+      { name: '牛肉', kcal: 125, protein: 21, fat: 4.3, carbs: 0, sodium: 55, sugar: 0, category: '蛋白质' },
+      { name: '虾仁', kcal: 93, protein: 20, fat: 0.8, carbs: 0, sodium: 130, sugar: 0, category: '蛋白质' },
+      { name: '瘦肉', kcal: 150, protein: 20, fat: 7.9, carbs: 0, sodium: 65, sugar: 0, category: '蛋白质' },
+      { name: '煎蛋', kcal: 240, protein: 13.3, fat: 24, carbs: 0, sodium: 131, sugar: 0, category: '蛋白质' },
+      { name: '水煮蛋', kcal: 144, protein: 13.3, fat: 8.8, carbs: 0, sodium: 131, sugar: 0, category: '蛋白质' },
+      { name: '豆腐', kcal: 84, protein: 6.6, fat: 3.4, carbs: 0, sodium: 120, sugar: 0, category: '蛋白质' },
+      { name: '豆浆', kcal: 31, protein: 3, fat: 1.2, carbs: 3.5, sodium: 12, sugar: 12, category: '蛋白质' },
+      { name: '牛筋丸', kcal: 198.5, protein: 15.6, fat: 11.8, carbs: 5.4, sodium: 640, sugar: 0, category: '蛋白质' },
+      // 蔬菜（10 种）
+      { name: '娃娃菜', kcal: 13, protein: 1.5, fat: 0.2, carbs: 2.5, sodium: 250, sugar: 0, category: '蔬菜' },
+      { name: '西蓝花', kcal: 27, protein: 2.8, fat: 0.4, carbs: 4.8, sodium: 3, sugar: 0, category: '蔬菜' },
+      { name: '菠菜', kcal: 28, protein: 2.9, fat: 0.4, carbs: 4.6, sodium: 80, sugar: 0, category: '蔬菜' },
+      { name: '生菜', kcal: 12, protein: 1, fat: 0.2, carbs: 2.1, sodium: 10, sugar: 0, category: '蔬菜' },
+      { name: '黄瓜', kcal: 16, protein: 0.7, fat: 0.2, carbs: 3, sodium: 5, sugar: 0, category: '蔬菜' },
+      { name: '番茄', kcal: 15, protein: 0.9, fat: 0.2, carbs: 3.3, sodium: 4, sugar: 0, category: '蔬菜' },
+      { name: '金针菇', kcal: 32, protein: 2.4, fat: 0.4, carbs: 6, sodium: 12, sugar: 0, category: '蔬菜' },
+      { name: '胡萝卜', kcal: 32, protein: 1, fat: 0.2, carbs: 7.7, sodium: 4, sugar: 0, category: '蔬菜' },
+      { name: '油麦菜', kcal: 12, protein: 1.4, fat: 0.4, carbs: 2.1, sodium: 15, sugar: 0, category: '蔬菜' },
+      { name: '冬瓜', kcal: 12, protein: 0.4, fat: 0.2, carbs: 2.6, sodium: 2, sugar: 0, category: '蔬菜' },
+      // 水果（9 种）
+      { name: '圣女果', kcal: 25, protein: 1.1, fat: 0.2, carbs: 5.8, sodium: 5, sugar: 0, category: '水果' },
+      { name: '香梨', kcal: 42, protein: 0.4, fat: 0.2, carbs: 10.2, sodium: 1, sugar: 0, category: '水果' },
+      { name: '苹果', kcal: 53, protein: 0.3, fat: 0.2, carbs: 14, sodium: 1, sugar: 0, category: '水果' },
+      { name: '青提', kcal: 69, protein: 0.5, fat: 0.2, carbs: 17.8, sodium: 2, sugar: 0, category: '水果' },
+      { name: '蓝莓', kcal: 57, protein: 0.7, fat: 0.3, carbs: 14.5, sodium: 1, sugar: 0, category: '水果' },
+      { name: '芒果', kcal: 60, protein: 0.6, fat: 0.2, carbs: 15, sodium: 1, sugar: 0, category: '水果' },
+      { name: '菠萝', kcal: 50, protein: 0.5, fat: 0.1, carbs: 13.1, sodium: 1, sugar: 0, category: '水果' },
+      { name: '木瓜', kcal: 43, protein: 0.4, fat: 0.1, carbs: 11, sodium: 3, sugar: 0, category: '水果' },
+      { name: '香蕉', kcal: 91, protein: 1.4, fat: 0.2, carbs: 22, sodium: 0.8, sugar: 0, category: '水果' },
+      // 其他（10 种）
+      { name: '晟麦·牛油果油', kcal: 924, protein: 0, fat: 99.9, carbs: 0, sodium: 0, sugar: 0, category: '其他' },
+      { name: '麻辣王子', kcal: 452.25, protein: 8.5, fat: 25, carbs: 43.5, sodium: 2428, sugar: 0, category: '其他' },
+      { name: '黑糖珍珠', kcal: 264.5, protein: 0.6, fat: 0.8, carbs: 60.1, sodium: 14, sugar: 0, category: '其他' },
+      { name: '雪川·薯条', kcal: 187.5, protein: 2.8, fat: 7.4, carbs: 25.2, sodium: 472, sugar: 0, category: '其他' },
+      { name: '雪川·薯格', kcal: 210.75, protein: 2.6, fat: 8.1, carbs: 29.5, sodium: 363, sugar: 0, category: '其他' },
+      { name: '雪川·薯饼', kcal: 250.25, protein: 2.9, fat: 12.4, carbs: 29, sodium: 308, sugar: 0, category: '其他' },
+      { name: '吉香居·开胃酸菜', kcal: 167.25, protein: 1.5, fat: 16, carbs: 3, sodium: 2800, sugar: 0, category: '其他' },
+      { name: '云山半·东北酸菜', kcal: 15, protein: 1.2, fat: 0, carbs: 0, sodium: 773, sugar: 0, category: '其他' },
+      { name: '欧芹·辣椒大蒜粉', kcal: 81.75, protein: 0, fat: 0, carbs: 0, sodium: 0, sugar: 0, category: '其他' },
+      { name: '汉小二·辣椒粉', kcal: 422.5, protein: 0, fat: 0, carbs: 0, sodium: 0, sugar: 0, category: '其他' },
+      // 新增（Suki 2026-08-01 上传图片）
+      { name: '紫菜芝麻', kcal: 85.5875, protein: 2.235, fat: 6.18, carbs: 3.9, sodium: 82.65, sugar: 0, category: '碳水' },
+      { name: '芝麻沙拉酱', kcal: 21.55, protein: 0.17, fat: 1.58, carbs: 1.46, sodium: 168.4, sugar: 0, category: '碳水' },
+      { name: '玉米粒', kcal: 83.2, protein: 2.64, fat: 2.16, carbs: 12.24, sodium: 0, sugar: 0, category: '碳水' },
+      { name: '芝士片', kcal: 44.5875, protein: 2.22, fat: 3.075, carbs: 1.575, sodium: 156, sugar: 0, category: '蛋白质' },
+      { name: '午餐肉', kcal: 30.85, protein: 3.2, fat: 1.14, carbs: 1.58, sodium: 78, sugar: 0, category: '蛋白质' },
+    ];
+
+    function addSukiImageFoods100g() {
+      let added = 0;
+      SUKI_IMAGE_FOODS_100G.forEach(c => {
+        if (!state.foods.some(f => f.name === c.name)) {
+          state.foods.push(normalizeFood({ id: generateId(), unit: '100g', portion: '100g', ...c }));
+          added++;
+        }
+      });
+      save();
+      renderAll();
+      return added;
+    }
+
+    function addSukiImageFoods() {
+      let added = 0;
+      SUKI_IMAGE_FOODS.forEach(c => {
+        if (!state.foods.some(f => f.name === c.name)) {
+          state.foods.push(normalizeFood({ id: generateId(), unit: 'serving', portion: '1份', ...c }));
+          added++;
+        }
+      });
+      save();
+      renderAll();
+      return added;
+    }
+
+    function renderAll() {
+      renderToday();
+      renderBody();
+      renderFoodLibrary();
+      renderExerciseLibrary();
+      renderStats();
+      renderTrash();
+    }
+
+    // ==================== 初始化 ====================
+    (function init() {
+      state = loadData();
+      ensureDefaults();
+      if (cleanupTrash()) toast('部分过期数据已自动从回收站清除');
+      setupTabs();
+      enableNavDragScroll();
+      setupTodayTab();
+      setupFoodLibrary();
+      setupExerciseLibrary();
+      setupStatsTab();
+      setupDataTab();
+      setupTrashTab();
+      renderAll();
+
+      // 注册 Service Worker（PWA：可离线、可“添加到主屏幕”当作 App）
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW 注册失败（不影响使用）', err));
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
