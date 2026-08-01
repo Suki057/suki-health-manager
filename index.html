@@ -80,7 +80,17 @@
       color: #ffffff;
       -webkit-text-fill-color: #ffffff;
       background: none;
+      cursor: text;
+      border-radius: 8px;
+      padding: 2px 8px;
+      outline: none;
+      transition: background 0.15s ease;
     }
+    .title-text[contenteditable="true"] {
+      background: rgba(255, 255, 255, 0.22);
+      outline: 1px dashed rgba(255, 255, 255, 0.75);
+    }
+    .title-emoji { cursor: default; user-select: none; }
     .app-sub {
       margin: 4px 0 0;
       font-size: 12.5px;
@@ -653,7 +663,7 @@
 </head>
 <body>
   <header class="app-header">
-    <h1><span class="title-emoji">🌸</span><span class="title-text">Suki 健康管理</span></h1>
+    <h1><span class="title-emoji">🌿</span><span class="title-text" id="app-title">Suki 健康管理</span></h1>
   </header>
 
   <main class="container">
@@ -2832,6 +2842,44 @@
           navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW 注册失败（不影响使用）', err));
         });
       }
+    })();
+
+    // 标题双击编辑：持久化到 localStorage，并同步浏览器标签标题
+    (function setupTitleEdit() {
+      const titleEl = document.getElementById('app-title');
+      if (!titleEl) return;
+      const saved = localStorage.getItem('appTitle');
+      if (saved) titleEl.textContent = saved;
+
+      titleEl.addEventListener('dblclick', () => {
+        titleEl.setAttribute('contenteditable', 'true');
+        titleEl.focus();
+        const range = document.createRange();
+        range.selectNodeContents(titleEl);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      });
+
+      function finishEdit() {
+        if (titleEl.getAttribute('contenteditable') !== 'true') return;
+        titleEl.removeAttribute('contenteditable');
+        const val = (titleEl.textContent || '').trim() || 'Suki 健康管理';
+        titleEl.textContent = val;
+        localStorage.setItem('appTitle', val);
+        document.title = val;
+        const meta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+        if (meta) meta.setAttribute('content', val);
+      }
+
+      titleEl.addEventListener('blur', finishEdit);
+      titleEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); titleEl.blur(); }
+        if (e.key === 'Escape') {
+          titleEl.textContent = localStorage.getItem('appTitle') || 'Suki 健康管理';
+          titleEl.blur();
+        }
+      });
     })();
   </script>
 </body>
