@@ -987,6 +987,7 @@
           <button id="sample-btn" class="btn success">载入示例数据</button>
           <button id="suki-image-foods-100g-btn" class="btn primary">＋ 添加图片食物表（100g）</button>
           <button id="suki-image-foods-btn" class="btn secondary">＋ 添加图片食物表（单份）</button>
+          <button id="suki-milktea-btn" class="btn secondary">🧋 导入品牌奶茶数据</button>
           <button id="suki-exercises-btn" class="btn primary">＋ 导入 Suki 运动表</button>
         </div>
         <h3 style="margin-top:24px;">🧹 精细化清空</h3>
@@ -1261,7 +1262,8 @@
         source: () => state.foods,
         label: item => {
           const unitLabel = item.unit === 'serving' ? (item.portion || '1份') : ((item.baseGrams || 100) + 'g');
-          return `${item.name} (${formatNum(item.kcal)} kcal/${unitLabel})`;
+          const brandPrefix = item.brand ? `[${item.brand}] ` : '';
+          return `${brandPrefix}${item.name} (${formatNum(item.kcal)} kcal/${unitLabel})`;
         },
         onSelect: item => {
           document.getElementById('food-portion').value = item.unit === 'serving' ? '1' : (parseGramsInText(item.portion) || item.baseGrams || 100);
@@ -1817,7 +1819,11 @@
       let activeIndex = -1;
       function show() {
         const term = input.value.trim().toLowerCase();
-        const items = source().filter(i => i.name.toLowerCase().includes(term));
+        const items = source().filter(i => {
+          const nameMatch = i.name.toLowerCase().includes(term);
+          const brandMatch = (i.brand || '').toLowerCase().includes(term);
+          return nameMatch || brandMatch;
+        });
         list.innerHTML = '';
         activeIndex = -1;
         if (!term || items.length === 0) { list.style.display = 'none'; return; }
@@ -1976,38 +1982,56 @@
         container.innerHTML = '<div class="panel"><p class="empty-state">还没有食物，先在上方「数据导入」添加，或通过「数据」页载入示例 / 图片食物表。</p></div>';
         return;
       }
+
+      // 1. 有 brand 字段的食物按品牌自动分板块
+      const brandMap = {};
+      state.foods.forEach(f => {
+        if (!f.brand) return;
+        if (!brandMap[f.brand]) brandMap[f.brand] = [];
+        brandMap[f.brand].push(f);
+      });
+      Object.keys(brandMap).sort().forEach(brand => {
+        const list = brandMap[brand].sort((a, b) => (a.kcal || 0) - (b.kcal || 0));
+        container.appendChild(createFoodPanel(`🧋 ${brand}`, `${list.length} 款 · 按热量升序`, list, 'brand-panel'));
+      });
+
+      // 2. 常规分类（排除有 brand 的食物，避免重复显示）
       FOOD_CATEGORIES.forEach(cat => {
         const list = state.foods
-          .filter(f => getFoodCategory(f) === cat.key)
+          .filter(f => !f.brand && getFoodCategory(f) === cat.key)
           .sort((a, b) => (a.kcal || 0) - (b.kcal || 0));
         if (list.length === 0) return;
-        const panel = document.createElement('div');
-        panel.className = 'panel';
-        const rows = list.map(food => {
-          const note = (food.unit === 'serving' && food.servingDesc) ? `<div class="cell-note">${escapeHtml(food.servingDesc)}</div>` : '';
-          return `<tr>
-            <td>${escapeHtml(food.name)}${note}</td>
-            <td>${escapeHtml(food.portion || (food.unit === 'serving' ? '1份' : '100g'))}</td>
-            <td class="number">${formatNum(food.kcal)}</td>
-            <td class="number">${formatNum(food.protein)}</td>
-            <td class="number">${formatNum(food.fat)}</td>
-            <td class="number">${formatNum(food.carbs)}</td>
-            <td class="number">${formatNum(food.sugar)}</td>
-            <td class="number">${formatNum(food.sodium)}</td>
-            <td>
-              <button class="btn small secondary edit-food" data-id="${food.id}">编辑</button>
-              <button class="btn small danger delete-food" data-id="${food.id}">删除</button>
-            </td>`;
-        }).join('');
-        panel.innerHTML = `<h2>${cat.icon} ${cat.key} <small>按热量升序 · ${list.length} 项</small></h2>
-          <div class="table-wrap"><table class="food-cat-table">
-            <thead><tr><th>名称</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table></div>`;
-        panel.querySelectorAll('.edit-food').forEach(b => b.addEventListener('click', () => editFood(b.dataset.id)));
-        panel.querySelectorAll('.delete-food').forEach(b => b.addEventListener('click', () => deleteFood(b.dataset.id)));
-        container.appendChild(panel);
+        container.appendChild(createFoodPanel(`${cat.icon} ${cat.key}`, `按热量升序 · ${list.length} 项`, list));
       });
+    }
+
+    function createFoodPanel(title, subtitle, list, extraClass) {
+      const panel = document.createElement('div');
+      panel.className = 'panel' + (extraClass ? ' ' + extraClass : '');
+      const rows = list.map(food => {
+        const note = (food.unit === 'serving' && food.servingDesc) ? `<div class="cell-note">${escapeHtml(food.servingDesc)}</div>` : '';
+        return `<tr>
+          <td>${escapeHtml(food.name)}${note}</td>
+          <td>${escapeHtml(food.portion || (food.unit === 'serving' ? '1份' : '100g'))}</td>
+          <td class="number">${formatNum(food.kcal)}</td>
+          <td class="number">${formatNum(food.protein)}</td>
+          <td class="number">${formatNum(food.fat)}</td>
+          <td class="number">${formatNum(food.carbs)}</td>
+          <td class="number">${formatNum(food.sugar)}</td>
+          <td class="number">${formatNum(food.sodium)}</td>
+          <td>
+            <button class="btn small secondary edit-food" data-id="${food.id}">编辑</button>
+            <button class="btn small danger delete-food" data-id="${food.id}">删除</button>
+          </td>`;
+      }).join('');
+      panel.innerHTML = `<h2>${title} <small>${subtitle}</small></h2>
+        <div class="table-wrap"><table class="food-cat-table">
+          <thead><tr><th>名称</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>`;
+      panel.querySelectorAll('.edit-food').forEach(b => b.addEventListener('click', () => editFood(b.dataset.id)));
+      panel.querySelectorAll('.delete-food').forEach(b => b.addEventListener('click', () => deleteFood(b.dataset.id)));
+      return panel;
     }
     function editFood(id) {
       const food = state.foods.find(f => f.id === id);
@@ -2505,6 +2529,12 @@
         else toast(`已添加 ${added} 种单份图片食物，已按「其他 / 饮品 / 零食」归类，去「食物库」看看吧`);
       });
 
+      document.getElementById('suki-milktea-btn').addEventListener('click', () => {
+        const added = addSukiMilkTeas();
+        if (added === 0) toast('品牌奶茶数据都已导入，无需重复添加');
+        else toast(`已导入 ${added} 款品牌奶茶 / 咖啡，已按品牌自动分板块，去「食物库」看看吧`);
+      });
+
       document.getElementById('suki-exercises-btn').addEventListener('click', () => {
         const added = addSukiExercises();
         if (added === 0) toast('Suki 运动表中的项目都已在运动库中，无需重复添加');
@@ -2758,6 +2788,84 @@
       { name: '午餐肉', kcal: 30.85, protein: 3.2, fat: 1.14, carbs: 1.58, sodium: 78, sugar: 0, category: '蛋白质', unit: '100g', portion: '20g', baseGrams: 20 },
     ];
 
+    // 品牌奶茶 / 咖啡数据（2026-08-01）：来自 Suki 上传的四张截图，按品牌分组。
+    // 营养数值为该杯饮品的总值；unit 为 serving，录入时默认 1 份即一整杯。
+    const SUKI_MILKTEAS = (() => {
+      const m = (brand, name, portion, kcal, protein, fat, carbs, sugar, sodium) => ({
+        brand, name, portion, kcal, protein, fat, carbs, sugar, sodium,
+        unit: 'serving', category: '饮品'
+      });
+      return [
+        // 蜜雪冰城
+        m('蜜雪冰城', '珍珠奶茶', '500ml', 200, 4, 8, 30, 24, 105),
+        m('蜜雪冰城', '冰鲜柠檬水', '500ml', 55, 0.5, 0, 12, 12, 15),
+        m('蜜雪冰城', '芝士奶盖四季春', '500ml', 240, 5, 12, 28, 21, 210),
+        m('蜜雪冰城', '草莓啵啵茶', '500ml', 190, 3, 6, 28, 22, 90),
+        // 古茗
+        m('古茗', '云岭茉莉白', '500ml', 210, 3.1, 0.9, 42, 14, 105),
+        m('古茗', '黑糖珍珠牛乳', '500ml', 400, 8.2, 15.3, 65, 35, 220),
+        m('古茗', '生椰抹茶麻薯', '500ml', 310, 6.5, 12.8, 50, 27, 180),
+        m('古茗', '苦尽柑来拿铁', '500ml', 140, 5.8, 8.1, 16, 8, 150),
+        // 喜茶
+        m('喜茶', '烤黑糖波波牛乳茶', '500ml', 220, 8.5, 10.2, 34, 19, 471),
+        m('喜茶', '爆汁杨梅绿妍', '500ml', 125, 0, 0, 32, 15, 150),
+        m('喜茶', '鸭屎香轻乳茶', '500ml', 105, 4.2, 3.5, 18, 5, 120),
+        m('喜茶', '霸气芝士草莓', '500ml', 260, 5.5, 18.2, 30, 17, 260),
+        // 奈雪的茶
+        m('奈雪的茶', '金色山脉珍珠奶茶', '500ml', 180, 7.8, 8.5, 27, 15, 180),
+        m('奈雪的茶', '霸气鸭屎香柠檬茶', '500ml', 55, 0.2, 0, 13, 8, 80),
+        m('奈雪的茶', '霸气芝士草莓', '500ml', 260, 5.2, 17.8, 31, 18, 250),
+        m('奈雪的茶', '荔枝味气泡水', '500ml', 0, 0, 0, 0, 0, 35),
+        // 霸王茶姬
+        m('霸王茶姬', '伯牙绝弦（茶香款）', '470ml', 95, 2.8, 0, 5, 2.4, 100),
+        m('霸王茶姬', '一骑红尘', '470ml', 100, 3.3, 0, 5, 2.6, 110),
+        m('霸王茶姬', '万里木兰', '470ml', 110, 3.8, 0, 5, 2.7, 120),
+        m('霸王茶姬', '伯牙绝弦（花香款）', '470ml', 190, 3.5, 0, 25, 17, 125),
+        // 茶百道
+        m('茶百道', '招牌芋圆奶茶', '500ml', 200, 7.2, 9.5, 29, 15, 160),
+        m('茶百道', '豆乳米麻薯', '500ml', 330, 12.5, 11.8, 56, 29, 220),
+        m('茶百道', '西瓜啵啵', '500ml', 70, 0.3, 0, 17, 10, 70),
+        m('茶百道', '鲜芒果绿茶', '500ml', 125, 0.8, 0, 31, 18, 90),
+        // 沪上阿姨
+        m('沪上阿姨', '浅浅清茉莉针王清乳茶', '500ml', 170, 6.8, 7.2, 26, 14, 170),
+        m('沪上阿姨', '血糯米奶茶', '500ml', 200, 8.5, 8.8, 30, 15, 180),
+        m('沪上阿姨', '杨枝甘露', '500ml', 270, 5.5, 12.3, 42, 23, 210),
+        // 茶颜悦色
+        m('茶颜悦色', '幽兰拿铁', '500ml', 220, 7.8, 12.5, 30, 16, 200),
+        m('茶颜悦色', '声声乌龙', '500ml', 110, 4.2, 3.8, 18, 5, 110),
+        m('茶颜悦色', '少年时', '500ml', 120, 4.5, 4.2, 19, 6, 120),
+        // 星巴克
+        m('星巴克', '焦糖拿铁', '473ml', 260, 13, 15, 32, 29, 230),
+        m('星巴克', '抹茶拿铁', '473ml', 160, 11, 29, 46, 22, 180),
+        m('星巴克', '冰摇红茶', '473ml', 60, 0, 16, 10, 8, 70),
+        m('星巴克', '白巧克力摩卡冰沙', '473ml', 370, 6, 65, 68, 41, 300),
+        // 一点点
+        m('一点点', '招牌四季春', '500ml', 110, 3.8, 3.2, 19, 6, 100),
+        m('一点点', '葡萄柚绿', '500ml', 85, 0.5, 0, 20, 12, 80),
+        m('一点点', '藏青盐咸奶绿', '500ml', 110, 4.5, 4.8, 18, 7, 130),
+        // 瑞幸咖啡
+        m('瑞幸咖啡', '生椰拿铁', '473ml', 125, 4.2, 11.8, 13, 8, 150),
+        m('瑞幸咖啡', '小黄油美式', '473ml', 120, 1.2, 15.8, 2, 0, 120),
+        m('瑞幸咖啡', '海盐焦糖拿铁', '473ml', 140, 5.5, 8.2, 20, 12, 160),
+        m('瑞幸咖啡', '钱塘龙井拿铁', '473ml', 50, 2.8, 3.5, 7, 3, 90),
+        // CoCo 都可
+        m('CoCo都可', '珍珠奶茶', '500ml', 200, 7.5, 9.2, 29, 15, 160),
+        m('CoCo都可', '芒果欧蕾', '500ml', 290, 8.2, 12.5, 44, 29, 190),
+        m('CoCo都可', '柠檬奇遇金桔', '500ml', 240, 0.6, 0, 58, 40, 100),
+        // 库迪
+        m('库迪', '生椰拿铁', '473ml', 130, 4.5, 12, 14, 9, 155),
+        m('库迪', '经典拿铁', '473ml', 145, 5, 13, 16, 10, 160),
+        m('库迪', '冰美式', '473ml', 45, 0.2, 0, 11, 7, 10),
+        m('库迪', '抹茶拿铁', '473ml', 170, 11.5, 30, 48, 23, 185),
+        m('库迪', '杨枝甘露', '473ml', 280, 6, 13, 45, 24, 210),
+        m('库迪', '芋圆奶茶', '473ml', 210, 7.8, 10, 30, 16, 170),
+        m('库迪', '生酪拿铁', '473ml', 150, 5.2, 12.5, 17, 11, 165),
+        m('库迪', '桃桃乌龙', '473ml', 110, 0.5, 0, 26, 16, 90),
+        m('库迪', '生椰dirty', '473ml', 160, 5.8, 14, 18, 12, 170),
+        m('库迪', '西瓜汁', '473ml', 85, 0.8, 0, 21, 13, 80),
+      ];
+    })();
+
     // Suki 运动表（2026-08-01）：来自两张无氧图 + 两张有氧图。时长与热量为图中对应数值，kcalPerMin 由程序计算。
     const SUKI_EXERCISES = [
       // 无氧
@@ -2812,6 +2920,19 @@
       SUKI_IMAGE_FOODS.forEach(c => {
         if (!state.foods.some(f => f.name === c.name)) {
           state.foods.push(normalizeFood({ id: generateId(), unit: 'serving', portion: '1份', ...c }));
+          added++;
+        }
+      });
+      save();
+      renderAll();
+      return added;
+    }
+
+    function addSukiMilkTeas() {
+      let added = 0;
+      SUKI_MILKTEAS.forEach(c => {
+        if (!state.foods.some(f => f.brand === c.brand && f.name === c.name)) {
+          state.foods.push(normalizeFood({ id: generateId(), ...c }));
           added++;
         }
       });
