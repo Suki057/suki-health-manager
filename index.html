@@ -868,6 +868,7 @@
           <button id="sample-btn" class="btn success">载入示例数据</button>
           <button id="suki-image-foods-100g-btn" class="btn primary">＋ 添加图片食物表（100g）</button>
           <button id="suki-image-foods-btn" class="btn secondary">＋ 添加图片食物表（单份）</button>
+          <button id="suki-exercises-btn" class="btn primary">＋ 导入 Suki 运动表</button>
         </div>
         <h3 style="margin-top:24px;">🧹 精细化清空</h3>
         <p class="hint">按需清空某一类数据，其它数据保留。</p>
@@ -2363,6 +2364,12 @@
         else toast(`已添加 ${added} 种单份图片食物，已按「其他 / 饮品 / 零食」归类，去「食物库」看看吧`);
       });
 
+      document.getElementById('suki-exercises-btn').addEventListener('click', () => {
+        const added = addSukiExercises();
+        if (added === 0) toast('Suki 运动表中的项目都已在运动库中，无需重复添加');
+        else toast(`已导入 ${added} 条 Suki 运动记录（无氧+有氧），去「运动库」看看吧`);
+      });
+
       document.getElementById('suki-image-foods-100g-btn').addEventListener('click', () => {
         const added = addSukiImageFoods100g();
         if (added === 0) toast('100g 图片食物都已在食物库中，无需重复添加');
@@ -2609,6 +2616,42 @@
       { name: '芝士片', kcal: 44.5875, protein: 2.22, fat: 3.075, carbs: 1.575, sodium: 156, sugar: 0, category: '蛋白质', unit: '100g', portion: '15g', baseGrams: 15 },
       { name: '午餐肉', kcal: 30.85, protein: 3.2, fat: 1.14, carbs: 1.58, sodium: 78, sugar: 0, category: '蛋白质', unit: '100g', portion: '20g', baseGrams: 20 },
     ];
+
+    // Suki 运动表（2026-08-01）：来自两张无氧图 + 两张有氧图。时长与热量为图中对应数值，kcalPerMin 由程序计算。
+    const SUKI_EXERCISES = [
+      // 无氧
+      { name: '薄背美肩', type: 'ana', durationMin: 20, kcal: 65 },
+      { name: '安娜-手臂塑形', type: 'ana', durationMin: 20, kcal: 60 },
+      { name: '帕梅拉-手臂塑形', type: 'ana', durationMin: 10, kcal: 30 },
+      { name: '帕梅拉-臀部', type: 'ana', durationMin: 16, kcal: 50 },
+      { name: '欧阳春晓-臀部', type: 'ana', durationMin: 28, kcal: 55 },
+      { name: 'Barre 芭杆练手臂x薄背', type: 'ana', durationMin: 20, kcal: 55 },
+      { name: '帕梅拉 站立瘦腹+纤腿', type: 'ana', durationMin: 10, kcal: 75 },
+      { name: '韩小四-拉伸腿部', type: 'ana', durationMin: 12, kcal: 15 },
+      { name: '欧阳春晓-泡沫轴', type: 'ana', durationMin: 18, kcal: 10 },
+      // 有氧
+      { name: '动感自行车 20分钟', type: 'aer', durationMin: 20, kcal: 150 },
+      { name: '帕梅拉-内啡肽', type: 'aer', durationMin: 10, kcal: 75 },
+      { name: '舞蹈体能训练 9分钟', type: 'aer', durationMin: 9, kcal: 72 },
+      { name: '舞蹈体能训练 24分钟', type: 'aer', durationMin: 24, kcal: 170 },
+      { name: '帕梅拉 内啡肽+踏步有氧', type: 'aer', durationMin: 20, kcal: 150 },
+      { name: '动感自行车 30分钟', type: 'aer', durationMin: 30, kcal: 112.5 },
+      { name: 'jo姐有氧', type: 'aer', durationMin: 30, kcal: 140 },
+    ];
+
+    function addSukiExercises() {
+      let added = 0;
+      SUKI_EXERCISES.forEach(c => {
+        if (!state.exercises.some(ex => ex.name === c.name && ex.type === c.type)) {
+          const duration = c.durationMin || 0;
+          state.exercises.push({ id: generateId(), ...c, kcalPerMin: duration > 0 ? c.kcal / duration : 0 });
+          added++;
+        }
+      });
+      save();
+      renderAll();
+      return added;
+    }
 
     function addSukiImageFoods100g() {
       let added = 0;
