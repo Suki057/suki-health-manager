@@ -90,7 +90,13 @@
       background: rgba(255, 255, 255, 0.22);
       outline: 1px dashed rgba(255, 255, 255, 0.75);
     }
-    .title-emoji { cursor: default; user-select: none; }
+    .title-emoji { cursor: text; }
+    .title-emoji[contenteditable="true"] {
+      background: rgba(255, 255, 255, 0.22);
+      outline: 1px dashed rgba(255, 255, 255, 0.75);
+      border-radius: 8px;
+      padding: 2px 6px;
+    }
     .app-sub {
       margin: 4px 0 0;
       font-size: 12.5px;
@@ -663,7 +669,7 @@
 </head>
 <body>
   <header class="app-header">
-    <h1><span class="title-emoji">🌿</span><span class="title-text" id="app-title">Suki 健康管理</span></h1>
+    <h1><span class="title-emoji" id="app-emoji">🌿</span><span class="title-text" id="app-title">Suki 健康管理</span></h1>
   </header>
 
   <main class="container">
@@ -2844,42 +2850,57 @@
       }
     })();
 
-    // 标题双击编辑：持久化到 localStorage，并同步浏览器标签标题
+    // 标题与 emoji 双击编辑：各自持久化到 localStorage，并同步浏览器标签标题
     (function setupTitleEdit() {
       const titleEl = document.getElementById('app-title');
-      if (!titleEl) return;
-      const saved = localStorage.getItem('appTitle');
-      if (saved) titleEl.textContent = saved;
+      const emojiEl = document.getElementById('app-emoji');
+      const meta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      const DEFAULT_TITLE = 'Suki 健康管理';
+      const DEFAULT_EMOJI = '🌿';
 
-      titleEl.addEventListener('dblclick', () => {
-        titleEl.setAttribute('contenteditable', 'true');
-        titleEl.focus();
-        const range = document.createRange();
-        range.selectNodeContents(titleEl);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      });
+      const savedTitle = localStorage.getItem('appTitle');
+      const savedEmoji = localStorage.getItem('appEmoji');
+      if (savedTitle) titleEl.textContent = savedTitle;
+      if (savedEmoji) emojiEl.textContent = savedEmoji;
 
-      function finishEdit() {
-        if (titleEl.getAttribute('contenteditable') !== 'true') return;
-        titleEl.removeAttribute('contenteditable');
-        const val = (titleEl.textContent || '').trim() || 'Suki 健康管理';
-        titleEl.textContent = val;
-        localStorage.setItem('appTitle', val);
-        document.title = val;
-        const meta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
-        if (meta) meta.setAttribute('content', val);
+      function applyTitle() {
+        const t = (titleEl.textContent || '').trim() || DEFAULT_TITLE;
+        const e = (emojiEl.textContent || '').trim() || DEFAULT_EMOJI;
+        document.title = e + ' ' + t;
+        if (meta) meta.setAttribute('content', t);
       }
 
-      titleEl.addEventListener('blur', finishEdit);
-      titleEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); titleEl.blur(); }
-        if (e.key === 'Escape') {
-          titleEl.textContent = localStorage.getItem('appTitle') || 'Suki 健康管理';
-          titleEl.blur();
+      function enableEdit(el, storageKey, fallback) {
+        el.addEventListener('dblclick', () => {
+          el.setAttribute('contenteditable', 'true');
+          el.focus();
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        });
+        function finish() {
+          if (el.getAttribute('contenteditable') !== 'true') return;
+          el.removeAttribute('contenteditable');
+          const val = (el.textContent || '').trim() || fallback;
+          el.textContent = val;
+          localStorage.setItem(storageKey, val);
+          applyTitle();
         }
-      });
+        el.addEventListener('blur', finish);
+        el.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') { ev.preventDefault(); el.blur(); }
+          if (ev.key === 'Escape') {
+            el.textContent = localStorage.getItem(storageKey) || fallback;
+            el.blur();
+          }
+        });
+      }
+
+      if (titleEl) enableEdit(titleEl, 'appTitle', DEFAULT_TITLE);
+      if (emojiEl) enableEdit(emojiEl, 'appEmoji', DEFAULT_EMOJI);
+      applyTitle();
     })();
   </script>
 </body>
