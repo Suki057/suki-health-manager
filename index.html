@@ -976,6 +976,14 @@
       if (!Array.isArray(state.foods)) state.foods = [];
       state.foods.forEach(f => { if (!f.unit || (f.unit !== '100g' && f.unit !== 'serving')) f.unit = '100g'; });
       state.foods.forEach(f => normalizeFood(f));
+      // 迁移：5 种食物份量重定义为真实克数（营养保持每100g基准不变）
+      const PORTION_FIX = { '紫菜芝麻': '15g', '芝麻沙拉酱': '10g', '午餐肉': '20g', '玉米粒': '80g', '芝士片': '15g' };
+      state.foods.forEach(f => {
+        if (PORTION_FIX[f.name] && f.unit === '100g' && (f.portion === '100g' || f.portion === undefined)) {
+          f.portion = PORTION_FIX[f.name];
+          f.baseGrams = 100;
+        }
+      });
       if (!Array.isArray(state.exercises)) state.exercises = [];
       state.exercises.forEach(x => { if (!x.type) x.type = 'ana'; });
       if (!state.logs || typeof state.logs !== 'object') state.logs = {};
@@ -1101,11 +1109,11 @@
         hidden: document.getElementById('food-selected-id'),
         source: () => state.foods,
         label: item => {
-          const portion = item.portion || (item.unit === 'serving' ? '1份' : '100g');
-          return `${item.name} (${formatNum(item.kcal)} kcal/${portion})`;
+          const unitLabel = item.unit === 'serving' ? (item.portion || '1份') : ((item.baseGrams || 100) + 'g');
+          return `${item.name} (${formatNum(item.kcal)} kcal/${unitLabel})`;
         },
         onSelect: item => {
-          document.getElementById('food-portion').value = item.unit === 'serving' ? '1' : (item.baseGrams || 100);
+          document.getElementById('food-portion').value = item.unit === 'serving' ? '1' : (parseGramsInText(item.portion) || item.baseGrams || 100);
         },
       });
 
@@ -2585,12 +2593,12 @@
       { name: '云山半·东北酸菜', kcal: 15, protein: 1.2, fat: 0, carbs: 0, sodium: 773, sugar: 0, category: '其他' },
       { name: '欧芹·辣椒大蒜粉', kcal: 81.75, protein: 0, fat: 0, carbs: 0, sodium: 0, sugar: 0, category: '其他' },
       { name: '汉小二·辣椒粉', kcal: 422.5, protein: 0, fat: 0, carbs: 0, sodium: 0, sugar: 0, category: '其他' },
-      // 新增（Suki 2026-08-01 上传图片）
-      { name: '紫菜芝麻', kcal: 85.5875, protein: 2.235, fat: 6.18, carbs: 3.9, sodium: 82.65, sugar: 0, category: '碳水' },
-      { name: '芝麻沙拉酱', kcal: 21.55, protein: 0.17, fat: 1.58, carbs: 1.46, sodium: 168.4, sugar: 0, category: '碳水' },
-      { name: '玉米粒', kcal: 83.2, protein: 2.64, fat: 2.16, carbs: 12.24, sodium: 0, sugar: 0, category: '碳水' },
-      { name: '芝士片', kcal: 44.5875, protein: 2.22, fat: 3.075, carbs: 1.575, sodium: 156, sugar: 0, category: '蛋白质' },
-      { name: '午餐肉', kcal: 30.85, protein: 3.2, fat: 1.14, carbs: 1.58, sodium: 78, sugar: 0, category: '蛋白质' },
+      // 新增（Suki 2026-08-01 上传图片）。份量重定义为真实克数，营养保持每100g基准不变（baseGrams=100）
+      { name: '紫菜芝麻', kcal: 85.5875, protein: 2.235, fat: 6.18, carbs: 3.9, sodium: 82.65, sugar: 0, category: '碳水', unit: '100g', portion: '15g', baseGrams: 100 },
+      { name: '芝麻沙拉酱', kcal: 21.55, protein: 0.17, fat: 1.58, carbs: 1.46, sodium: 168.4, sugar: 0, category: '碳水', unit: '100g', portion: '10g', baseGrams: 100 },
+      { name: '玉米粒', kcal: 83.2, protein: 2.64, fat: 2.16, carbs: 12.24, sodium: 0, sugar: 0, category: '碳水', unit: '100g', portion: '80g', baseGrams: 100 },
+      { name: '芝士片', kcal: 44.5875, protein: 2.22, fat: 3.075, carbs: 1.575, sodium: 156, sugar: 0, category: '蛋白质', unit: '100g', portion: '15g', baseGrams: 100 },
+      { name: '午餐肉', kcal: 30.85, protein: 3.2, fat: 1.14, carbs: 1.58, sodium: 78, sugar: 0, category: '蛋白质', unit: '100g', portion: '20g', baseGrams: 100 },
     ];
 
     function addSukiImageFoods100g() {
