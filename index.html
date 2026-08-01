@@ -294,15 +294,17 @@
     .field label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
     .field.small { flex: 0 0 110px; }
     .field input, .field select { width: 100%; }
-    .autocomplete { position: relative; }
+    .autocomplete { position: relative; z-index: 5; }
+    /* 含搜索框的行整体抬升层级，确保搜索结果下拉框不会被同面板内后续的「添加/另外添加」按钮行遮挡 */
+    .autocomplete-row { z-index: 6; }
     .suggestions {
       position: absolute;
       top: 100%;
       left: 0;
       right: 0;
-      max-height: 240px;
+      max-height: 260px;
       overflow-y: auto;
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.98);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(0, 0, 0, 0.06);
@@ -311,7 +313,7 @@
       padding: 5px;
       list-style: none;
       box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18), 0 2px 6px rgba(16, 24, 40, 0.10);
-      z-index: 50;
+      z-index: 1000;
       display: none;
     }
     .suggestions li { padding: 9px 12px; cursor: pointer; font-size: 14px; border-radius: 9px; }
@@ -578,7 +580,7 @@
       <div class="two-col">
         <div class="panel">
           <h2>🍱 饮食记录</h2>
-          <div class="row">
+          <div class="row autocomplete-row">
             <div class="field autocomplete">
               <label>食物</label>
               <input type="text" id="food-search" placeholder="输入食物名称" autocomplete="off" />
@@ -608,7 +610,7 @@
 
         <div class="panel">
           <h2>🏃 运动记录</h2>
-          <div class="row">
+          <div class="row autocomplete-row">
             <div class="field autocomplete">
               <label>运动 / 视频</label>
               <input type="text" id="exercise-search" placeholder="输入运动名称" autocomplete="off" />
