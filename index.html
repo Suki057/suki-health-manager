@@ -77,10 +77,9 @@
     }
     .title-emoji { font-size: 28px; line-height: 1; -webkit-text-fill-color: initial; background: none; }
     .title-text {
-      background: linear-gradient(135deg, #A8CBA8 0%, #8FBC8F 58%, #7FA886 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #ffffff;
+      -webkit-text-fill-color: #ffffff;
+      background: none;
     }
     .app-sub {
       margin: 4px 0 0;
@@ -106,7 +105,7 @@
       border: none;
       padding: 7px 15px;
       border-radius: 10px;
-      color: var(--text);
+      color: rgba(255, 255, 255, 0.92);
       cursor: pointer;
       font-size: 13.5px;
       font-weight: 600;
@@ -153,9 +152,9 @@
       white-space: nowrap;
     }
     .bottom-nav .tab-btn.active {
-      background: linear-gradient(135deg, rgba(127, 168, 134, 0.22), rgba(127, 168, 134, 0.12));
-      color: #6E8797;
-      box-shadow: none;
+      background: linear-gradient(135deg, rgba(127, 168, 134, 0.98), rgba(159, 190, 159, 0.98));
+      color: #ffffff;
+      box-shadow: 0 1px 2px rgba(61, 58, 54, 0.12), 0 2px 8px rgba(127, 168, 134, 0.4);
     }
     .bottom-nav .tab-btn:active { transform: scale(0.96); }
     /* 手机端：标题不折行，底部导航保持一行拖动 */
