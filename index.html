@@ -1764,27 +1764,12 @@
     // ==================== 自动补全 ====================
     function setupAutocomplete({ input, list, hidden, source, label, onSelect }) {
       let activeIndex = -1;
-      function resetListPosition() {
-        list.style.position = '';
-        list.style.top = '';
-        list.style.left = '';
-        list.style.width = '';
-        list.style.zIndex = '';
-      }
-      function positionList() {
-        const rect = input.getBoundingClientRect();
-        list.style.position = 'fixed';
-        list.style.top = rect.bottom + 'px';
-        list.style.left = rect.left + 'px';
-        list.style.width = rect.width + 'px';
-        list.style.zIndex = '10000';
-      }
       function show() {
         const term = input.value.trim().toLowerCase();
         const items = source().filter(i => i.name.toLowerCase().includes(term));
         list.innerHTML = '';
         activeIndex = -1;
-        if (!term || items.length === 0) { list.style.display = 'none'; resetListPosition(); return; }
+        if (!term || items.length === 0) { list.style.display = 'none'; return; }
         items.forEach((item, idx) => {
           const li = document.createElement('li');
           li.textContent = label(item);
@@ -1793,13 +1778,11 @@
           list.appendChild(li);
         });
         list.style.display = 'block';
-        positionList();
       }
       function select(item) {
         input.value = item.name;
         hidden.value = item.id;
         list.style.display = 'none';
-        resetListPosition();
         if (onSelect) onSelect(item);
       }
       function highlight() {
@@ -1812,9 +1795,9 @@
         if (e.key === 'ArrowDown') { e.preventDefault(); activeIndex = (activeIndex + 1) % items.length; highlight(); }
         else if (e.key === 'ArrowUp') { e.preventDefault(); activeIndex = (activeIndex - 1 + items.length) % items.length; highlight(); }
         else if (e.key === 'Enter') { e.preventDefault(); items[Math.max(0, activeIndex)].dispatchEvent(new Event('mousedown')); }
-        else if (e.key === 'Escape') { list.style.display = 'none'; resetListPosition(); }
+        else if (e.key === 'Escape') { list.style.display = 'none'; }
       });
-      input.addEventListener('blur', () => setTimeout(() => { list.style.display = 'none'; resetListPosition(); }, 150));
+      input.addEventListener('blur', () => setTimeout(() => { list.style.display = 'none'; }, 150));
     }
 
     // ==================== 食物分类 & 归一化 ====================
