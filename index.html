@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌸 Suki 健康管理</title>
-  <meta name="theme-color" content="#D7E0E7" />
+  <meta name="theme-color" content="#C9DEC9" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Suki 健康管理" />
@@ -14,23 +14,23 @@
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
   <style>
     :root {
-      --bg: #D7E0E7;
+      --bg: #C9DEC9;
       --surface: rgba(255, 255, 255, 0.92);
       --text: #3D3A36;
-      --muted: #8A817C;
+      --muted: #7A8B7A;
       --border: rgba(61, 58, 54, 0.06);
-      --primary: #8AA3B3;
-      --primary-hover: #A3BBC9;
-      --secondary: #F5EDE6;
-      --secondary-hover: #EBE2DA;
-      --danger: #E07A6E;
-      --danger-hover: #E8948A;
+      --primary: #7FA886;
+      --primary-hover: #96BA9B;
+      --secondary: #EDF3ED;
+      --secondary-hover: #E2EBE2;
+      --danger: #D98A7E;
+      --danger-hover: #E39E93;
       --success: #7EB89A;
-      --warning: #D4A373;
-      --warning-hover: #DCB18A;
-      --intake: #D4A373;
-      --burn: #7FA9B8;
-      --net: #9B8FC7;
+      --warning: #C6A66F;
+      --warning-hover: #D4B584;
+      --intake: #C6A66F;
+      --burn: #7FA886;
+      --net: #9B9BC7;
       --radius: 18px;
       --radius-sm: 12px;
       --shadow: 0 10px 24px rgba(61, 58, 54, 0.07);
@@ -40,9 +40,9 @@
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
       background:
-        radial-gradient(820px 480px at 86% -8%, rgba(249, 234, 223, 0.5) 0%, rgba(249, 234, 223, 0) 55%),
-        radial-gradient(1200px 760px at 8% 4%, rgba(215, 224, 231, 0.97) 0%, rgba(215, 224, 231, 0) 60%),
-        linear-gradient(180deg, #D7E0E7 0%, #CDD9E1 50%, #E4EBF1 100%);
+        radial-gradient(820px 480px at 86% -8%, rgba(245, 242, 234, 0.55) 0%, rgba(245, 242, 234, 0) 55%),
+        radial-gradient(1200px 760px at 8% 4%, rgba(201, 222, 201, 0.98) 0%, rgba(201, 222, 201, 0) 60%),
+        linear-gradient(180deg, #C9DEC9 0%, #DDEADD 50%, #F5F2EA 100%);
       background-attachment: fixed;
       color: var(--text);
       line-height: 1.5;
@@ -53,10 +53,10 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: linear-gradient(180deg, rgba(167, 188, 201, 0.85) 0%, rgba(138, 163, 179, 0.80) 100%);
+      background: linear-gradient(180deg, rgba(159, 190, 159, 0.85) 0%, rgba(127, 168, 134, 0.80) 100%);
       backdrop-filter: saturate(160%) blur(20px);
       -webkit-backdrop-filter: saturate(160%) blur(20px);
-      border-bottom: 1px solid rgba(138, 163, 179, 0.70);
+      border-bottom: 1px solid rgba(127, 168, 134, 0.70);
       padding: 28px 24px;
       min-height: 96px;
       display: flex;
@@ -77,7 +77,7 @@
     }
     .title-emoji { font-size: 28px; line-height: 1; -webkit-text-fill-color: initial; background: none; }
     .title-text {
-      background: linear-gradient(135deg, #A7BCC9 0%, #8AA3B3 58%, #7FA9B8 100%);
+      background: linear-gradient(135deg, #A8CBA8 0%, #8FBC8F 58%, #7FA886 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -91,7 +91,7 @@
       display: flex;
       gap: 3px;
       padding: 4px;
-      background: rgba(215, 224, 231, 0.45);
+      background: rgba(201, 222, 201, 0.45);
       border-radius: 13px;
       box-shadow: inset 0 1px 2px rgba(61, 58, 54, 0.05);
       flex-wrap: nowrap;
@@ -126,10 +126,10 @@
       gap: 2px;
       padding: 22px 10px calc(22px + env(safe-area-inset-bottom, 0px));
       min-height: 90px;
-      background: linear-gradient(0deg, rgba(138, 163, 179, 0.92) 0%, rgba(167, 188, 201, 0.86) 100%);
+      background: linear-gradient(0deg, rgba(127, 168, 134, 0.92) 0%, rgba(159, 190, 159, 0.86) 100%);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border-top: 1px solid rgba(138, 163, 179, 0.78);
+      border-top: 1px solid rgba(127, 168, 134, 0.78);
       box-shadow: 0 -2px 14px rgba(61, 58, 54, 0.06);
       border-radius: 0;
       max-width: none;
@@ -153,7 +153,7 @@
       white-space: nowrap;
     }
     .bottom-nav .tab-btn.active {
-      background: linear-gradient(135deg, rgba(138, 163, 179, 0.22), rgba(138, 163, 179, 0.12));
+      background: linear-gradient(135deg, rgba(127, 168, 134, 0.22), rgba(127, 168, 134, 0.12));
       color: #6E8797;
       box-shadow: none;
     }
@@ -186,7 +186,7 @@
     .panel {
       position: relative;
       isolation: isolate;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(215, 224, 231, 0.86) 100%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(221, 234, 221, 0.86) 100%);
       border: 1px solid rgba(255, 255, 255, 0.75);
       border-radius: var(--radius);
       padding: 22px;
@@ -218,7 +218,7 @@
       bottom: 8px;
       width: 2.5px;
       border-radius: 3px;
-      background: linear-gradient(180deg, #8A5CFF 0%, #4D8BFF 24%, #29D4E6 48%, #D7E0E7 70%, #C9D4DC 86%, #F9EADF 100%);
+      background: linear-gradient(180deg, #6B9B73 0%, #8FBC8F 24%, #B8D4B8 48%, #DDEADD 70%, #EBF2EB 86%, #F5F2EA 100%);
       box-shadow: 0 0 6px rgba(77, 139, 255, 0.5), 0 0 10px rgba(41, 212, 230, 0.42);
       opacity: 0.92;
       pointer-events: none;
@@ -264,7 +264,7 @@
     input:focus, select:focus {
       border-color: var(--primary);
       background: rgba(255, 255, 255, 0.86);
-      box-shadow: 0 0 0 4px rgba(138, 163, 179, 0.15), inset 0 1px 2px rgba(61, 58, 54, 0.04);
+      box-shadow: 0 0 0 4px rgba(127, 168, 134, 0.15), inset 0 1px 2px rgba(61, 58, 54, 0.04);
     }
     .btn {
       border: none;
@@ -280,8 +280,8 @@
     .btn:active { transform: translateY(1px) scale(0.99); }
     .btn.primary {
       color: #fff;
-      background: linear-gradient(180deg, #A3BBC9 0%, #8AA3B3 100%);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 4px 12px rgba(138, 163, 179, 0.35), 0 1px 2px rgba(138, 163, 179, 0.4);
+      background: linear-gradient(180deg, #96BA9B 0%, #7FA886 100%);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 4px 12px rgba(127, 168, 134, 0.35), 0 1px 2px rgba(127, 168, 134, 0.4);
     }
     .btn.primary:hover { filter: brightness(1.04); }
     .btn.secondary {
@@ -340,7 +340,7 @@
       display: none;
     }
     .suggestions li { padding: 9px 12px; cursor: pointer; font-size: 14px; border-radius: 9px; }
-    .suggestions li:hover, .suggestions li.active { background: rgba(138, 163, 179, 0.13); }
+    .suggestions li:hover, .suggestions li.active { background: rgba(127, 168, 134, 0.13); }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
     @media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
     /* 关键：让网格项可收缩到内容之外，否则宽表格会把面板/页面整体撑大 */
@@ -367,7 +367,7 @@
       letter-spacing: 0.02em;
     }
     tbody tr { transition: background 0.12s; }
-    tbody tr:hover { background: rgba(138, 163, 179, 0.08); }
+    tbody tr:hover { background: rgba(127, 168, 134, 0.08); }
     tbody tr:last-child td { border-bottom: none; }
     td.number { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
     .summary-grid {
@@ -380,7 +380,7 @@
     .card {
       position: relative;
       isolation: isolate;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(215, 224, 231, 0.86));
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(221, 234, 221, 0.86));
       border: 1px solid rgba(255, 255, 255, 0.75);
       border-radius: 18px;
       padding: 18px 16px;
@@ -412,7 +412,7 @@
       bottom: 8px;
       width: 2.5px;
       border-radius: 3px;
-      background: linear-gradient(180deg, #8A5CFF 0%, #4D8BFF 24%, #29D4E6 48%, #D7E0E7 70%, #C9D4DC 86%, #F9EADF 100%);
+      background: linear-gradient(180deg, #6B9B73 0%, #8FBC8F 24%, #B8D4B8 48%, #DDEADD 70%, #EBF2EB 86%, #F5F2EA 100%);
       box-shadow: 0 0 6px rgba(77, 139, 255, 0.5), 0 0 10px rgba(41, 212, 230, 0.42);
       opacity: 0.92;
       pointer-events: none;
@@ -456,16 +456,16 @@
       outline: none;
       background: rgba(255, 255, 255, 0.9);
       color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(138, 163, 179, 0.15);
+      box-shadow: 0 0 0 3px rgba(127, 168, 134, 0.15);
     }
-    .edit-portion-input:focus { box-shadow: 0 0 0 4px rgba(138, 163, 179, 0.22); }
-    td.editing-cell { background: rgba(138, 163, 179, 0.07); }
+    .edit-portion-input:focus { box-shadow: 0 0 0 4px rgba(127, 168, 134, 0.22); }
+    td.editing-cell { background: rgba(127, 168, 134, 0.07); }
     /* 点「修改」后编辑框高亮提示 */
     .form-grid.editing-flash,
     .food-form-grid.editing-flash {
       animation: editFlash 1.2s ease;
       border-radius: 14px;
-      box-shadow: 0 0 0 3px rgba(138, 163, 179, 0.40), var(--shadow);
+      box-shadow: 0 0 0 3px rgba(127, 168, 134, 0.40), var(--shadow);
     }
     /* 食物库：导入表单 8 个输入框，2 个一排 */
     .food-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; align-items: end; margin-bottom: 6px; }
@@ -523,7 +523,7 @@
       bottom: 8px;
       width: 2.5px;
       border-radius: 3px;
-      background: linear-gradient(180deg, #8A5CFF 0%, #4D8BFF 24%, #29D4E6 48%, #D7E0E7 70%, #C9D4DC 86%, #F9EADF 100%);
+      background: linear-gradient(180deg, #6B9B73 0%, #8FBC8F 24%, #B8D4B8 48%, #DDEADD 70%, #EBF2EB 86%, #F5F2EA 100%);
       box-shadow: 0 0 6px rgba(77, 139, 255, 0.5), 0 0 10px rgba(41, 212, 230, 0.42);
       opacity: 0.92;
       pointer-events: none;
@@ -536,8 +536,8 @@
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
     @media (max-width: 480px) { .modal-grid { grid-template-columns: 1fr; } }
     @keyframes editFlash {
-      0% { box-shadow: 0 0 0 6px rgba(138, 163, 179, 0.45), var(--shadow); }
-      100% { box-shadow: 0 0 0 0 rgba(138, 163, 179, 0); }
+      0% { box-shadow: 0 0 0 6px rgba(127, 168, 134, 0.45), var(--shadow); }
+      100% { box-shadow: 0 0 0 0 rgba(127, 168, 134, 0); }
     }
     .data-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     .empty-state { color: var(--muted); text-align: center; padding: 26px; font-size: 14px; }
@@ -970,7 +970,7 @@
         </div>
 
         <h3 style="margin-top:24px;">📱 在手机上安装为 App</h3>
-        <div style="background:linear-gradient(135deg,rgba(215,224,231,0.78),rgba(249,234,223,0.42));border:1px solid rgba(138,163,179,0.28);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+        <div style="background:linear-gradient(135deg,rgba(201,222,201,0.78),rgba(245,242,234,0.42));border:1px solid rgba(127,168,134,0.28);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
           <p class="hint" style="margin:0 0 8px;">部署到公网后，手机浏览器打开本页面即可「添加到主屏幕」，像原生 App 一样全屏使用、可离线打开。</p>
           <ul style="margin:0;padding-left:18px;color:var(--text);font-size:13px;line-height:1.75;">
             <li><b>iPhone / iPad：</b>用 Safari 打开页面 → 点底部「分享」按钮 → 选「添加到主屏幕」→ 命名后「添加」。</li>
@@ -2392,8 +2392,8 @@
         svg += `<text x="${xs[i]}" y="${H - 12}" text-anchor="middle" font-size="11" fill="#8A817C">${points[i].date.slice(5)}</text>`;
       });
       const ptsStr = points.map((p, i) => `${xs[i]},${ys[i]}`).join(' ');
-      svg += `<polyline points="${ptsStr}" fill="none" stroke="#8AA3B3" stroke-width="2" />`;
-      points.forEach((p, i) => { svg += `<circle cx="${xs[i]}" cy="${ys[i]}" r="3.5" fill="#8AA3B3" />`; });
+      svg += `<polyline points="${ptsStr}" fill="none" stroke="#7FA886" stroke-width="2" />`;
+      points.forEach((p, i) => { svg += `<circle cx="${xs[i]}" cy="${ys[i]}" r="3.5" fill="#7FA886" />`; });
       svg += `<text x="${padL}" y="14" font-size="12" fill="#3D3A36">${BODY_LABELS[metric]} · 最新 ${formatNum(points[points.length - 1].value)}</text>`;
       svg += `</svg>`;
       el.innerHTML = svg;
