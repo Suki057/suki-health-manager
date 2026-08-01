@@ -683,16 +683,6 @@
           <div class="row" style="margin-bottom:14px;">
             <button id="custom-food-btn" class="btn secondary">＋ 另外添加（自定义食物）</button>
           </div>
-          <div class="table-wrap">
-            <table id="diet-table">
-              <thead>
-                <tr>
-                  <th>食物</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
         </div>
 
         <div class="panel">
@@ -714,14 +704,6 @@
             </div>
             <button id="add-exercise-btn" class="btn primary">添加</button>
             <button id="custom-exercise-btn" class="btn secondary">另外添加</button>
-          </div>
-          <div class="table-wrap">
-            <table id="exercise-table">
-              <thead>
-                <tr><th>运动</th><th>时长</th><th>消耗</th><th></th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
           </div>
         </div>
       </div>
@@ -778,6 +760,38 @@
         </div>
         <p class="hint" id="body-saved-hint"></p>
         <div id="baseline-compare" class="baseline-compare"></div>
+      </div>
+    </section>
+
+    <!-- 热量明细表 -->
+    <section id="calories" class="tab-panel">
+      <div class="date-bar">
+        <input type="date" id="cal-date-picker" />
+        <button id="cal-today-btn" class="btn secondary">回到今天</button>
+      </div>
+      <div class="panel">
+        <h2>🍱 饮食明细 <small>已记录的饮食与热量</small></h2>
+        <div class="table-wrap">
+          <table id="diet-table">
+            <thead>
+              <tr>
+                <th>食物</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>🏃 运动明细 <small>已记录的运动与消耗</small></h2>
+        <div class="table-wrap">
+          <table id="exercise-table">
+            <thead>
+              <tr><th>运动</th><th>时长</th><th>消耗</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -983,6 +997,7 @@
   <nav class="tabs bottom-nav">
     <button class="tab-btn active" data-tab="today">今日记录</button>
     <button class="tab-btn" data-tab="stats">统计</button>
+    <button class="tab-btn" data-tab="calories">热量明细表</button>
     <button class="tab-btn" data-tab="foods">食物库</button>
     <button class="tab-btn" data-tab="exercises">运动库</button>
     <button class="tab-btn" data-tab="trash">回收站</button>
@@ -1152,6 +1167,11 @@
           document.getElementById(btn.dataset.tab).classList.add('active');
           if (btn.dataset.tab === 'stats') renderStats();
           if (btn.dataset.tab === 'trash') renderTrash();
+          if (btn.dataset.tab === 'calories') {
+            const cdp = document.getElementById('cal-date-picker');
+            if (cdp) cdp.value = document.getElementById('date-picker').value;
+            renderToday();
+          }
         });
       });
     }
@@ -1199,6 +1219,22 @@
         renderToday();
         renderBody();
       });
+
+      const calDatePicker = document.getElementById('cal-date-picker');
+      if (calDatePicker) {
+        calDatePicker.value = datePicker.value;
+        calDatePicker.addEventListener('change', () => {
+          datePicker.value = calDatePicker.value;
+          renderToday();
+          renderBody();
+        });
+        document.getElementById('cal-today-btn').addEventListener('click', () => {
+          calDatePicker.value = getTodayStr();
+          datePicker.value = getTodayStr();
+          renderToday();
+          renderBody();
+        });
+      }
 
       setupAutocomplete({
         input: document.getElementById('food-search'),
