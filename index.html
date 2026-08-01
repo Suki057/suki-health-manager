@@ -247,7 +247,9 @@
       letter-spacing: -0.01em;
     }
     .panel h2 small { color: var(--muted); font-weight: 500; font-size: 13px; margin-left: 8px; }
-    .date-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .date-bar { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .date-bar input[type="date"] { flex: 1 1 auto; min-width: 0; }
+    .date-bar .btn { flex: 0 0 auto; }
     .date-bar label { font-weight: 600; font-size: 14px; }
     /* 统计页日期栏：缩小日期框，– 居中，查看按钮与结束框留间距 */
     #stats .row .field { min-width: 0; }
