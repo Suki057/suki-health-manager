@@ -1,12 +1,12 @@
 // Service Worker —— 让 PWA 可离线、可“添加到主屏幕”
-const CACHE = 'diet-tracker-v2';
+const CACHE = 'diet-tracker-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png',
-  './apple-touch-icon.png'
+  './icon-192-v2.png',
+  './icon-512-v2.png',
+  './apple-touch-icon-v2.png'
 ];
 
 self.addEventListener('install', event => {
