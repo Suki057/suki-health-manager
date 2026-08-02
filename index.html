@@ -1673,7 +1673,9 @@
 
       const totals = computeDayTotals(day);
       if (g.kcal) {
-        const need = g.kcal - totals.kcal;
+        // 与「今日记录」净热量口径一致：净热量 = 摄入 - 总消耗（总消耗=运动+每日动态消耗）
+        // 今日还需热量 = 目标热量 - 净热量 = 目标 - 摄入 + 总消耗
+        const need = g.kcal - totals.kcal + totals.burn;
         kcalEl.innerHTML = formatNum(Math.abs(need)) + '<small> ' + (need >= 0 ? '可吃' : '已超') + '</small>';
       } else { kcalEl.textContent = '—'; }
 
