@@ -45,6 +45,8 @@
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
       background:
+        /* 底部遮罩：覆盖小王子渐变最下方的奶油色，让底部导航栏区域保持深蓝不发白 */
+        linear-gradient(0deg, rgba(26, 32, 70, 0.98) 0%, rgba(26, 32, 70, 0.82) 70px, transparent 190px),
         radial-gradient(2px 2px at 12% 14%, rgba(246, 231, 176, 0.9) 50%, transparent 51%),
         radial-gradient(1.6px 1.6px at 28% 9%, rgba(246, 231, 176, 0.7) 50%, transparent 51%),
         radial-gradient(1.8px 1.8px at 47% 16%, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
@@ -205,7 +207,7 @@
       box-shadow: 0 1px 2px rgba(61, 58, 54, 0.08), 0 2px 7px rgba(61, 58, 54, 0.07);
     }
     .tab-btn:active { transform: scale(0.96); }
-    .container { padding: 24px; max-width: 1320px; margin: 0 auto; padding-bottom: 110px; }
+    .container { padding: 24px; max-width: 1320px; margin: 0 auto; padding-bottom: 76px; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; animation: fadeUp 0.35s ease both; }
     @keyframes fadeUp {
@@ -2636,15 +2638,27 @@
         else toast(`已导入 ${added} 款品牌奶茶 / 咖啡，已按品牌自动分板块，去「食物库」看看吧`);
       });
 
-      document.getElementById('suki-fastfoods-btn').addEventListener('click', () => {
-        const { added, fixed } = addSukiFastFoods();
-        if (added === 0 && fixed === 0) toast('快餐数据都已在食物库中，无需重复添加');
-        else {
-          let msg = `已导入 ${added} 款快餐数据（KFC / M记 / 鸡柳大人），已按品牌自动分板块，去「食物库」看看吧`;
-          if (fixed > 0) msg += `；并修正了 ${fixed} 款旧数据的单位（100g→份）`;
-          toast(msg);
-        }
-      });
+      function bindFastFoodImport(btnId) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          try {
+            toast('正在导入快餐数据…');
+            const { added, fixed } = addSukiFastFoods();
+            if (added === 0 && fixed === 0) toast('快餐数据都已在食物库中，无需重复添加');
+            else {
+              let msg = `已导入 ${added} 款快餐数据（KFC / M记 / 鸡柳大人），已按品牌自动分板块，去「食物库」看看吧`;
+              if (fixed > 0) msg += `；并修正了 ${fixed} 款旧数据的单位（100g→份）`;
+              toast(msg);
+            }
+          } catch (err) {
+            console.error(err);
+            toast('导入出错：' + (err && err.message ? err.message : '未知错误'));
+          }
+        });
+      }
+      bindFastFoodImport('suki-fastfoods-btn');
+      bindFastFoodImport('suki-fastfoods-100g-btn'); // 兼容旧版缓存 HTML
 
       document.getElementById('suki-exercises-btn').addEventListener('click', () => {
         const added = addSukiExercises();
