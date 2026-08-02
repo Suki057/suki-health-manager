@@ -3489,6 +3489,31 @@
       if (emojiEl) enableEdit(emojiEl, 'appEmoji', DEFAULT_EMOJI);
       applyTitle();
     })();
+
+    // 顶部双击（移动端/桌面）→ 内容区快速回到最上方；双击标题仍用于编辑标题，互不冲突
+    (function setupHeaderBackToTop() {
+      const header = document.querySelector('.app-header');
+      const main = document.querySelector('main.container');
+      if (!header || !main) return;
+      function backToTop() { main.scrollTo({ top: 0, behavior: 'smooth' }); }
+      // 桌面：双击标题以外的顶部区域回到最上方（双击标题仍保留为编辑功能）
+      header.addEventListener('dblclick', (e) => {
+        if (e.target.closest('#app-title, #app-emoji')) return;
+        backToTop();
+      });
+      // 移动端：两次轻触间隔 < 320ms 视为双击，回到最上方（标题编辑走长按，不冲突）
+      let lastTap = 0;
+      header.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 320) {
+          e.preventDefault();
+          backToTop();
+          lastTap = 0;
+        } else {
+          lastTap = now;
+        }
+      }, { passive: false });
+    })();
   </script>
 </body>
 </html>
