@@ -1088,7 +1088,7 @@
           <button id="suki-image-foods-100g-btn" class="btn primary">＋ 添加图片食物表（100g）</button>
           <button id="suki-image-foods-btn" class="btn secondary">＋ 添加图片食物表（单份）</button>
           <button id="suki-milktea-btn" class="btn secondary">🧋 导入品牌奶茶数据</button>
-          <button id="suki-fastfoods-100g-btn" class="btn secondary">🍔 导入 KFC / M记 / 鸡柳大人数据</button>
+          <button id="suki-fastfoods-btn" class="btn secondary">🍔 导入 KFC / M记 / 鸡柳大人数据</button>
           <button id="suki-exercises-btn" class="btn primary">＋ 导入 Suki 运动表</button>
         </div>
         <h3 style="margin-top:24px;">🧹 精细化清空</h3>
@@ -2636,10 +2636,14 @@
         else toast(`已导入 ${added} 款品牌奶茶 / 咖啡，已按品牌自动分板块，去「食物库」看看吧`);
       });
 
-      document.getElementById('suki-fastfoods-100g-btn').addEventListener('click', () => {
-        const added = addSukiFastFoods100g();
-        if (added === 0) toast('快餐数据都已在食物库中，无需重复添加');
-        else toast(`已导入 ${added} 款快餐数据（KFC / M记 / 鸡柳大人），已按品牌自动分板块，去「食物库」看看吧`);
+      document.getElementById('suki-fastfoods-btn').addEventListener('click', () => {
+        const { added, fixed } = addSukiFastFoods();
+        if (added === 0 && fixed === 0) toast('快餐数据都已在食物库中，无需重复添加');
+        else {
+          let msg = `已导入 ${added} 款快餐数据（KFC / M记 / 鸡柳大人），已按品牌自动分板块，去「食物库」看看吧`;
+          if (fixed > 0) msg += `；并修正了 ${fixed} 款旧数据的单位（100g→份）`;
+          toast(msg);
+        }
       });
 
       document.getElementById('suki-exercises-btn').addEventListener('click', () => {
@@ -2895,8 +2899,8 @@
       { name: '午餐肉', kcal: 30.85, protein: 3.2, fat: 1.14, carbs: 1.58, sodium: 78, sugar: 0, category: '蛋白质', unit: '100g', portion: '20g', baseGrams: 20 },
     ];
 
-    // 快餐数据（2026-08-02）：来自 Suki 上传的两张截图，KFC / M记 / 鸡柳大人，按品牌归类。数值为每100g。
-    const SUKI_FASTFOODS_100G = [
+    // 快餐数据（2026-08-02）：来自 Suki 上传的两张截图，KFC / M记 / 鸡柳大人，按品牌归类。数值为单份总值（非每100g）。
+    const SUKI_FASTFOODS = [
       { name: '鸡柳大人·鸡柳年糕二合一（中）', kcal: 450, protein: 16, fat: 18, carbs: 54, sodium: 620, sugar: 4.5, category: '其他' },
       { name: '鸡柳大人·鸡柳年糕二合一（大）', kcal: 590, protein: 21, fat: 24, carbs: 71, sodium: 810, sugar: 6, category: '其他' },
       { name: 'kfc·芝士鸡肉帕尼尼（常规版）', brand: 'KFC', kcal: 296, protein: 18, fat: 10, carbs: 28, sodium: 520, sugar: 3.6, category: '其他' },
@@ -3095,17 +3099,22 @@
           added++;
         }
       });
-    function addSukiFastFoods100g() {
-      let added = 0;
-      SUKI_FASTFOODS_100G.forEach(c => {
-        if (!state.foods.some(f => f.name === c.name)) {
-          state.foods.push(normalizeFood({ id: generateId(), unit: '100g', portion: '100g', ...c }));
+    function addSukiFastFoods() {
+      let added = 0, fixed = 0;
+      SUKI_FASTFOODS.forEach(c => {
+        const e = state.foods.find(f => f.name === c.name);
+        if (!e) {
+          state.foods.push(normalizeFood({ id: generateId(), unit: 'serving', portion: '1份', ...c }));
           added++;
+        } else if (e.unit === '100g' || String(e.portion).includes('100')) {
+          e.unit = 'serving';
+          e.portion = '1份';
+          fixed++;
         }
       });
       save();
       renderAll();
-      return added;
+      return { added, fixed };
     }
 
       save();
