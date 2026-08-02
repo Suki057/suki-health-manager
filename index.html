@@ -1677,8 +1677,8 @@
       const exerciseKcal = (logX.exercises || []).reduce((s, e) => s + (Number(e.kcal) || 0), 0);
       const dynamicKcal = Number((state.goals && state.goals.dynamicBurn) || 0);
       if (g.kcal) {
-        // 今日净热量 = 目标热量 + 运动热量 - 动态消耗热量
-        const net = g.kcal + exerciseKcal - dynamicKcal;
+        // 今日净热量 = 运动热量 + 动态消耗热量 - 目标热量
+        const net = exerciseKcal + dynamicKcal - g.kcal;
         kcalEl.innerHTML = formatNum(Math.abs(net)) + '<small> ' + (net >= 0 ? '盈余' : '缺口') + '</small>';
       } else { kcalEl.textContent = '—'; }
 
