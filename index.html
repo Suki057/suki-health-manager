@@ -711,10 +711,78 @@
     .delta-flat { color: var(--muted); }
     .no-baseline { color: #9ca3af; font-size: 13px; margin-top: 8px; }
     .cell-note { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+
+    /* ===== 目标管理（与初始基数同构，仅填目标体重/体脂） ===== */
+    .target-box { margin-bottom: 16px; }
+    .target-box details {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(249, 234, 223, 0.84));
+      border: 1px solid rgba(61, 58, 54, 0.05);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    .target-box summary { cursor: pointer; font-weight: 700; font-size: 14px; outline: none; }
+
+    /* ===== 开屏界面 ===== */
+    .splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, #141a3e 0%, #2a2c54 32%, #564a73 56%, #9a6f90 78%, #d293a6 100%);
+      color: #fdf6e9; text-align: center; overflow-y: auto;
+    }
+    .splash.hidden { display: none; }
+    .splash-art { width: 150px; max-width: 50vw; height: auto; margin-bottom: 10px; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35)); }
+    .splash-name { font-size: 18px; font-weight: 800; color: #fff; margin: 4px 0 2px; }
+    .splash-sub { font-size: 12px; color: #f3e3c8; opacity: 0.85; margin-bottom: 16px; }
+    .splash-quote { font-size: 13px; line-height: 1.7; color: #f3e3c8; opacity: 0.92; margin: 0 0 18px; max-width: 300px; }
+    .splash-cards { width: 100%; max-width: 340px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .splash-card {
+      background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 14px; padding: 14px 8px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    .splash-card .num { font-size: 21px; font-weight: 800; color: #ffe7b3; line-height: 1.15; }
+    .splash-card .num small { font-size: 11px; font-weight: 600; color: #f3e3c8; }
+    .splash-card .lbl { font-size: 11px; color: #f3e3c8; opacity: 0.85; margin-top: 5px; }
+    .splash-enter {
+      background: linear-gradient(180deg, #ffe7b3, #f5c977); color: #5a3d1f;
+      border: none; border-radius: 999px; padding: 14px 40px; font-size: 16px; font-weight: 800;
+      box-shadow: 0 8px 22px rgba(245, 201, 119, 0.4); cursor: pointer;
+    }
+    .splash-enter:active { transform: translateY(1px); }
+
     h3 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
   </style>
 </head>
 <body>
+  <!-- ===== 开屏界面 ===== -->
+  <div class="splash" id="splash">
+    <svg class="splash-art" viewBox="0 0 200 200" role="img" aria-label="小王子与玫瑰">
+      <circle cx="100" cy="120" r="66" fill="#3a4a8c"/>
+      <circle cx="100" cy="120" r="66" fill="none" stroke="#ffe7b3" stroke-opacity="0.35" stroke-width="1.5"/>
+      <circle cx="100" cy="72" r="19" fill="#f3d9b0"/>
+      <path d="M82 60 q18 -22 36 0" fill="#ffd66b"/>
+      <rect x="88" y="89" width="24" height="30" rx="9" fill="#7fb38f"/>
+      <path d="M134 122 q4 -28 -2 -34" stroke="#7fae6b" stroke-width="3" fill="none"/>
+      <circle cx="132" cy="86" r="9" fill="#e98aa6"/>
+      <circle cx="132" cy="86" r="4" fill="#f6b9c9"/>
+      <g fill="#ffe7b3">
+        <circle cx="40" cy="42" r="2"/><circle cx="160" cy="32" r="2.5"/><circle cx="170" cy="84" r="1.8"/>
+        <circle cx="32" cy="98" r="1.6"/><circle cx="150" cy="156" r="2"/><circle cx="48" cy="150" r="1.6"/>
+      </g>
+    </svg>
+    <div class="splash-name">Suki 的小星球</div>
+    <div class="splash-sub">🌹 小王子 &amp; 玫瑰 · 健康管理</div>
+    <p class="splash-quote">「也许世界上也有五千朵和你一模一样的花，但只有你浇灌的那朵，才属于你。」</p>
+    <div class="splash-cards" id="splash-cards">
+      <div class="splash-card"><div class="num" id="sp-kg">—</div><div class="lbl">距目标体重 (kg)</div></div>
+      <div class="splash-card"><div class="num" id="sp-fat">—</div><div class="lbl">体脂可降 (%)</div></div>
+      <div class="splash-card"><div class="num" id="sp-kcal">—</div><div class="lbl">今日还需热量 (kcal)</div></div>
+      <div class="splash-card"><div class="num" id="sp-protein">—</div><div class="lbl">今日还需蛋白 (g)</div></div>
+    </div>
+    <button class="splash-enter" id="splash-enter">🌟 开始管理</button>
+  </div>
+
   <header class="app-header">
     <h1><span class="title-emoji" id="app-emoji">🌹</span><span class="title-text" id="app-title">Suki 的小星球</span></h1>
   </header>
@@ -871,6 +939,20 @@
               </div>
             </div>
             <p class="hint" id="base-hint"></p>
+          </details>
+        </div>
+        <div class="target-box">
+          <details>
+            <summary>🎯 目标管理（你想达到的）· 点击设置</summary>
+            <p class="hint">填写你希望达到的目标体重与目标体脂率，开屏界面会据此显示「距目标体重」与「体脂可降」。</p>
+            <div class="form-grid">
+              <div class="field"><label>目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" /></div>
+              <div class="field"><label>目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" /></div>
+              <div class="form-actions">
+                <button type="button" class="btn secondary" id="target-save-btn">保存目标管理</button>
+              </div>
+            </div>
+            <p class="hint" id="target-hint"></p>
           </details>
         </div>
         <div class="form-grid">
@@ -1416,6 +1498,7 @@
 
       document.getElementById('body-save-btn').addEventListener('click', saveBodyEntry);
       document.getElementById('base-save-btn').addEventListener('click', saveBaseline);
+      document.getElementById('target-save-btn').addEventListener('click', saveTargetManagement);
     }
 
     const BODY_FIELDS = [
@@ -1510,6 +1593,84 @@
         rows += '<tr><td>' + labels[k] + '</td><td>' + curTxt + '</td><td>' + formatNum(base) + '</td>' + deltaHtml + '</tr>';
       });
       box.innerHTML = '<table><thead><tr><th>指标</th><th>今日</th><th>初始</th><th>变化</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    // ==================== 目标管理（开屏界面数据来源） ====================
+    const TARGET_FIELDS = [
+      ['target-weight', 'targetWeight'],
+      ['target-fat', 'targetBodyFat'],
+    ];
+    function saveTargetManagement() {
+      if (!state.goals || typeof state.goals !== 'object') state.goals = {};
+      let has = false;
+      TARGET_FIELDS.forEach(([inputId, key]) => {
+        const v = parseFloat(document.getElementById(inputId).value);
+        if (!Number.isNaN(v) && v > 0) { state.goals[key] = v; has = true; }
+      });
+      if (!has) return toast('请至少填写一项目标');
+      save();
+      renderTargetManagement();
+      const parts = [];
+      if (state.goals.targetWeight) parts.push('目标体重 ' + formatNum(state.goals.targetWeight) + 'kg');
+      if (state.goals.targetBodyFat) parts.push('目标体脂 ' + formatNum(state.goals.targetBodyFat) + '%');
+      const hint = document.getElementById('target-hint');
+      if (hint) hint.textContent = '目标管理已保存：' + parts.join('，') + '。';
+      toast('目标管理已保存');
+    }
+    function renderTargetManagement() {
+      TARGET_FIELDS.forEach(([inputId, key]) => {
+        const el = document.getElementById(inputId);
+        const v = (state.goals && state.goals[key] !== undefined && state.goals[key] !== null) ? state.goals[key] : '';
+        el.value = v;
+      });
+      const parts = [];
+      if (state.goals && state.goals.targetWeight) parts.push('目标体重 ' + formatNum(state.goals.targetWeight) + 'kg');
+      if (state.goals && state.goals.targetBodyFat) parts.push('目标体脂 ' + formatNum(state.goals.targetBodyFat) + '%');
+      const hint = document.getElementById('target-hint');
+      if (hint) hint.textContent = parts.length ? ('当前目标：' + parts.join('，')) : '';
+    }
+
+    // ==================== 开屏界面 ====================
+    function renderSplash() {
+      const day = getCurrentDate();
+      const body = (state.logs[day] && state.logs[day].body) || {};
+      const g = state.goals || {};
+      const base = state.baseline || {};
+      const curWeight = (body.weight !== undefined && body.weight !== null) ? body.weight
+        : (base.weight !== undefined ? base.weight : null);
+      const curFat = (body.bodyFat !== undefined && body.bodyFat !== null) ? body.bodyFat
+        : (base.bodyFat !== undefined ? base.bodyFat : null);
+      const kgEl = document.getElementById('sp-kg');
+      const fatEl = document.getElementById('sp-fat');
+      const kcalEl = document.getElementById('sp-kcal');
+      const proEl = document.getElementById('sp-protein');
+
+      if (g.targetWeight && curWeight) {
+        const d = curWeight - g.targetWeight;
+        kgEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '还差' : '已超') + '</small>';
+      } else { kgEl.textContent = '—'; }
+
+      if (g.targetBodyFat && curFat) {
+        const d = curFat - g.targetBodyFat;
+        fatEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '可降' : '已低') + '</small>';
+      } else { fatEl.textContent = '—'; }
+
+      const totals = computeDayTotals(day);
+      if (g.kcal) {
+        const need = g.kcal - totals.kcal;
+        kcalEl.innerHTML = formatNum(Math.abs(need)) + '<small> ' + (need >= 0 ? '可吃' : '已超') + '</small>';
+      } else { kcalEl.textContent = '—'; }
+
+      if (g.protein) {
+        const need = g.protein - totals.protein;
+        proEl.innerHTML = formatNum(Math.abs(need)) + '<small> ' + (need >= 0 ? '可吃' : '已超') + '</small>';
+      } else { proEl.textContent = '—'; }
+    }
+    function setupSplash() {
+      const enter = document.getElementById('splash-enter');
+      const splash = document.getElementById('splash');
+      if (!enter || !splash) return;
+      enter.addEventListener('click', () => splash.classList.add('hidden'));
     }
 
     function renderBody() {
@@ -2719,6 +2880,11 @@
         const v = parseFloat(document.getElementById(GOAL_IDS[k]).value);
         if (!Number.isNaN(v) && v > 0) g[k] = v;
       });
+      // 保留「目标管理」里的体重/体脂目标，避免保存每日营养目标时被覆盖清空
+      if (state.goals && typeof state.goals === 'object') {
+        if (state.goals.targetWeight !== undefined) g.targetWeight = state.goals.targetWeight;
+        if (state.goals.targetBodyFat !== undefined) g.targetBodyFat = state.goals.targetBodyFat;
+      }
       state.goals = g;
       save();
       const n = Object.keys(g).length;
@@ -3159,6 +3325,7 @@
     function renderAll() {
       renderToday();
       renderBody();
+      renderTargetManagement();
       renderFoodLibrary();
       renderExerciseLibrary();
       renderStats();
@@ -3197,6 +3364,9 @@
       setupDataTab();
       setupTrashTab();
       renderAll();
+      // 开屏界面：根据当前数据渲染四张数字卡，绑定「开始管理」进入主界面
+      renderSplash();
+      setupSplash();
 
       // 注册 Service Worker（PWA：可离线、可“添加到主屏幕”当作 App）
       if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
