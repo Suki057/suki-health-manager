@@ -1093,7 +1093,7 @@
     <!-- 统计 -->
     <section id="stats" class="tab-panel">
       <div class="panel">
-        <h2>📊 统计</h2>
+        <h2>📊 热量记录</h2>
         <div class="row stats-datebar">
           <div class="date-group">
             <div class="field"><label>开始日期</label><input type="date" id="stats-start" /></div>
@@ -1110,8 +1110,7 @@
         </div>
       </div>
       <div class="panel">
-        <h2>📐 身材管理 统计</h2>
-        <p class="hint">使用上方所选的日期区间（与「统计」共用）。</p>
+        <h2>📐 身材记录</h2>
         <div class="table-wrap">
           <table id="body-stats-table">
             <thead><tr><th>日期</th><th>体重 (kg)</th><th>体脂率 (%)</th><th>小腿围 (cm)</th><th>大腿围 (cm)</th><th>腰围 (cm)</th><th>臀围 (cm)</th><th>操作</th></tr></thead>
@@ -1207,7 +1206,7 @@
 
   <nav class="tabs bottom-nav">
     <button class="tab-btn active" data-tab="today">今日记录</button>
-    <button class="tab-btn" data-tab="stats">统计</button>
+    <button class="tab-btn" data-tab="stats">热量记录</button>
     <button class="tab-btn" data-tab="calories">热量明细表</button>
     <button class="tab-btn" data-tab="foods">食物库</button>
     <button class="tab-btn" data-tab="exercises">运动库</button>
@@ -2441,12 +2440,16 @@
 
     // ==================== 统计 ====================
     function setupStatsTab() {
-      const end = getTodayStr();
-      const start = new Date();
-      start.setDate(start.getDate() - 6);
-      const off = start.getTimezoneOffset();
-      document.getElementById('stats-end').value = end;
-      document.getElementById('stats-start').value = new Date(start.getTime() - off * 60000).toISOString().slice(0, 10);
+      // 默认区间：当年当月 1 号 ~ 当月最后一天；需要看某几天时可用日期框自选
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const first = new Date(y, m, 1);
+      const last = new Date(y, m + 1, 0);
+      const p2 = n => (n < 10 ? '0' + n : '' + n);
+      const fmtD = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+      document.getElementById('stats-start').value = fmtD(first);
+      document.getElementById('stats-end').value = fmtD(last);
       document.getElementById('stats-load-btn').addEventListener('click', renderStats);
       document.getElementById('body-chart-metric').addEventListener('change', renderBodyChart);
     }
@@ -2719,7 +2722,7 @@
         el.innerHTML = '<p class="empty-state">数据不足，至少需 2 天记录才能绘制趋势图。</p>';
         return;
       }
-      const W = 700, H = 280, padL = 50, padR = 18, padT = 20, padB = 34;
+      const W = 700, H = 300, padL = 50, padR = 18, padT = 30, padB = 40;
       const xs = points.map((_, i) => padL + (W - padL - padR) * (i / (points.length - 1)));
       const vals = points.map(p => p.value);
       let min = Math.min(...vals), max = Math.max(...vals);
@@ -2728,18 +2731,31 @@
       const yOf = v => padT + (H - padT - padB) * (1 - (v - min) / range);
       const ys = vals.map(yOf);
       let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block;">`;
+      // 横向网格线与 Y 轴刻度
       [min, (min + max) / 2, max].forEach(g => {
         const y = yOf(g);
         svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#E2DCD6" stroke-width="1" />`;
         svg += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#8A817C">${formatNum(g)}</text>`;
       });
+      // X 轴日期刻度
       [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach(i => {
-        svg += `<text x="${xs[i]}" y="${H - 12}" text-anchor="middle" font-size="11" fill="#8A817C">${points[i].date.slice(5)}</text>`;
+        svg += `<text x="${xs[i]}" y="${H - 14}" text-anchor="middle" font-size="11" fill="#8A817C">${points[i].date.slice(5)}</text>`;
       });
+      // 连接曲线（虚线，作为趋势辅助）
       const ptsStr = points.map((p, i) => `${xs[i]},${ys[i]}`).join(' ');
-      svg += `<polyline points="${ptsStr}" fill="none" stroke="#D68AA6" stroke-width="2" />`;
-      points.forEach((p, i) => { svg += `<circle cx="${xs[i]}" cy="${ys[i]}" r="3.5" fill="#D68AA6" />`; });
-      svg += `<text x="${padL}" y="14" font-size="12" fill="#3D3A36">${BODY_LABELS[metric]} · 最新 ${formatNum(points[points.length - 1].value)}</text>`;
+      svg += `<polyline points="${ptsStr}" fill="none" stroke="#D68AA6" stroke-width="2" stroke-dasharray="4 3" opacity="0.55" />`;
+      // 每个数据点的玫瑰花标记：下降🌹（鲜艳） 上升🥀（枯萎） 起始/持平🌸
+      points.forEach((p, i) => {
+        let marker = '🌸';
+        if (i > 0) {
+          if (p.value < points[i - 1].value) marker = '🌹';
+          else if (p.value > points[i - 1].value) marker = '🥀';
+        }
+        svg += `<text x="${xs[i]}" y="${ys[i]}" text-anchor="middle" font-size="20" dy="0.35em">${marker}</text>`;
+      });
+      // 标题与图例
+      svg += `<text x="${padL}" y="18" font-size="12" fill="#3D3A36">${BODY_LABELS[metric]} · 最新 ${formatNum(points[points.length - 1].value)}</text>`;
+      svg += `<text x="${W - padR}" y="18" text-anchor="end" font-size="11" fill="#8A817C">🌹下降　🥀上升</text>`;
       svg += `</svg>`;
       el.innerHTML = svg;
     }
