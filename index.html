@@ -734,7 +734,7 @@
     .splash.hidden { display: none; }
     .splash-art { width: 150px; max-width: 50vw; height: auto; margin-bottom: 10px; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35)); }
     .splash-name { font-size: 18px; font-weight: 800; color: #fff; margin: 4px 0 2px; }
-    .splash-emoji { margin-right: 5px; }
+    .splash-rose { margin-right: 8px; display: inline-block; }
     .splash-sub { font-size: 12px; color: #f3e3c8; opacity: 0.85; margin-bottom: 16px; }
     .splash-quote { font-size: 13px; line-height: 1.7; color: #f3e3c8; opacity: 0.92; margin: 0 0 18px; max-width: 300px; }
     .splash-cards { width: 100%; max-width: 340px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
@@ -772,8 +772,8 @@
         <circle cx="32" cy="98" r="1.6"/><circle cx="150" cy="156" r="2"/><circle cx="48" cy="150" r="1.6"/>
       </g>
     </svg>
-    <div class="splash-name"><span class="splash-emoji" id="splash-emoji">🌹</span><span id="splash-name">Suki 的小星球</span></div>
-    <div class="splash-sub">想要追求更好的生活，先从管理健康开始</div>
+    <div class="splash-name" id="splash-name">Suki 的小星球</div>
+    <div class="splash-sub"><span class="splash-rose">🌹</span> 想要追求更好的生活，先从管理健康开始</div>
     <p class="splash-quote">「也许世界上也有五千朵和你一模一样的花，但只有你浇灌的那朵，才属于你。」</p>
     <div class="splash-cards" id="splash-cards">
       <div class="splash-card"><div class="num" id="sp-kg">—</div><div class="lbl">距目标体重 (kg)</div></div>
@@ -3377,12 +3377,11 @@
       }
     })();
 
-    // 标题与 emoji 双击编辑：开屏与主界面共用同一值并同步；持久化到 localStorage
+    // 标题双击编辑：开屏大标题与主界面标题共用同一值并同步；持久化到 localStorage
     (function setupTitleEdit() {
       const titleEl = document.getElementById('app-title');
       const emojiEl = document.getElementById('app-emoji');
       const splashNameEl = document.getElementById('splash-name');
-      const splashEmojiEl = document.getElementById('splash-emoji');
       const meta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
       const DEFAULT_TITLE = 'Suki 的小星球';
       const DEFAULT_EMOJI = '🌹';
@@ -3393,10 +3392,7 @@
         if (titleEl) titleEl.textContent = savedTitle;
         if (splashNameEl) splashNameEl.textContent = savedTitle;
       }
-      if (savedEmoji) {
-        if (emojiEl) emojiEl.textContent = savedEmoji;
-        if (splashEmojiEl) splashEmojiEl.textContent = savedEmoji;
-      }
+      if (savedEmoji && emojiEl) emojiEl.textContent = savedEmoji;
 
       function applyTitle() {
         const t = (titleEl ? (titleEl.textContent || '').trim() : '') || DEFAULT_TITLE;
@@ -3404,7 +3400,6 @@
         document.title = e + ' ' + t;
         if (meta) meta.setAttribute('content', t);
         if (splashNameEl) splashNameEl.textContent = t;
-        if (splashEmojiEl) splashEmojiEl.textContent = e;
       }
 
       function enableEdit(el, storageKey, fallback, onSaved) {
@@ -3437,19 +3432,14 @@
         });
       }
 
-      // 标题/emoji 在两处共用同一值：改开屏或主界面任一处，另一处自动同步
+      // 标题在两处共用同一值：改开屏或主界面任一处，另一处自动同步
       const syncTitle = (val) => {
         if (titleEl) titleEl.textContent = val;
         if (splashNameEl) splashNameEl.textContent = val;
       };
-      const syncEmoji = (val) => {
-        if (emojiEl) emojiEl.textContent = val;
-        if (splashEmojiEl) splashEmojiEl.textContent = val;
-      };
       enableEdit(titleEl, 'appTitle', DEFAULT_TITLE, syncTitle);
       enableEdit(splashNameEl, 'appTitle', DEFAULT_TITLE, syncTitle);
-      enableEdit(emojiEl, 'appEmoji', DEFAULT_EMOJI, syncEmoji);
-      enableEdit(splashEmojiEl, 'appEmoji', DEFAULT_EMOJI, syncEmoji);
+      if (emojiEl) enableEdit(emojiEl, 'appEmoji', DEFAULT_EMOJI);
       applyTitle();
     })();
   </script>
