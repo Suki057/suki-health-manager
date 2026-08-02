@@ -29,10 +29,10 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   const isHtml = url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/');
   if (isHtml) {
-    // HTML 页面始终走网络，并强制向服务器重新校验（cache:no-cache），
-    // 避免被浏览器 HTTP 缓存拦一道，保证重新部署后手机端立即看到更新
+    // HTML 页面始终走网络，并强制向源服务器重新拉取（cache:reload），
+    // 完全绕过浏览器 HTTP 缓存，保证重新部署后手机端立即看到更新
     event.respondWith(
-      fetch(event.request, { cache: 'no-cache' }).catch(() => caches.match('./index.html'))
+      fetch(event.request, { cache: 'reload' }).catch(() => caches.match('./index.html'))
     );
     return;
   }
