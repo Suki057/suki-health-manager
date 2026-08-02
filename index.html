@@ -3046,6 +3046,7 @@
       { name: '豆腐', kcal: 84, protein: 6.6, fat: 3.4, carbs: 0, sodium: 120, sugar: 0, category: '蛋白质' },
       { name: '豆浆', kcal: 31, protein: 3, fat: 1.2, carbs: 3.5, sodium: 12, sugar: 12, category: '蛋白质' },
       { name: '牛筋丸', kcal: 198.5, protein: 15.6, fat: 11.8, carbs: 5.4, sodium: 640, sugar: 0, category: '蛋白质' },
+      { name: '马鲛鱼', kcal: 121, protein: 21.2, fat: 3.1, carbs: 2.1, sodium: 74.2, sugar: 0, category: '蛋白质' },
       // 蔬菜（10 种）
       { name: '娃娃菜', kcal: 13, protein: 1.5, fat: 0.2, carbs: 2.5, sodium: 250, sugar: 0, category: '蔬菜' },
       { name: '西蓝花', kcal: 27, protein: 2.8, fat: 0.4, carbs: 4.8, sodium: 3, sugar: 0, category: '蔬菜' },
@@ -3354,6 +3355,13 @@
         if (mtAdded > 0) toast(`已导入 ${mtAdded} 款饮品数据（含美式咖啡等），去「食物库」看看吧`);
       } catch (err) {
         console.warn('自动导入饮品数据失败', err);
+      }
+      // 自动导入食材图库（100g 基准：蛋白质 / 碳水 / 蔬菜 / 水果等，含马鲛鱼），已存在则去重
+      try {
+        const imgAdded = addSukiImageFoods100g();
+        if (imgAdded > 0) toast(`已导入 ${imgAdded} 款食材数据（含马鲛鱼，归为蛋白质板块），去「食物库」看看吧`);
+      } catch (err) {
+        console.warn('自动导入食材数据失败', err);
       }
       if (cleanupTrash()) toast('部分过期数据已自动从回收站清除');
       setupTabs();
