@@ -918,7 +918,7 @@
 
       <div class="summary-grid">
         <div class="card intake"><span class="label">摄入热量</span><span class="value" id="total-intake-kcal">0</span><span class="unit">kcal</span></div>
-        <div class="card burn"><span class="label">运动消耗</span><span class="value" id="total-burn-kcal">0</span><span class="unit">kcal</span></div>
+        <div class="card burn"><span class="label">总消耗</span><span class="value" id="total-burn-kcal">0</span><span class="unit">kcal</span></div>
         <div class="card net"><span class="label">净热量</span><span class="value" id="net-kcal">0</span><span class="unit">kcal</span></div>
         <div class="card"><span class="label">蛋白质</span><span class="value" id="total-protein">0</span><span class="unit">g</span></div>
         <div class="card"><span class="label">脂肪</span><span class="value" id="total-fat">0</span><span class="unit">g</span></div>
@@ -1173,6 +1173,7 @@
         <p class="hint">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
         <div class="form-grid">
           <div class="field"><label>热量 (kcal)</label><input type="number" id="goal-kcal" min="0" step="1" placeholder="如 1500" /></div>
+          <div class="field"><label>每日动态消耗 (kcal)</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" /></div>
           <div class="field"><label>蛋白质 (g)</label><input type="number" id="goal-protein" min="0" step="1" placeholder="如 90" /></div>
           <div class="field"><label>脂肪 (g)</label><input type="number" id="goal-fat" min="0" step="1" placeholder="如 50" /></div>
           <div class="field"><label>碳水 (g)</label><input type="number" id="goal-carbs" min="0" step="1" placeholder="如 180" /></div>
@@ -1946,6 +1947,8 @@
         numericKeys.forEach(k => totals[k] += c[k]);
       });
       log.exercises.forEach(e => totals.burn += Number(e.kcal) || 0);
+      // 每日动态消耗（非运动活动消耗，用户在「每日营养目标」中设置），作为每日固定消耗计入总消耗
+      totals.burn += Number((state.goals && state.goals.dynamicBurn) || 0);
       return totals;
     }
 
@@ -2901,8 +2904,8 @@
       renderGoals();
     }
 
-    const GOAL_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium'];
-    const GOAL_IDS = { kcal: 'goal-kcal', protein: 'goal-protein', fat: 'goal-fat', carbs: 'goal-carbs', sugar: 'goal-sugar', sodium: 'goal-sodium' };
+    const GOAL_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium', 'dynamicBurn'];
+    const GOAL_IDS = { kcal: 'goal-kcal', protein: 'goal-protein', fat: 'goal-fat', carbs: 'goal-carbs', sugar: 'goal-sugar', sodium: 'goal-sodium', dynamicBurn: 'goal-dynamic-burn' };
 
     function saveGoals() {
       const g = {};
