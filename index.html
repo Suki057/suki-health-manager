@@ -41,8 +41,14 @@
       --shadow: 0 10px 24px rgba(26, 22, 48, 0.22);
     }
     * { box-sizing: border-box; }
+    html {
+      background: #1a2046;
+      min-height: 100%;
+    }
     body {
       margin: 0;
+      min-height: 100svh;
+      min-height: -webkit-fill-available;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
       background:
         /* 底部遮罩：覆盖小王子渐变最下方的奶油色，让底部导航栏区域保持深蓝不发白 */
@@ -207,7 +213,7 @@
       box-shadow: 0 1px 2px rgba(61, 58, 54, 0.08), 0 2px 7px rgba(61, 58, 54, 0.07);
     }
     .tab-btn:active { transform: scale(0.96); }
-    .container { padding: 24px; max-width: 1320px; margin: 0 auto; padding-bottom: 76px; }
+    .container { padding: 24px; max-width: 1320px; margin: 0 auto; padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; animation: fadeUp 0.35s ease both; }
     @keyframes fadeUp {
@@ -3113,6 +3119,11 @@
           added++;
         }
       });
+      save();
+      renderAll();
+      return added;
+    }
+
     function addSukiFastFoods() {
       let added = 0, fixed = 0;
       SUKI_FASTFOODS.forEach(c => {
@@ -3129,11 +3140,6 @@
       save();
       renderAll();
       return { added, fixed };
-    }
-
-      save();
-      renderAll();
-      return added;
     }
 
     function addSukiMilkTeas() {
@@ -3162,6 +3168,17 @@
     (function init() {
       state = loadData();
       ensureDefaults();
+      // 自动导入 KFC / M记 / 鸡柳大人快餐数据（已存在则去重/修正单位）
+      try {
+        const { added, fixed } = addSukiFastFoods();
+        if (added > 0 || fixed > 0) {
+          let msg = `已为你导入 ${added} 款快餐数据（KFC / M记 / 鸡柳大人）`;
+          if (fixed > 0) msg += `，并修正了 ${fixed} 款旧数据单位`;
+          toast(msg + '，去「食物库」看看吧');
+        }
+      } catch (err) {
+        console.warn('自动导入快餐数据失败', err);
+      }
       if (cleanupTrash()) toast('部分过期数据已自动从回收站清除');
       setupTabs();
       enableNavDragScroll();
