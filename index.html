@@ -1201,7 +1201,7 @@
     <section id="food-review" class="tab-panel">
       <div class="panel review-panel">
         <div class="review-header">
-          <h2><span class="review-badge" id="review-count">0</span> 食物记录复盘</h2>
+          <h2><span class="review-badge" id="review-count">0</span> 复盘记录</h2>
           <p class="hint">记录每餐/每天的心得、原则与行动清单，沉淀为可复用的饮食信条。</p>
         </div>
 
@@ -1436,7 +1436,7 @@
     <button class="tab-btn active" data-tab="today">今日记录</button>
     <button class="tab-btn" data-tab="stats">热量记录</button>
     <button class="tab-btn" data-tab="calories">热量明细表</button>
-    <button class="tab-btn" data-tab="food-review">食物记录复盘</button>
+    <button class="tab-btn" data-tab="food-review">复盘记录</button>
     <button class="tab-btn" data-tab="foods">食物库</button>
     <button class="tab-btn" data-tab="exercises">运动库</button>
     <button class="tab-btn" data-tab="trash">回收站</button>
@@ -2691,6 +2691,13 @@
       const pad = n => String(n).padStart(2, '0');
       return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
     }
+    function getSortedReviews() {
+      return state.foodReviews.slice().sort((a, b) => {
+        const ta = new Date((a.time || '').replace('T', ' ')).getTime() || a.createdAt || 0;
+        const tb = new Date((b.time || '').replace('T', ' ')).getTime() || b.createdAt || 0;
+        return tb - ta; // 日期倒序：最新在上
+      });
+    }
     function initReviewEditor() {
       document.getElementById('review-editor-time').value = getLocalDatetimeValue(new Date());
     }
@@ -2726,7 +2733,7 @@
         return;
       }
       section.style.display = 'block';
-      list.innerHTML = state.foodReviews.map((r, idx) => `
+      list.innerHTML = getSortedReviews().map((r, idx) => `
         <div class="review-card" data-id="${escapeHtml(r.id)}">
           <div class="review-card-head">
             <span class="review-badge">${idx + 1}</span>
