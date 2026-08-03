@@ -309,15 +309,26 @@
       transition: transform 0.15s, box-shadow 0.15s;
     }
     .review-card:hover { box-shadow: 0 4px 12px rgba(26, 22, 48, 0.08); }
-    .review-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .review-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; min-width: 0; }
     .review-card-title {
-      flex: 1;
+      flex: 1; min-width: 0; width: 100%; box-sizing: border-box;
       border: none; background: transparent;
       border-bottom: 1px dashed rgba(214, 138, 166, 0.35);
       padding: 6px 2px; font-size: 16px; font-weight: 700; color: #5A3A42;
     }
     .review-card-title::placeholder { color: rgba(90, 58, 66, 0.45); font-weight: 500; }
     .review-card-title:focus { outline: none; border-bottom-style: solid; border-bottom-color: #D68AA6; }
+    .review-display-title { font-size: 16px; font-weight: 700; color: #5A3A42; word-break: break-all; line-height: 1.4; }
+    .review-display-content { font-size: 14px; color: #4A3A3E; line-height: 1.6; margin-top: 8px; white-space: pre-wrap; word-break: break-word; }
+    .review-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+    .review-actions button { padding: 6px 12px; border-radius: 8px; border: none; font-size: 13px; cursor: pointer; transition: background 0.15s, transform 0.08s; }
+    .review-actions button:active { transform: scale(0.96); }
+    .review-edit-btn { background: rgba(232, 166, 190, 0.15); color: #8A4A5A; }
+    .review-edit-btn:hover { background: rgba(232, 166, 190, 0.28); }
+    .review-save-btn { background: linear-gradient(135deg, #E8A6BE 0%, #D68AA6 100%); color: #fff; }
+    .review-save-btn:hover { filter: brightness(1.05); }
+    .review-cancel-btn { background: rgba(90, 58, 66, 0.06); color: #7A5A62; }
+    .review-cancel-btn:hover { background: rgba(90, 58, 66, 0.12); }
     .review-card-delete {
       width: 30px; height: 30px; border-radius: 50%; border: none;
       background: rgba(229, 57, 53, 0.08); color: #C62828;
@@ -327,7 +338,7 @@
     .review-card-delete:hover { background: rgba(229, 57, 53, 0.18); }
     .review-card-delete:active { transform: scale(0.92); }
     .review-card textarea {
-      width: 100%; min-height: 90px; resize: vertical;
+      width: 100%; min-height: 90px; resize: vertical; box-sizing: border-box;
       border: 1px solid rgba(232, 166, 190, 0.25); border-radius: 12px;
       background: rgba(255, 255, 255, 0.78);
       padding: 12px; font-size: 14px; line-height: 1.55; color: #4A3A3E;
@@ -344,7 +355,41 @@
       background: rgba(255, 255, 255, 0.72); padding: 6px 8px; font-size: 13px; color: #5A3A42;
     }
     .review-card-time input[type="datetime-local"]:focus { outline: none; border-color: #D68AA6; background: #fff; }
-    .review-add-btn { width: 100%; margin-top: 10px; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: 600; }
+    .review-editor {
+      background: rgba(255, 252, 247, 0.92);
+      border: 1px solid rgba(232, 166, 190, 0.25);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 22px;
+      box-shadow: 0 2px 8px rgba(61, 58, 54, 0.04), 0 6px 16px rgba(26, 22, 48, 0.05);
+    }
+    .review-editor-title {
+      width: 100%; box-sizing: border-box;
+      border: none; background: transparent;
+      border-bottom: 1px dashed rgba(214, 138, 166, 0.35);
+      padding: 6px 2px; font-size: 16px; font-weight: 700; color: #5A3A42;
+      margin-bottom: 12px;
+    }
+    .review-editor-title::placeholder { color: rgba(90, 58, 66, 0.45); font-weight: 500; }
+    .review-editor-title:focus { outline: none; border-bottom-style: solid; border-bottom-color: #D68AA6; }
+    .review-editor-content {
+      width: 100%; box-sizing: border-box; min-height: 90px; resize: vertical;
+      border: 1px solid rgba(232, 166, 190, 0.25); border-radius: 12px;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 12px; font-size: 14px; line-height: 1.55; color: #4A3A3E;
+    }
+    .review-editor-content:focus { outline: none; border-color: #D68AA6; background: #fff; }
+    .review-editor-time {
+      display: flex; align-items: center; gap: 8px; margin-top: 12px;
+      font-size: 13px; color: #7A5A62;
+    }
+    .review-editor-time input[type="datetime-local"] {
+      border: 1px solid rgba(232, 166, 190, 0.28); border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72); padding: 6px 8px; font-size: 13px; color: #5A3A42;
+    }
+    .review-editor-actions { display: flex; justify-content: flex-end; margin-top: 14px; }
+    .review-list-section h3 { margin: 0 0 14px; font-size: 17px; color: #5A3A42; display: flex; align-items: center; gap: 8px; }
+    .review-add-btn { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; }
 
     /* 小王子·玫瑰 主题插画横幅 */
     .lp-hero {
@@ -1159,10 +1204,25 @@
           <h2><span class="review-badge" id="review-count">0</span> 食物记录复盘</h2>
           <p class="hint">记录每餐/每天的心得、原则与行动清单，沉淀为可复用的饮食信条。</p>
         </div>
-        <div id="review-list" class="review-list">
-          <p class="empty-state" id="review-empty">还没有复盘记录，点击下方按钮添加第一条。</p>
+
+        <!-- 编辑/添加区 -->
+        <div class="review-editor" id="review-editor">
+          <input type="text" class="review-editor-title" id="review-editor-title" placeholder="输入复盘标题（如：晚餐复盘）" />
+          <textarea class="review-editor-content" id="review-editor-content" placeholder=""></textarea>
+          <div class="review-editor-time">
+            <label>🕐 添加时间</label>
+            <input type="datetime-local" id="review-editor-time" />
+          </div>
+          <div class="review-editor-actions">
+            <button type="button" class="btn primary review-add-btn" id="add-review-btn">+ 添加一条复盘</button>
+          </div>
         </div>
-        <button type="button" class="btn primary review-add-btn" id="add-review-btn">+ 添加一条复盘</button>
+
+        <!-- 复盘列表展示区 -->
+        <div class="review-list-section" id="review-list-section" style="display:none;">
+          <h3>📋 我的复盘记录</h3>
+          <div id="review-list" class="review-list"></div>
+        </div>
       </div>
     </section>
 
@@ -2620,40 +2680,63 @@
     }
 
     // ==================== 食物记录复盘 ====================
+    function getLocalDatetimeValue(d) {
+      const pad = n => String(n).padStart(2, '0');
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+    function formatReviewTime(timeVal) {
+      if (!timeVal) return '';
+      const d = new Date(timeVal.replace('T', ' '));
+      if (Number.isNaN(d.getTime())) return timeVal.replace('T', ' ');
+      const pad = n => String(n).padStart(2, '0');
+      return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+    function initReviewEditor() {
+      document.getElementById('review-editor-time').value = getLocalDatetimeValue(new Date());
+    }
     function setupFoodReview() {
+      initReviewEditor();
       document.getElementById('add-review-btn').addEventListener('click', () => {
+        const title = document.getElementById('review-editor-title').value.trim();
+        const content = document.getElementById('review-editor-content').value.trim();
+        const time = document.getElementById('review-editor-time').value;
+        if (!title && !content) {
+          toast('请输入标题或内容后再添加');
+          return;
+        }
         const id = generateId();
-        const now = new Date();
-        const pad = n => String(n).padStart(2, '0');
-        const timeLocal = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
-        state.foodReviews.unshift({ id, title: '', content: '', time: timeLocal, createdAt: Date.now() });
+        state.foodReviews.unshift({ id, title, content, time: time || getLocalDatetimeValue(new Date()), createdAt: Date.now() });
         save();
+        // 清空编辑器
+        document.getElementById('review-editor-title').value = '';
+        document.getElementById('review-editor-content').value = '';
+        document.getElementById('review-editor-time').value = getLocalDatetimeValue(new Date());
         renderFoodReview();
-        // 聚焦到新添加的标题
-        const firstTitle = document.querySelector('.review-card-title');
-        if (firstTitle) firstTitle.focus();
+        toast('复盘已添加');
       });
     }
     function renderFoodReview() {
       const list = document.getElementById('review-list');
-      const empty = document.getElementById('review-empty');
+      const section = document.getElementById('review-list-section');
       const badge = document.getElementById('review-count');
       badge.textContent = state.foodReviews.length;
       if (!state.foodReviews.length) {
-        list.innerHTML = '<p class="empty-state" id="review-empty">还没有复盘记录，点击下方按钮添加第一条。</p>';
+        section.style.display = 'none';
+        list.innerHTML = '';
         return;
       }
+      section.style.display = 'block';
       list.innerHTML = state.foodReviews.map((r, idx) => `
         <div class="review-card" data-id="${escapeHtml(r.id)}">
           <div class="review-card-head">
             <span class="review-badge">${idx + 1}</span>
-            <input type="text" class="review-card-title" placeholder="输入复盘标题（如：晚餐复盘）" value="${escapeHtml(r.title || '')}" />
-            <button type="button" class="review-card-delete" title="删除" aria-label="删除">🗑</button>
+            <div class="review-display-title">${escapeHtml(r.title || '未命名复盘')}</div>
           </div>
-          <textarea class="review-card-content" placeholder="沉淀为可复用的原则 / 行动清单 / 一句话信条…">${escapeHtml(r.content || '')}</textarea>
-          <div class="review-card-time">
-            <label>🕐 添加时间</label>
-            <input type="datetime-local" class="review-card-time-input" value="${escapeHtml(r.time || '')}" />
+          <div class="review-card-time">🕐 ${escapeHtml(formatReviewTime(r.time))}</div>
+          <div class="review-display-content">${escapeHtml(r.content || '')}</div>
+          <div class="review-actions">
+            <button type="button" class="review-edit-btn" data-action="edit">编辑</button>
+            <button type="button" class="review-card-delete" data-action="delete" title="删除" aria-label="删除">🗑</button>
           </div>
         </div>
       `).join('');
@@ -2664,20 +2747,10 @@
         const id = card.dataset.id;
         const r = state.foodReviews.find(x => x.id === id);
         if (!r) return;
-        const titleEl = card.querySelector('.review-card-title');
-        const contentEl = card.querySelector('.review-card-content');
-        const timeEl = card.querySelector('.review-card-time-input');
-        const delEl = card.querySelector('.review-card-delete');
-        const saveOne = () => {
-          r.title = titleEl.value.trim();
-          r.content = contentEl.value.trim();
-          r.time = timeEl.value;
-          save();
-        };
-        titleEl.addEventListener('input', saveOne);
-        contentEl.addEventListener('input', saveOne);
-        timeEl.addEventListener('change', saveOne);
-        delEl.addEventListener('click', async () => {
+        const editBtn = card.querySelector('[data-action="edit"]');
+        const delBtn = card.querySelector('[data-action="delete"]');
+        if (editBtn) editBtn.addEventListener('click', () => enterReviewEditMode(card, r));
+        if (delBtn) delBtn.addEventListener('click', async () => {
           if (!await confirmDialog('确定删除这条食物记录复盘吗？')) return;
           state.foodReviews = state.foodReviews.filter(x => x.id !== id);
           save();
@@ -2685,6 +2758,38 @@
           toast('复盘已删除');
         });
       });
+    }
+    function enterReviewEditMode(card, r) {
+      card.innerHTML = `
+        <div class="review-card-head">
+          <span class="review-badge">${state.foodReviews.indexOf(r) + 1}</span>
+          <input type="text" class="review-card-title" placeholder="输入复盘标题（如：晚餐复盘）" value="${escapeHtml(r.title || '')}" />
+        </div>
+        <textarea class="review-card-content" placeholder="">${escapeHtml(r.content || '')}</textarea>
+        <div class="review-card-time">
+          <label>🕐 添加时间</label>
+          <input type="datetime-local" class="review-card-time-input" value="${escapeHtml(r.time || '')}" />
+        </div>
+        <div class="review-actions">
+          <button type="button" class="review-save-btn" data-action="save">保存</button>
+          <button type="button" class="review-cancel-btn" data-action="cancel">取消</button>
+        </div>
+      `;
+      const titleEl = card.querySelector('.review-card-title');
+      const contentEl = card.querySelector('.review-card-content');
+      const timeEl = card.querySelector('.review-card-time-input');
+      const saveBtn = card.querySelector('[data-action="save"]');
+      const cancelBtn = card.querySelector('[data-action="cancel"]');
+      if (titleEl) titleEl.focus();
+      if (saveBtn) saveBtn.addEventListener('click', () => {
+        r.title = titleEl.value.trim();
+        r.content = contentEl.value.trim();
+        r.time = timeEl.value;
+        save();
+        renderFoodReview();
+        toast('复盘已保存');
+      });
+      if (cancelBtn) cancelBtn.addEventListener('click', () => renderFoodReview());
     }
 
     // ==================== 食物库 ====================
