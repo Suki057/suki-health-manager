@@ -286,6 +286,66 @@
       z-index: 0;
     }
     .panel > * { position: relative; z-index: 1; }
+
+    /* 食物记录复盘卡片 */
+    .review-panel { padding: 22px 22px 18px; }
+    .review-header { margin-bottom: 18px; }
+    .review-header h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; font-size: 19px; font-weight: 700; color: #5A3A42; }
+    .review-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #E8A6BE 0%, #D68AA6 100%);
+      color: #fff; font-size: 13px; font-weight: 700;
+      box-shadow: 0 2px 6px rgba(214, 138, 166, 0.35);
+    }
+    .review-list { display: flex; flex-direction: column; gap: 16px; }
+    .review-card {
+      position: relative;
+      background: rgba(255, 252, 247, 0.92);
+      border: 1px solid rgba(232, 166, 190, 0.25);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(61, 58, 54, 0.04), 0 6px 16px rgba(26, 22, 48, 0.05);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .review-card:hover { box-shadow: 0 4px 12px rgba(26, 22, 48, 0.08); }
+    .review-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .review-card-title {
+      flex: 1;
+      border: none; background: transparent;
+      border-bottom: 1px dashed rgba(214, 138, 166, 0.35);
+      padding: 6px 2px; font-size: 16px; font-weight: 700; color: #5A3A42;
+    }
+    .review-card-title::placeholder { color: rgba(90, 58, 66, 0.45); font-weight: 500; }
+    .review-card-title:focus { outline: none; border-bottom-style: solid; border-bottom-color: #D68AA6; }
+    .review-card-delete {
+      width: 30px; height: 30px; border-radius: 50%; border: none;
+      background: rgba(229, 57, 53, 0.08); color: #C62828;
+      font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.15s, transform 0.08s;
+    }
+    .review-card-delete:hover { background: rgba(229, 57, 53, 0.18); }
+    .review-card-delete:active { transform: scale(0.92); }
+    .review-card textarea {
+      width: 100%; min-height: 90px; resize: vertical;
+      border: 1px solid rgba(232, 166, 190, 0.25); border-radius: 12px;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 12px; font-size: 14px; line-height: 1.55; color: #4A3A3E;
+      box-shadow: inset 0 1px 2px rgba(61, 58, 54, 0.03);
+    }
+    .review-card textarea::placeholder { color: rgba(90, 58, 66, 0.42); }
+    .review-card textarea:focus { outline: none; border-color: #D68AA6; background: #fff; }
+    .review-card-time {
+      display: flex; align-items: center; gap: 8px; margin-top: 10px;
+      font-size: 13px; color: #7A5A62;
+    }
+    .review-card-time input[type="datetime-local"] {
+      border: 1px solid rgba(232, 166, 190, 0.28); border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72); padding: 6px 8px; font-size: 13px; color: #5A3A42;
+    }
+    .review-card-time input[type="datetime-local"]:focus { outline: none; border-color: #D68AA6; background: #fff; }
+    .review-add-btn { width: 100%; margin-top: 10px; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: 600; }
+
     /* 小王子·玫瑰 主题插画横幅 */
     .lp-hero {
       position: relative;
@@ -1092,6 +1152,20 @@
       </div>
     </section>
 
+    <!-- 食物记录复盘 -->
+    <section id="food-review" class="tab-panel">
+      <div class="panel review-panel">
+        <div class="review-header">
+          <h2><span class="review-badge" id="review-count">0</span> 食物记录复盘</h2>
+          <p class="hint">记录每餐/每天的心得、原则与行动清单，沉淀为可复用的饮食信条。</p>
+        </div>
+        <div id="review-list" class="review-list">
+          <p class="empty-state" id="review-empty">还没有复盘记录，点击下方按钮添加第一条。</p>
+        </div>
+        <button type="button" class="btn primary review-add-btn" id="add-review-btn">+ 添加一条复盘</button>
+      </div>
+    </section>
+
     <!-- 食物库 -->
     <section id="foods" class="tab-panel">
       <div class="panel">
@@ -1302,6 +1376,7 @@
     <button class="tab-btn active" data-tab="today">今日记录</button>
     <button class="tab-btn" data-tab="stats">热量记录</button>
     <button class="tab-btn" data-tab="calories">热量明细表</button>
+    <button class="tab-btn" data-tab="food-review">食物记录复盘</button>
     <button class="tab-btn" data-tab="foods">食物库</button>
     <button class="tab-btn" data-tab="exercises">运动库</button>
     <button class="tab-btn" data-tab="trash">回收站</button>
@@ -1374,7 +1449,7 @@
           if (parsed && typeof parsed === 'object') return parsed;
         }
       } catch (e) { console.error('读取本地数据失败', e); }
-      return { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {} };
+      return { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, foodReviews: [] };
     }
     function save() {
       try {
@@ -1411,6 +1486,7 @@
       if (!Array.isArray(state.trash)) state.trash = [];
       if (!state.baseline || typeof state.baseline !== 'object') state.baseline = {};
       if (!state.goals || typeof state.goals !== 'object') state.goals = {};
+      if (!Array.isArray(state.foodReviews)) state.foodReviews = [];
     }
 
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
@@ -1476,6 +1552,7 @@
           document.getElementById(btn.dataset.tab).classList.add('active');
           if (btn.dataset.tab === 'stats') renderStats();
           if (btn.dataset.tab === 'trash') renderTrash();
+          if (btn.dataset.tab === 'food-review') renderFoodReview();
           if (btn.dataset.tab === 'calories') {
             const cdp = document.getElementById('cal-date-picker');
             if (cdp) cdp.value = document.getElementById('date-picker').value;
@@ -2538,6 +2615,74 @@
     }
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // ==================== 食物记录复盘 ====================
+    function setupFoodReview() {
+      document.getElementById('add-review-btn').addEventListener('click', () => {
+        const id = generateId();
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const timeLocal = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+        state.foodReviews.unshift({ id, title: '', content: '', time: timeLocal, createdAt: Date.now() });
+        save();
+        renderFoodReview();
+        // 聚焦到新添加的标题
+        const firstTitle = document.querySelector('.review-card-title');
+        if (firstTitle) firstTitle.focus();
+      });
+    }
+    function renderFoodReview() {
+      const list = document.getElementById('review-list');
+      const empty = document.getElementById('review-empty');
+      const badge = document.getElementById('review-count');
+      badge.textContent = state.foodReviews.length;
+      if (!state.foodReviews.length) {
+        list.innerHTML = '<p class="empty-state" id="review-empty">还没有复盘记录，点击下方按钮添加第一条。</p>';
+        return;
+      }
+      list.innerHTML = state.foodReviews.map((r, idx) => `
+        <div class="review-card" data-id="${escapeHtml(r.id)}">
+          <div class="review-card-head">
+            <span class="review-badge">${idx + 1}</span>
+            <input type="text" class="review-card-title" placeholder="输入复盘标题（如：晚餐复盘）" value="${escapeHtml(r.title || '')}" />
+            <button type="button" class="review-card-delete" title="删除" aria-label="删除">🗑</button>
+          </div>
+          <textarea class="review-card-content" placeholder="沉淀为可复用的原则 / 行动清单 / 一句话信条…">${escapeHtml(r.content || '')}</textarea>
+          <div class="review-card-time">
+            <label>🕐 添加时间</label>
+            <input type="datetime-local" class="review-card-time-input" value="${escapeHtml(r.time || '')}" />
+          </div>
+        </div>
+      `).join('');
+      bindReviewEvents();
+    }
+    function bindReviewEvents() {
+      document.querySelectorAll('.review-card').forEach(card => {
+        const id = card.dataset.id;
+        const r = state.foodReviews.find(x => x.id === id);
+        if (!r) return;
+        const titleEl = card.querySelector('.review-card-title');
+        const contentEl = card.querySelector('.review-card-content');
+        const timeEl = card.querySelector('.review-card-time-input');
+        const delEl = card.querySelector('.review-card-delete');
+        const saveOne = () => {
+          r.title = titleEl.value.trim();
+          r.content = contentEl.value.trim();
+          r.time = timeEl.value;
+          save();
+        };
+        titleEl.addEventListener('input', saveOne);
+        contentEl.addEventListener('input', saveOne);
+        timeEl.addEventListener('change', saveOne);
+        delEl.addEventListener('click', async () => {
+          if (!await confirmDialog('确定删除这条食物记录复盘吗？')) return;
+          state.foodReviews = state.foodReviews.filter(x => x.id !== id);
+          save();
+          renderFoodReview();
+          toast('复盘已删除');
+        });
+      });
     }
 
     // ==================== 食物库 ====================
@@ -3736,6 +3881,7 @@
       renderExerciseLibrary();
       renderStats();
       renderTrash();
+      renderFoodReview();
     }
 
     // ==================== 初始化 ====================
@@ -3774,6 +3920,7 @@
       setDefaultMealByTime();
       setupFoodLibrary();
       setupExerciseLibrary();
+      setupFoodReview();
       setupStatsTab();
       setupDataTab();
       setupTrashTab();
