@@ -791,7 +791,7 @@
     <div class="splash-cards" id="splash-cards">
       <div class="splash-card"><div class="num" id="sp-kg">—</div><div class="lbl">距目标体重 (kg)</div></div>
       <div class="splash-card"><div class="num" id="sp-fat">—</div><div class="lbl">体脂可降 (%)</div></div>
-      <div class="splash-card"><div class="num" id="sp-kcal">—</div><div class="lbl">今日净热量 (kcal)</div></div>
+      <div class="splash-card"><div class="num" id="sp-kcal">—</div><div class="lbl">今日还需摄入 (kcal)</div></div>
       <div class="splash-card"><div class="num" id="sp-protein">—</div><div class="lbl">今日还需蛋白 (g)</div></div>
     </div>
     <button class="splash-enter" id="splash-enter">🌟 开始管理</button>
@@ -1117,7 +1117,7 @@
         </div>
         <div class="table-wrap">
           <table id="stats-table">
-            <thead><tr><th>日期</th><th>摄入</th><th>消耗</th><th>净热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th>操作</th></tr></thead>
+            <thead><tr><th>日期</th><th>摄入</th><th>消耗</th><th>热量缺口</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th>操作</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -1677,9 +1677,9 @@
       const exerciseKcal = (logX.exercises || []).reduce((s, e) => s + (Number(e.kcal) || 0), 0);
       const dynamicKcal = Number((state.goals && state.goals.dynamicBurn) || 0);
       if (g.kcal) {
-        // 今日净热量 = 运动热量 + 动态消耗热量 - 摄入热量
-        const net = exerciseKcal + dynamicKcal - totals.kcal;
-        kcalEl.innerHTML = formatNum(Math.abs(net)) + '<small> ' + (net >= 0 ? '盈余' : '缺口') + '</small>';
+        // 今日还需摄入 = 目标热量 - 摄入热量
+        const net = g.kcal - totals.kcal;
+        kcalEl.innerHTML = formatNum(Math.abs(net)) + '<small> ' + (net >= 0 ? '还可吃' : '已超') + '</small>';
       } else { kcalEl.textContent = '—'; }
 
       if (g.protein) {
@@ -2496,7 +2496,7 @@
           <td>${day}</td>
           <td class="number">${formatNum(t.kcal, 0)}</td>
           <td class="number">${formatNum(t.burn, 0)}</td>
-          <td class="number">${formatNum(t.kcal - t.burn, 0)}</td>
+          <td class="number">${formatNum(t.burn - t.kcal, 0)}</td>
           <td class="number">${formatNum(t.protein)}</td>
           <td class="number">${formatNum(t.fat)}</td>
           <td class="number">${formatNum(t.carbs)}</td>
