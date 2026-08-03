@@ -546,6 +546,24 @@
     .foods-head { justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .foods-head h2 { margin: 0; }
     @media (max-width: 560px) { .food-form-grid { grid-template-columns: 1fr; } }
+    /* 进餐时段选择（饮食记录录入行） */
+    .meal-field { min-width: 92px; }
+    .meal-field select { width: 100%; }
+    /* 饮食明细：进餐时段内联下拉 */
+    .meal-select { max-width: 92px; font-size: 13px; padding: 3px 4px; }
+    /* ===== AI 进餐分析卡片 ===== */
+    .meal-ai-body .empty-state { padding: 14px 2px; }
+    .meal-ai-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 12px; margin: 6px 0 14px; }
+    .meal-card { border: 1px solid rgba(214,138,166,0.28); border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,0.5); }
+    .meal-head { display: flex; justify-content: space-between; align-items: baseline; font-weight: 600; color: #3d3a36; }
+    .meal-head .meal-kcal { font-size: 13px; color: #b3567d; font-weight: 600; }
+    .meal-macros { font-size: 12.5px; color: #6f6862; margin: 4px 0 6px; }
+    .meal-verdict { font-size: 12.5px; line-height: 1.4; padding: 6px 9px; border-radius: 9px; }
+    .meal-verdict.ok { background: rgba(120,180,120,0.16); color: #2f6b34; }
+    .meal-verdict.warn { background: rgba(230,190,80,0.20); color: #8a6a12; }
+    .meal-verdict.bad { background: rgba(220,110,110,0.16); color: #a83232; }
+    .meal-exercise { font-size: 13.5px; line-height: 1.55; padding: 11px 14px; border-radius: 12px; background: rgba(120,150,200,0.12); color: #34405c; margin-bottom: 12px; }
+    .meal-summary { font-size: 14px; font-weight: 600; padding: 10px 14px; border-radius: 12px; background: rgba(214,138,166,0.14); color: #7a3b5b; }
     /* 分类板块 */
     #food-categories .panel { margin-bottom: 18px; }
     .food-cat-table { min-width: 640px; }
@@ -876,6 +894,17 @@
         <div class="panel">
           <h2>🍱 饮食记录</h2>
           <div class="row autocomplete-row">
+            <div class="field small meal-field">
+              <label>进餐时段</label>
+              <select id="food-meal">
+                <option value="早餐">早餐</option>
+                <option value="中餐">中餐</option>
+                <option value="下午茶">下午茶</option>
+                <option value="晚餐">晚餐</option>
+                <option value="宵夜">宵夜</option>
+                <option value="零食">零食</option>
+              </select>
+            </div>
             <div class="field autocomplete">
               <label>食物</label>
               <input type="text" id="food-search" placeholder="输入食物名称" autocomplete="off" />
@@ -997,11 +1026,18 @@
           <table id="diet-table">
             <thead>
               <tr>
-                <th>食物</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>
+                <th>进餐时段</th><th>食物</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>🤖 AI 进餐分析 <small>每日时段摄入与运动合理性</small></h2>
+        <p class="hint">基于你的体重、体脂率与每日目标，逐时段评估摄入是否利于减脂瘦身，并判断当日运动是否合理。</p>
+        <div id="meal-ai" class="meal-ai-body">
+          <p class="empty-state">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>
         </div>
       </div>
       <div class="panel">
@@ -1712,6 +1748,7 @@
     function addFoodEntry() {
       const id = document.getElementById('food-selected-id').value;
       const raw = document.getElementById('food-portion').value.trim();
+      const meal = document.getElementById('food-meal').value;
       if (!id) return toast('请先从下拉里选择食物');
       if (!raw) return toast('请输入份量');
       const food = state.foods.find(f => f.id === id);
@@ -1726,7 +1763,7 @@
         portionG = parseGrams(raw);
         if (!portionG || portionG <= 0) return toast('请输入有效克重（如 100）');
       }
-      state.logs[day].foods.push({ id: generateId(), foodId: id, portionG: portionG, servings: servings, portionRaw: raw });
+      state.logs[day].foods.push({ id: generateId(), foodId: id, portionG: portionG, servings: servings, portionRaw: raw, meal: meal });
       save();
       renderToday();
       clearFoodInput();
@@ -1771,6 +1808,7 @@
       if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
       state.logs[day].foods.push({
         id: generateId(), custom: true, name,
+        meal: document.getElementById('food-meal').value,
         portionRaw: document.getElementById('cf-portion').value.trim(),
         kcal: parseFloat(document.getElementById('cf-kcal').value) || 0,
         protein: parseFloat(document.getElementById('cf-protein').value) || 0,
@@ -1959,6 +1997,22 @@
       return totals;
     }
 
+    const MEAL_ORDER = ['早餐', '中餐', '下午茶', '晚餐', '宵夜', '零食'];
+
+    // 按当前时间预选进餐时段（录入时少点一下）
+    function setDefaultMealByTime() {
+      const sel = document.getElementById('food-meal');
+      if (!sel) return;
+      const h = new Date().getHours();
+      let m = '零食';
+      if (h >= 5 && h < 10) m = '早餐';
+      else if (h >= 10 && h < 14) m = '中餐';
+      else if (h >= 14 && h < 17) m = '下午茶';
+      else if (h >= 17 && h < 21) m = '晚餐';
+      else if (h >= 21) m = '宵夜';
+      sel.value = m;
+    }
+
     function renderToday() {
       const day = getCurrentDate();
       const log = state.logs[day] || { foods: [], exercises: [] };
@@ -1966,9 +2020,11 @@
       const dietBody = document.querySelector('#diet-table tbody');
       dietBody.innerHTML = '';
       if (log.foods.length === 0) {
-        dietBody.innerHTML = '<tr><td colspan="9" class="empty-state">还没有饮食记录</td></tr>';
+        dietBody.innerHTML = '<tr><td colspan="10" class="empty-state">还没有饮食记录</td></tr>';
       }
-      log.foods.forEach(entry => {
+      const sortedFoods = log.foods.slice().sort((a, b) =>
+        MEAL_ORDER.indexOf(a.meal || '零食') - MEAL_ORDER.indexOf(b.meal || '零食'));
+      sortedFoods.forEach(entry => {
         const c = computeFoodEntry(entry);
         let portionLabel;
         if (entry.custom) {
@@ -1981,6 +2037,7 @@
         const tr = document.createElement('tr');
         tr.dataset.entryId = entry.id;
         tr.innerHTML = `
+          <td class="c-meal"><select class="meal-select" data-id="${entry.id}">${MEAL_ORDER.map(m => `<option value="${m}"${m === (entry.meal || '零食') ? ' selected' : ''}>${m}</option>`).join('')}</select></td>
           <td class="c-name">${escapeHtml(c.name)}</td>
           <td class="c-portion number">${portionLabel}</td>
           <td class="c-kcal number">${formatNum(c.kcal)}</td>
@@ -1994,6 +2051,10 @@
             <button class="btn small danger act-del">删除</button>
           </td>`;
         tr.querySelector('.act-edit').addEventListener('click', () => enterDietEdit(tr, entry));
+        tr.querySelector('.meal-select').addEventListener('change', e => {
+          entry.meal = e.target.value;
+          save(); renderToday();
+        });
         tr.querySelector('.act-del').addEventListener('click', () => {
           log.foods = log.foods.filter(f => f.id !== entry.id);
           save(); renderToday();
@@ -2031,6 +2092,7 @@
       document.getElementById('total-sugar').textContent = formatNum(t.sugar);
       document.getElementById('total-sodium').textContent = formatNum(t.sodium);
       renderDietAnalysis();
+      renderMealAI();
       renderBaseline();
     }
 
@@ -2105,6 +2167,102 @@
       else summary = '✅ 当日营养结构均衡，各项均在目标范围内，继续保持！';
 
       el.innerHTML = '<div class="analysis-summary">' + summary + '</div><ul class="analysis-list">' + items.join('') + '</ul>';
+    }
+
+    // ==================== AI 进餐时段分析（本地规则引擎） ====================
+    function renderMealAI() {
+      const el = document.getElementById('meal-ai');
+      if (!el) return;
+      const day = getCurrentDate();
+      const log = state.logs[day] || { foods: [], exercises: [] };
+      if (log.foods.length === 0) {
+        el.innerHTML = '<p class="empty-state">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>';
+        return;
+      }
+      // 依据当前查看日期的身材数据（优先当日，其次初始基线）做个性化
+      const body = (log.body) || (state.baseline) || {};
+      const weight = body.weight || state.baseline.weight;
+      const bodyFat = body.bodyFat || state.baseline.bodyFat;
+      const t = computeDayTotals(day);
+      const g = estimateGoals(weight);
+      const goals = Object.assign({}, g, state.goals || {});
+      Object.keys(goals).forEach(k => { if (goals[k] === '' || goals[k] === null || goals[k] === undefined) goals[k] = g[k]; });
+
+      // 各时段建议占全天热量比例（减脂期分配）
+      const DIST = { '早餐': 0.25, '中餐': 0.35, '下午茶': 0.05, '晚餐': 0.30, '宵夜': 0.0, '零食': 0.05 };
+      const targetKcal = goals.kcal || g.kcal;
+      const perMealKcal = m => Math.round(targetKcal * (DIST[m] || 0));
+
+      // 将当日饮食按进餐时段聚合
+      const byMeal = {};
+      MEAL_ORDER.forEach(m => byMeal[m] = { kcal: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, count: 0 });
+      log.foods.forEach(entry => {
+        const m = entry.meal || '零食';
+        if (!byMeal[m]) byMeal[m] = { kcal: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, count: 0 };
+        const c = computeFoodEntry(entry);
+        byMeal[m].kcal += c.kcal; byMeal[m].protein += c.protein; byMeal[m].fat += c.fat;
+        byMeal[m].carbs += c.carbs; byMeal[m].sugar += c.sugar; byMeal[m].count += 1;
+      });
+
+      const cards = [];
+      let good = 0, warn = 0, bad = 0;
+      MEAL_ORDER.forEach(m => {
+        const d = byMeal[m];
+        if (!d || d.count === 0) return;
+        let tag = 'ok', verdict;
+        if (m === '宵夜') {
+          if (d.kcal > 0) { tag = 'bad'; verdict = '⚠️ 减脂期建议睡前 3 小时不进食，宵夜易囤积脂肪' + (d.kcal > 200 ? '（今宵夜 ' + Math.round(d.kcal) + ' kcal，偏高）' : ''); }
+          else { tag = 'ok'; verdict = '✅ 没有宵夜，有利于减脂'; }
+        } else if (m === '早餐') {
+          if (d.protein < 15) { tag = 'warn'; verdict = '🌅 早餐蛋白质仅 ' + Math.round(d.protein) + 'g，偏低，建议加蛋/奶/豆浆启动代谢'; }
+          else { tag = 'ok'; verdict = '🌅 早餐蛋白质 ' + Math.round(d.protein) + 'g 充足，开启一天代谢'; }
+        } else if (m === '中餐') {
+          if (d.carbs > d.protein * 2.6) { tag = 'warn'; verdict = '🍚 中餐碳水偏多（' + Math.round(d.carbs) + 'g vs 蛋白 ' + Math.round(d.protein) + 'g），精米面可减半、多加蔬菜蛋白'; }
+          else if (d.kcal > targetKcal * 0.45) { tag = 'warn'; verdict = '🍱 中餐热量 ' + Math.round(d.kcal) + 'kcal 偏高（>45% 全天），减脂期宜控制在 ' + perMealKcal('中餐') + 'kcal 左右'; }
+          else { tag = 'ok'; verdict = '🍱 中餐结构均衡，热量 ' + Math.round(d.kcal) + 'kcal 合理'; }
+        } else if (m === '下午茶') {
+          if (d.sugar > 20) { tag = 'warn'; verdict = '🍰 下午茶糖 ' + Math.round(d.sugar) + 'g 偏高，建议换成无糖饮品/坚果'; }
+          else if (d.kcal > 200) { tag = 'warn'; verdict = '🍰 下午茶 ' + Math.round(d.kcal) + 'kcal 偏多，减脂期建议 <150kcal 轻量加餐'; }
+          else { tag = 'ok'; verdict = '🍰 下午茶轻量加餐，热量 ' + Math.round(d.kcal) + 'kcal 合适'; }
+        } else if (m === '晚餐') {
+          if (d.kcal > targetKcal * 0.4) { tag = 'bad'; verdict = '🌙 晚餐 ' + Math.round(d.kcal) + 'kcal 占比偏高（>40% 全天），减脂期晚餐宜清淡、早吃'; }
+          else if (d.carbs > d.protein * 2) { tag = 'warn'; verdict = '🌙 晚餐碳水偏多，建议提高蛋白、减少主食，减轻夜间脂肪合成'; }
+          else { tag = 'ok'; verdict = '🌙 晚餐清淡、蛋白充足，利于夜间燃脂'; }
+        } else if (m === '零食') {
+          if (d.sugar > 25) { tag = 'bad'; verdict = '🍿 零食糖 ' + Math.round(d.sugar) + 'g 偏高，减脂期尽量选原味坚果/无糖酸奶'; }
+          else if (d.kcal > 250) { tag = 'warn'; verdict = '🍿 零食 ' + Math.round(d.kcal) + 'kcal 偏多，建议控制在 150kcal 内'; }
+          else { tag = 'ok'; verdict = '🍿 零食适量，热量 ' + Math.round(d.kcal) + 'kcal 可控'; }
+        }
+        if (tag === 'ok') good++; else if (tag === 'warn') warn++; else bad++;
+        cards.push('<div class="meal-card"><div class="meal-head"><span>' + m + '</span><span class="meal-kcal">' + Math.round(d.kcal) + ' kcal</span></div>'
+          + '<div class="meal-macros">蛋白 ' + Math.round(d.protein) + 'g · 碳水 ' + Math.round(d.carbs) + 'g · 脂肪 ' + Math.round(d.fat) + 'g</div>'
+          + '<div class="meal-verdict ' + tag + '">' + verdict + '</div></div>');
+      });
+
+      // 运动合理性评估
+      const exerciseKcal = (log.exercises || []).reduce((s, e) => s + (Number(e.kcal) || 0), 0);
+      let exTag = 'ok', exText;
+      if (exerciseKcal <= 0) {
+        exTag = 'warn';
+        exText = '🏃 今天还没有运动记录。减脂期建议每天 20–40 分钟中高强度运动（如快走、跳绳、力量训练），帮助制造热量缺口。';
+      } else if (exerciseKcal > 700) {
+        exTag = 'warn';
+        exText = '🏃 今日运动消耗约 ' + Math.round(exerciseKcal) + ' kcal，量较大，注意补充蛋白质与休息，避免过度训练。';
+      } else {
+        exText = '🏃 今日运动消耗约 ' + Math.round(exerciseKcal) + ' kcal，强度合理，有助于减脂与维持肌肉。';
+      }
+
+      // 结合体重/体脂的总体结论
+      let summary;
+      if (bad > 0) summary = '⚠️ 当日有 ' + bad + ' 个进餐时段需注意、' + warn + ' 个可优化、' + good + ' 个良好。';
+      else if (warn > 0) summary = '🟡 整体尚可，有 ' + warn + ' 个时段可优化、' + good + ' 个良好。';
+      else summary = '✅ 各进餐时段安排合理，继续保持！';
+      if (weight) summary += '（当前体重 ' + formatNum(weight, 1) + 'kg' + (bodyFat ? ' · 体脂 ' + formatNum(bodyFat, 1) + '%' : '') + '）';
+
+      el.innerHTML =
+        '<div class="meal-ai-grid">' + cards.join('') + '</div>'
+        + '<div class="meal-exercise ' + exTag + '">' + exText + '</div>'
+        + '<div class="meal-summary">' + summary + '</div>';
     }
 
     // ==================== 自动补全 ====================
@@ -3406,6 +3564,7 @@
       setupTabs();
       enableNavDragScroll();
       setupTodayTab();
+      setDefaultMealByTime();
       setupFoodLibrary();
       setupExerciseLibrary();
       setupStatsTab();
