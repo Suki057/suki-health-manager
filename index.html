@@ -181,6 +181,17 @@
     }
     .bottom-nav::-webkit-scrollbar { display: none; }
     .bottom-nav.dragging { cursor: grabbing; }
+    .bottom-nav::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 34px;
+      background: linear-gradient(to left, rgba(26, 32, 70, 0.96), transparent);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .bottom-nav.can-scroll-right::after { opacity: 1; }
     .bottom-nav .tab-btn {
       flex: 0 0 calc(25% - 2px);
       text-align: center;
@@ -1477,8 +1488,6 @@
       let isDown = false, startX = 0, scrollStart = 0, moved = false, pid = null;
       nav.addEventListener('pointerdown', e => {
         if (e.pointerType !== 'mouse') return; // 触摸交给原生滑动
-        // 直接点击导航按钮时不启动拖动，避免与 tab 切换冲突
-        if (e.target.closest && e.target.closest('.tab-btn')) return;
         isDown = true; moved = false; pid = e.pointerId;
         startX = e.clientX; scrollStart = nav.scrollLeft;
         if (nav.setPointerCapture) nav.setPointerCapture(pid);
@@ -1503,6 +1512,15 @@
       };
       nav.addEventListener('pointerup', end);
       nav.addEventListener('pointercancel', end);
+
+      function updateScrollHint() {
+        const canScroll = nav.scrollWidth > nav.clientWidth + 1;
+        const canScrollRight = nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1;
+        nav.classList.toggle('can-scroll-right', canScroll && canScrollRight);
+      }
+      nav.addEventListener('scroll', updateScrollHint, { passive: true });
+      window.addEventListener('resize', updateScrollHint);
+      updateScrollHint();
     }
 
     // ==================== 今日记录 ====================
