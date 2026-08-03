@@ -949,7 +949,7 @@
       <div class="summary-grid">
         <div class="card intake"><span class="label">摄入热量</span><span class="value" id="total-intake-kcal">0</span><span class="unit">kcal</span></div>
         <div class="card burn"><span class="label">今日消耗</span><span class="value" id="total-burn-kcal">0</span><span class="unit">kcal</span></div>
-        <div class="card net"><span class="label">净热量</span><span class="value" id="net-kcal">0</span><span class="unit">kcal</span></div>
+        <div class="card net"><span class="label">热量缺口</span><span class="value" id="net-kcal">0</span><span class="unit">kcal</span></div>
         <div class="card"><span class="label">蛋白质</span><span class="value" id="total-protein">0</span><span class="unit">g</span></div>
         <div class="card"><span class="label">脂肪</span><span class="value" id="total-fat">0</span><span class="unit">g</span></div>
         <div class="card"><span class="label">碳水</span><span class="value" id="total-carbs">0</span><span class="unit">g</span></div>
@@ -2086,7 +2086,7 @@
       const t = computeDayTotals(day);
       document.getElementById('total-intake-kcal').textContent = formatNum(t.kcal, 0);
       document.getElementById('total-burn-kcal').textContent = formatNum(t.burn, 0);
-      document.getElementById('net-kcal').textContent = formatNum(t.kcal - t.burn, 0);
+      document.getElementById('net-kcal').textContent = formatNum(t.burn - t.kcal, 0);
       document.getElementById('total-protein').textContent = formatNum(t.protein);
       document.getElementById('total-fat').textContent = formatNum(t.fat);
       document.getElementById('total-carbs').textContent = formatNum(t.carbs);
