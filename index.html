@@ -1477,6 +1477,8 @@
       let isDown = false, startX = 0, scrollStart = 0, moved = false, pid = null;
       nav.addEventListener('pointerdown', e => {
         if (e.pointerType !== 'mouse') return; // 触摸交给原生滑动
+        // 直接点击导航按钮时不启动拖动，避免与 tab 切换冲突
+        if (e.target.closest && e.target.closest('.tab-btn')) return;
         isDown = true; moved = false; pid = e.pointerId;
         startX = e.clientX; scrollStart = nav.scrollLeft;
         if (nav.setPointerCapture) nav.setPointerCapture(pid);
