@@ -1167,6 +1167,11 @@
             <tbody></tbody>
           </table>
         </div>
+        <div class="row" style="margin-top:12px;gap:12px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="btn secondary" id="body-csv-import-btn">📥 导入体重/体脂 CSV</button>
+          <span class="hint" style="margin:0;flex:1;min-width:220px;">CSV 首行表头含「日期、体重、体脂率」即可（列顺序不限，也支持小腿围/大腿围/腰围/臀围）。日期支持 2026-08-01 或 8/1 格式。</span>
+        </div>
+        <input type="file" id="body-csv-file" accept=".csv,text/csv" style="display:none" />
         <h3 style="margin-top:24px;">📈 趋势图</h3>
         <div class="row">
           <div class="field small">
@@ -1551,6 +1556,14 @@
       document.getElementById('body-save-btn').addEventListener('click', saveBodyEntry);
       document.getElementById('base-save-btn').addEventListener('click', saveBaseline);
       document.getElementById('target-save-btn').addEventListener('click', saveTargetManagement);
+
+      // 身材 CSV 导入
+      document.getElementById('body-csv-import-btn').addEventListener('click', () => document.getElementById('body-csv-file').click());
+      document.getElementById('body-csv-file').addEventListener('change', e => {
+        const f = e.target.files && e.target.files[0];
+        if (f) importBodyCSV(f);
+        e.target.value = '';
+      });
     }
 
     const BODY_FIELDS = [
@@ -1582,6 +1595,106 @@
       const hint = document.getElementById('body-saved-hint');
       if (hint) hint.textContent = '已保存 ' + day + ' 的身材数据，输入框已清空，可录入下一天。';
       toast('身材数据已保存（' + day + '）');
+    }
+
+    // ===== 身材 CSV 导入 =====
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+    // 把各种日期写法统一成 YYYY-MM-DD
+    function normDate(raw) {
+      if (raw === undefined || raw === null || raw === '') return null;
+      let s = String(raw).trim()
+        .replace(/[年月]/g, '-').replace(/[日]/g, '')
+        .replace(/[/.]/g, '-');
+      const parts = s.split('-').filter(p => p !== '');
+      if (parts.length === 3) {
+        let y = parseInt(parts[0], 10), m = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+        if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+        if (y < 100) y += 2000;
+        const dt = new Date(y, m - 1, d);
+        if (dt.getFullYear() !== y || dt.getMonth() + 1 !== m || dt.getDate() !== d) return null;
+        return y + '-' + pad2(m) + '-' + pad2(d);
+      }
+      if (parts.length === 2) {
+        const m = parseInt(parts[0], 10), d = parseInt(parts[1], 10);
+        if (isNaN(m) || isNaN(d)) return null;
+        const y = new Date().getFullYear();
+        const dt = new Date(y, m - 1, d);
+        if (dt.getMonth() + 1 !== m || dt.getDate() !== d) return null;
+        return y + '-' + pad2(m) + '-' + pad2(d);
+      }
+      return null;
+    }
+
+    // 表头 -> 字段映射（忽略空格、括号、大小写）
+    function matchBodyKey(h) {
+      const n = String(h).trim().toLowerCase().replace(/[\s()（）]/g, '');
+      if (/date|日期|测量|记录时间/.test(n)) return 'date';
+      if (/体重|weight|重量|kg/.test(n)) return 'weight';
+      if (/体脂|bodyfat/.test(n)) return 'bodyFat';
+      if (/小腿|calf/.test(n)) return 'calf';
+      if (/大腿|thigh/.test(n)) return 'thigh';
+      if (/腰/.test(n)) return 'waist';
+      if (/臀|hip/.test(n)) return 'hip';
+      return null;
+    }
+
+    function detectDelim(text) {
+      const head = text.split(/\r?\n/).find(l => l.trim() !== '') || '';
+      if (head.indexOf('\t') >= 0) return '\t';
+      if (head.indexOf(';') >= 0) return ';';
+      return ',';
+    }
+
+    function parseCSV(text) {
+      const delim = detectDelim(text);
+      return text.replace(/\r/g, '').split('\n')
+        .filter(l => l.trim() !== '')
+        .map(line => line.split(delim).map(c => c.trim().replace(/^"|"$/g, '')));
+    }
+
+    function importBodyCSV(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          let text = (e.target.result || '').replace(/^﻿/, '');
+          const rows = parseCSV(text);
+          if (rows.length < 2) return toast('CSV 没有可导入的数据行');
+          const header = rows[0];
+          const keyMap = {};
+          let dateCol = -1;
+          header.forEach((h, i) => {
+            const k = matchBodyKey(h);
+            if (k) { keyMap[i] = k; if (k === 'date') dateCol = i; }
+          });
+          if (dateCol < 0) return toast('未找到「日期」列，请检查 CSV 表头');
+          let imported = 0, skipped = 0;
+          rows.slice(1).forEach(cells => {
+            const date = normDate(cells[dateCol]);
+            if (!date) { skipped++; return; }
+            if (!state.logs[date]) state.logs[date] = { foods: [], exercises: [] };
+            const body = state.logs[date].body || {};
+            Object.keys(keyMap).forEach(ci => {
+              const k = keyMap[ci];
+              if (k === 'date') return;
+              const v = parseFloat(cells[ci]);
+              if (!Number.isNaN(v) && v > 0) body[k] = v;
+            });
+            state.logs[date].body = body;
+            imported++;
+          });
+          if (imported === 0) return toast('没有成功导入任何一行（请检查日期与数值列）');
+          save();
+          renderBodyStats(document.getElementById('stats-start').value, document.getElementById('stats-end').value);
+          renderBody();
+          renderBodyChart();
+          toast('已导入 ' + imported + ' 天身材数据' + (skipped ? ('，跳过 ' + skipped + ' 行无效数据') : ''));
+        } catch (err) {
+          toast('导入失败：' + (err && err.message ? err.message : '未知错误'));
+        }
+      };
+      reader.onerror = () => toast('读取文件失败');
+      reader.readAsText(file);
     }
 
     const BASE_FIELDS = [
