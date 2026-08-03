@@ -1401,6 +1401,10 @@
           f.baseGrams = fix.baseGrams;
         }
       });
+      // 迁移：娃娃菜钠含量订正（100g 钠 250 → 19.3 mg）
+      state.foods.forEach(f => {
+        if (f.name === '娃娃菜' && Number(f.sodium) === 250) f.sodium = 19.3;
+      });
       if (!Array.isArray(state.exercises)) state.exercises = [];
       state.exercises.forEach(x => { if (!x.type) x.type = 'ana'; });
       if (!state.logs || typeof state.logs !== 'object') state.logs = {};
@@ -3448,7 +3452,7 @@
       { name: '牛筋丸', kcal: 198.5, protein: 15.6, fat: 11.8, carbs: 5.4, sodium: 640, sugar: 0, category: '蛋白质' },
       { name: '马鲛鱼', kcal: 121, protein: 21.2, fat: 3.1, carbs: 2.1, sodium: 74.2, sugar: 0, category: '蛋白质' },
       // 蔬菜（10 种）
-      { name: '娃娃菜', kcal: 13, protein: 1.5, fat: 0.2, carbs: 2.5, sodium: 250, sugar: 0, category: '蔬菜' },
+      { name: '娃娃菜', kcal: 13, protein: 1.5, fat: 0.2, carbs: 2.5, sodium: 19.3, sugar: 0, category: '蔬菜' },
       { name: '西蓝花', kcal: 27, protein: 2.8, fat: 0.4, carbs: 4.8, sodium: 3, sugar: 0, category: '蔬菜' },
       { name: '菠菜', kcal: 28, protein: 2.9, fat: 0.4, carbs: 4.6, sodium: 80, sugar: 0, category: '蔬菜' },
       { name: '生菜', kcal: 12, protein: 1, fat: 0.2, carbs: 2.1, sodium: 10, sugar: 0, category: '蔬菜' },
