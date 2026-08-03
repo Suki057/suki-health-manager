@@ -2640,7 +2640,7 @@
       const tbody = document.querySelector('#stats-table tbody');
       tbody.innerHTML = '';
       if (!start || !end) { renderBodyStats(start, end); renderBodyChart(); return; }
-      const dates = Object.keys(state.logs).filter(d => d >= start && d <= end).sort();
+      const dates = Object.keys(state.logs).filter(d => d >= start && d <= end).sort((a, b) => b.localeCompare(a));
       if (dates.length === 0) {
         tbody.innerHTML = '<tr><td colspan="10" class="empty-state">该区间没有记录</td></tr>';
         renderBodyStats(start, end);
