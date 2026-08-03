@@ -442,6 +442,7 @@
     tbody tr:hover { background: rgba(214, 138, 166, 0.08); }
     tbody tr:last-child td { border-bottom: none; }
     td.number { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    td.number.deficit { color: #E53935; }
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -947,7 +948,7 @@
 
       <div class="summary-grid">
         <div class="card intake"><span class="label">摄入热量</span><span class="value" id="total-intake-kcal">0</span><span class="unit">kcal</span></div>
-        <div class="card burn"><span class="label">总消耗</span><span class="value" id="total-burn-kcal">0</span><span class="unit">kcal</span></div>
+        <div class="card burn"><span class="label">今日消耗</span><span class="value" id="total-burn-kcal">0</span><span class="unit">kcal</span></div>
         <div class="card net"><span class="label">净热量</span><span class="value" id="net-kcal">0</span><span class="unit">kcal</span></div>
         <div class="card"><span class="label">蛋白质</span><span class="value" id="total-protein">0</span><span class="unit">g</span></div>
         <div class="card"><span class="label">脂肪</span><span class="value" id="total-fat">0</span><span class="unit">g</span></div>
@@ -2654,7 +2655,7 @@
           <td>${day}</td>
           <td class="number">${formatNum(t.kcal, 0)}</td>
           <td class="number">${formatNum(t.burn, 0)}</td>
-          <td class="number">${formatNum(t.burn - t.kcal, 0)}</td>
+          <td class="number deficit">${formatNum(t.burn - t.kcal, 0)}</td>
           <td class="number">${formatNum(t.protein)}</td>
           <td class="number">${formatNum(t.fat)}</td>
           <td class="number">${formatNum(t.carbs)}</td>
