@@ -1241,13 +1241,13 @@
         <h3 style="margin-top:24px;">🎯 每日营养目标</h3>
         <p class="hint">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
         <div class="form-grid">
-          <div class="field"><label>热量 (kcal)</label><input type="number" id="goal-kcal" min="0" step="1" placeholder="如 1500" /></div>
+          <div class="field"><label>热量 (kcal)</label><input type="text" id="goal-kcal" inputmode="decimal" placeholder="如 1500 或 1400-1600" /></div>
           <div class="field"><label>每日动态消耗 (kcal)</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" /></div>
-          <div class="field"><label>蛋白质 (g)</label><input type="number" id="goal-protein" min="0" step="1" placeholder="如 90" /></div>
-          <div class="field"><label>脂肪 (g)</label><input type="number" id="goal-fat" min="0" step="1" placeholder="如 50" /></div>
-          <div class="field"><label>碳水 (g)</label><input type="number" id="goal-carbs" min="0" step="1" placeholder="如 180" /></div>
-          <div class="field"><label>糖 (g)</label><input type="number" id="goal-sugar" min="0" step="1" placeholder="如 50" /></div>
-          <div class="field"><label>钠 (mg)</label><input type="number" id="goal-sodium" min="0" step="1" placeholder="如 2000" /></div>
+          <div class="field"><label>蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="decimal" placeholder="如 90 或 80-100" /></div>
+          <div class="field"><label>脂肪 (g)</label><input type="text" id="goal-fat" inputmode="decimal" placeholder="如 50 或 45-60" /></div>
+          <div class="field"><label>碳水 (g)</label><input type="text" id="goal-carbs" inputmode="decimal" placeholder="如 180 或 160-200" /></div>
+          <div class="field"><label>糖 (g)</label><input type="text" id="goal-sugar" inputmode="decimal" placeholder="如 50 或 25-50" /></div>
+          <div class="field"><label>钠 (mg)</label><input type="text" id="goal-sodium" inputmode="decimal" placeholder="如 2000 或 1500-2300" /></div>
           <div class="form-actions">
             <button type="button" class="btn primary" id="goal-save-btn">保存目标</button>
           </div>
@@ -1855,14 +1855,16 @@
       // 纯运动消耗热量（不含每日动态消耗）
       const exerciseKcal = (logX.exercises || []).reduce((s, e) => s + (Number(e.kcal) || 0), 0);
       const dynamicKcal = Number((state.goals && state.goals.dynamicBurn) || 0);
-      if (g.kcal) {
-        // 今日还需摄入 = 目标热量 - 摄入热量
-        const net = g.kcal - totals.kcal;
+      const gk = parseGoal(g.kcal);
+      if (gk) {
+        // 今日还需摄入 = 目标热量(取区间中点) - 摄入热量
+        const net = gk.mid - totals.kcal;
         kcalEl.innerHTML = formatNum(Math.abs(net)) + '<small> ' + (net >= 0 ? '还可吃' : '已超') + '</small>';
       } else { kcalEl.textContent = '—'; }
 
-      if (g.protein) {
-        const need = g.protein - totals.protein;
+      const gp = parseGoal(g.protein);
+      if (gp) {
+        const need = gp.mid - totals.protein;
         proEl.innerHTML = formatNum(Math.abs(need)) + '<small> ' + (need >= 0 ? '可吃' : '已超') + '</small>';
       } else { proEl.textContent = '—'; }
     }
@@ -2264,8 +2266,9 @@
       const weight = body.weight || state.baseline.weight;
       const g = estimateGoals(weight);
       const goals = Object.assign({}, g, state.goals || {});
-      Object.keys(goals).forEach(k => {
+      GOAL_RANGE_KEYS.forEach(k => {
         if (goals[k] === undefined || goals[k] === null || goals[k] === '') goals[k] = g[k];
+        goals[k] = parseGoal(goals[k]); // 统一解析为 {min,max,mid,isRange}
       });
 
       const items = [];
@@ -2276,32 +2279,37 @@
       };
 
       if (goals.kcal) {
-        const p = t.kcal / goals.kcal * 100;
-        if (p > 115) push('bad', '🔴', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，超过目标 (' + formatNum(goals.kcal, 0) + ' kcal) 约 ' + formatNum(p - 100, 0) + '%，当天偏多。');
-        else if (p < 80) push('warn', '🟡', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，低于目标 (' + formatNum(goals.kcal, 0) + ' kcal) 约 ' + formatNum(100 - p, 0) + '%，长期偏低可能代谢下降。');
-        else push('ok', '🟢', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，落在目标区间内，合理。');
+        const gc = goals.kcal;
+        const p = t.kcal / gc.mid * 100;
+        if (t.kcal > gc.max) push('bad', '🔴', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，超过目标区间 (' + goalText(gc) + ' kcal) 上限，当天偏多。');
+        else if (t.kcal < gc.min) push('warn', '🟡', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，低于目标区间 (' + goalText(gc) + ' kcal) 下限约 ' + formatNum(100 - p, 0) + '%，长期偏低可能代谢下降。');
+        else push('ok', '🟢', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，落在目标区间 (' + goalText(gc) + ' kcal) 内，合理。');
       }
       if (goals.protein) {
-        const p = t.protein / goals.protein * 100;
-        if (t.protein >= goals.protein * 0.9) push('ok', '🟢', '蛋白质 <b>' + formatNum(t.protein) + ' g</b>，已达目标 (' + formatNum(goals.protein) + ' g) 的 ' + formatNum(p, 0) + '%，吃足了 ✅');
-        else push('bad', '🔴', '蛋白质仅 <b>' + formatNum(t.protein) + ' g</b>，距目标 (' + formatNum(goals.protein) + ' g) 还差 ' + formatNum(goals.protein - t.protein) + ' g，建议加个蛋/鸡胸肉/牛奶。');
+        const gp = goals.protein;
+        if (t.protein >= gp.min * 0.9) push('ok', '🟢', '蛋白质 <b>' + formatNum(t.protein) + ' g</b>，已达目标区间 (' + goalText(gp) + ' g) 下限，吃足了 ✅');
+        else push('bad', '🔴', '蛋白质仅 <b>' + formatNum(t.protein) + ' g</b>，距目标下限 (' + formatNum(gp.min) + ' g) 还差 ' + formatNum(gp.min - t.protein) + ' g，建议加个蛋/鸡胸肉/牛奶。');
       }
       if (goals.carbs) {
-        if (t.carbs > goals.carbs * 1.15) push('bad', '🔴', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，超过目标 (' + formatNum(goals.carbs) + ' g)，摄入过量，注意精米面/甜食。');
-        else if (t.carbs < goals.carbs * 0.5) push('warn', '🟡', '碳水 <b>' + formatNum(t.carbs) + ' g</b> 偏低，可能能量不足、容易饿，可适量增加主食。');
-        else push('ok', '🟢', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，在目标范围内，合适。');
+        const gcb = goals.carbs;
+        if (t.carbs > gcb.max) push('bad', '🔴', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，超过目标区间 (' + goalText(gcb) + ' g)，摄入过量，注意精米面/甜食。');
+        else if (t.carbs < gcb.min * 0.5) push('warn', '🟡', '碳水 <b>' + formatNum(t.carbs) + ' g</b> 偏低，可能能量不足、容易饿，可适量增加主食。');
+        else push('ok', '🟢', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，在目标区间 (' + goalText(gcb) + ' g) 内，合适。');
       }
       if (goals.fat) {
-        if (t.fat > goals.fat * 1.2) push('bad', '🔴', '脂肪 <b>' + formatNum(t.fat) + ' g</b> 超过目标 (' + formatNum(goals.fat) + ' g)，偏多，注意油炸/肥肉。');
-        else push('ok', '🟢', '脂肪 <b>' + formatNum(t.fat) + ' g</b>，未超过目标 (' + formatNum(goals.fat) + ' g)。');
+        const gf = goals.fat;
+        if (t.fat > gf.max) push('bad', '🔴', '脂肪 <b>' + formatNum(t.fat) + ' g</b> 超过目标区间 (' + goalText(gf) + ' g) 上限，偏多，注意油炸/肥肉。');
+        else push('ok', '🟢', '脂肪 <b>' + formatNum(t.fat) + ' g</b>，在目标区间 (' + goalText(gf) + ' g) 内。');
       }
       if (goals.sugar) {
-        if (t.sugar > goals.sugar) push('bad', '🔴', '糖 <b>' + formatNum(t.sugar) + ' g</b> 超过上限 (' + formatNum(goals.sugar) + ' g)，游离糖偏高，少喝含糖饮料。');
-        else push('ok', '🟢', '糖 <b>' + formatNum(t.sugar) + ' g</b>，在上限内。');
+        const gs = goals.sugar;
+        if (t.sugar > gs.max) push('bad', '🔴', '糖 <b>' + formatNum(t.sugar) + ' g</b> 超过上限 (' + formatNum(gs.max) + ' g)，游离糖偏高，少喝含糖饮料。');
+        else push('ok', '🟢', '糖 <b>' + formatNum(t.sugar) + ' g</b>，在上限 (' + formatNum(gs.max) + ' g) 内。');
       }
       if (goals.sodium) {
-        if (t.sodium > goals.sodium) push('bad', '🔴', '钠 <b>' + formatNum(t.sodium, 0) + ' mg</b> 超过上限 (' + formatNum(goals.sodium, 0) + ' mg)，注意饮食清淡、少加工食品。');
-        else push('ok', '🟢', '钠 <b>' + formatNum(t.sodium, 0) + ' mg</b>，在上限内。');
+        const gso = goals.sodium;
+        if (t.sodium > gso.max) push('bad', '🔴', '钠 <b>' + formatNum(t.sodium, 0) + ' mg</b> 超过上限 (' + formatNum(gso.max, 0) + ' mg)，注意饮食清淡、少加工食品。');
+        else push('ok', '🟢', '钠 <b>' + formatNum(t.sodium, 0) + ' mg</b>，在上限 (' + formatNum(gso.max, 0) + ' mg) 内。');
       }
 
       let summary;
@@ -2333,7 +2341,7 @@
 
       // 各时段建议占全天热量比例（减脂期分配）
       const DIST = { '早餐': 0.25, '中餐': 0.35, '下午茶': 0.05, '晚餐': 0.30, '宵夜': 0.0, '零食': 0.05 };
-      const targetKcal = goals.kcal || g.kcal;
+      const targetKcal = goalMid(goals.kcal) || g.kcal;
       const perMealKcal = m => Math.round(targetKcal * (DIST[m] || 0));
 
       // 将当日饮食按进餐时段聚合
@@ -3214,12 +3222,46 @@
 
     const GOAL_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium', 'dynamicBurn'];
     const GOAL_IDS = { kcal: 'goal-kcal', protein: 'goal-protein', fat: 'goal-fat', carbs: 'goal-carbs', sugar: 'goal-sugar', sodium: 'goal-sodium', dynamicBurn: 'goal-dynamic-burn' };
+    // 支持区间的目标键（其余如动态消耗仍为单一数值）
+    const GOAL_RANGE_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium'];
+
+    // 解析目标值：支持单一数字 "120" 或区间 "50-65" / "50~65" / "50至65" / "50 to 65"
+    function parseGoal(v) {
+      if (v === undefined || v === null || v === '') return null;
+      const s = String(v).trim();
+      const m = s.match(/^\s*([\d.]+)\s*(?:[-~–—至]|to)\s*([\d.]+)\s*$/i);
+      if (m) {
+        const lo = parseFloat(m[1]), hi = parseFloat(m[2]);
+        if (!Number.isNaN(lo) && !Number.isNaN(hi) && hi >= lo) {
+          return { min: lo, max: hi, mid: (lo + hi) / 2, isRange: true, raw: s };
+        }
+      }
+      const n = parseFloat(s);
+      if (!Number.isNaN(n) && n > 0) return { min: n, max: n, mid: n, isRange: false, raw: s };
+      return null;
+    }
+    // 取区间中点用于「还需摄入」等单值计算
+    function goalMid(v) {
+      const p = parseGoal(v);
+      return p ? p.mid : null;
+    }
+    // 区间展示文案：有区间显示 "min-max"，否则显示单值
+    function goalText(p) {
+      return p ? (p.isRange ? (formatNum(p.min) + '-' + formatNum(p.max)) : formatNum(p.mid)) : '—';
+    }
 
     function saveGoals() {
       const g = {};
       GOAL_KEYS.forEach(k => {
-        const v = parseFloat(document.getElementById(GOAL_IDS[k]).value);
-        if (!Number.isNaN(v) && v > 0) g[k] = v;
+        const raw = document.getElementById(GOAL_IDS[k]).value.trim();
+        if (raw === '') return;
+        if (k === 'dynamicBurn') {
+          const v = parseFloat(raw);
+          if (!Number.isNaN(v) && v >= 0) g[k] = v;
+        } else {
+          const p = parseGoal(raw);
+          if (p) g[k] = raw; // 存原始串，分析时再用 parseGoal 解析（支持区间）
+        }
       });
       // 保留「目标管理」里的体重/体脂目标，避免保存每日营养目标时被覆盖清空
       if (state.goals && typeof state.goals === 'object') {
