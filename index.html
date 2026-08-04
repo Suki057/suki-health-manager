@@ -778,6 +778,8 @@
       100% { box-shadow: 0 0 0 0 rgba(214, 138, 166, 0); }
     }
     .data-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .data-actions.main-actions { margin-top: 18px; }
+    .data-actions.main-actions .btn { padding: 7px 13px; font-size: 12.5px; border-radius: 10px; }
     .empty-state { color: var(--muted); text-align: center; padding: 26px; font-size: 14px; }
     .hint { color: var(--muted); font-size: 13px; margin: 6px 0 16px; }
     .toast {
@@ -1411,7 +1413,7 @@
           <p class="hint" id="goals-hint"></p>
         </details>
 
-        <div class="data-actions">
+        <div class="data-actions main-actions">
           <button id="export-btn" class="btn primary">导出 JSON 备份</button>
           <button id="import-btn" class="btn secondary">导入 JSON 备份</button>
           <button id="sample-btn" class="btn success">载入示例数据</button>
