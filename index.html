@@ -711,19 +711,7 @@
     .meal-suggest.warn-s { background: rgba(220,150,80,0.18); color: #9a5a1a; font-weight: 600; }
     .meal-exercise { font-size: 13.5px; line-height: 1.55; padding: 11px 14px; border-radius: 12px; background: rgba(120,150,200,0.12); color: #34405c; margin-bottom: 12px; }
     .meal-summary { font-size: 14px; font-weight: 600; padding: 10px 14px; border-radius: 12px; background: rgba(214,138,166,0.14); color: #7a3b5b; }
-    /* 全天营养总评（蛋白/碳水/脂肪/钠：过量·充足） */
     .nutr-title { font-size: 14px; margin: 2px 0 8px; color: #5A3A42; }
-    .nutr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 12px; margin: 4px 0 14px; }
-    .nutr-card { border: 1px solid rgba(214,138,166,0.28); border-radius: 14px; padding: 11px 14px; background: rgba(255,255,255,0.5); }
-    .nutr-card.ok { border-color: rgba(120,180,120,0.45); }
-    .nutr-card.warn { border-color: rgba(230,190,80,0.5); }
-    .nutr-card.bad { border-color: rgba(220,110,110,0.5); }
-    .nutr-name { font-weight: 600; color: #3d3a36; font-size: 14px; }
-    .nutr-badge { float: right; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
-    .nutr-card.ok .nutr-badge { background: rgba(120,180,120,0.18); color: #2f6b34; }
-    .nutr-card.warn .nutr-badge { background: rgba(230,190,80,0.24); color: #8a6a12; }
-    .nutr-card.bad .nutr-badge { background: rgba(220,110,110,0.18); color: #a83232; }
-    .nutr-text { font-size: 12.5px; line-height: 1.5; color: #5a5450; margin-top: 7px; clear: both; }
     /* 分类板块 */
     #food-categories .panel { margin-bottom: 18px; }
     .food-cat-table { min-width: 640px; }
@@ -2517,60 +2505,12 @@
       const body = (log.body) || (state.baseline) || {};
       const weight = body.weight || state.baseline.weight;
       const bodyFat = body.bodyFat || state.baseline.bodyFat;
-      const t = computeDayTotals(day);
       const g = estimateGoals(weight);
       const goals = Object.assign({}, g, state.goals || {});
       Object.keys(goals).forEach(k => { if (goals[k] === '' || goals[k] === null || goals[k] === undefined) goals[k] = g[k]; });
 
       // 各时段建议占全天热量比例（减脂期分配）
       const DIST = { '早餐': 0.25, '中餐': 0.35, '下午茶': 0.05, '晚餐': 0.30, '宵夜': 0.0, '零食': 0.05 };
-      const targetKcal = goalMid(goals.kcal) || g.kcal;
-      const perMealKcal = m => Math.round(targetKcal * (DIST[m] || 0));
-
-      // 解析目标为区间对象，统一口径用于全天营养总评
-      const parsedGoals = {};
-      ['kcal', 'protein', 'carbs', 'fat', 'sugar', 'sodium'].forEach(k => {
-        parsedGoals[k] = parseGoal(goals[k]) || parseGoal(g[k]) || null;
-      });
-
-      // 全天营养总评：蛋白 / 碳水 / 脂肪 / 钠 是否过量或充足
-      const NUTR_NOTE = {
-        fat_over: '长期脂肪（尤其饱和/反式脂肪）超标会推高脂肪囤积、血脂升高（甘油三酯与低密度脂蛋白 LDL 上升）、加重心血管负担，并增加脂肪肝风险——减脂期会直接抵消热量缺口。',
-        sodium_over: '钠长期超标易造成水分潴留、身体浮肿、血压升高，加重心血管与肾脏负担；也常伴随第二天体重“虚高”与口渴。建议饮食清淡、少吃加工/腌制食品。'
-      };
-      const nutrRows = [
-        { key: 'protein', name: '蛋白质', icon: '💪', kind: 'protein' },
-        { key: 'carbs', name: '碳水', icon: '🍚', kind: 'carbs' },
-        { key: 'fat', name: '脂肪', icon: '🥑', kind: 'fat' },
-        { key: 'sodium', name: '钠', icon: '🧂', kind: 'sodium' },
-      ];
-      const nutrCards = [];
-      nutrRows.forEach(nr => {
-        const val = t[nr.key] || 0;
-        const gp = parsedGoals[nr.key];
-        let cls, badge, text;
-        if (nr.kind === 'protein') {
-          const lo = gp ? gp.min : g.protein;
-          if (val >= lo * 0.9) { cls = 'ok'; badge = '充足'; text = '蛋白质 <b>' + Math.round(val) + ' g</b>，已达目标（' + (gp ? goalText(gp) : Math.round(g.protein)) + ' g）下限，吃足了 ✅'; }
-          else { cls = 'warn'; badge = '不足'; text = '蛋白质仅 <b>' + Math.round(val) + ' g</b>，距目标下限 ' + Math.round(lo) + ' g 还差 ' + Math.round(lo - val) + ' g，建议加蛋/鸡胸/奶。'; }
-        } else if (nr.kind === 'carbs') {
-          const hi = gp ? gp.max : g.carbs, lo = gp ? gp.min : g.carbs;
-          if (val > hi * 1.1) { cls = 'warn'; badge = '偏高'; text = '碳水 <b>' + Math.round(val) + ' g</b> 超过目标上限 ' + Math.round(hi) + ' g，精米面/甜食偏多。'; }
-          else if (val < lo * 0.6) { cls = 'warn'; badge = '偏低'; text = '碳水 <b>' + Math.round(val) + ' g</b> 偏低，能量可能不足、易饿，可适量加主食。'; }
-          else { cls = 'ok'; badge = '适宜'; text = '碳水 <b>' + Math.round(val) + ' g</b>，在目标范围（' + (gp ? goalText(gp) : Math.round(g.carbs)) + ' g）内。'; }
-        } else if (nr.kind === 'fat') {
-          const hi = gp ? gp.max : g.fat, lo = gp ? gp.min : g.fat;
-          if (val > hi) { cls = 'bad'; badge = '过量'; text = '脂肪 <b>' + Math.round(val) + ' g</b> 超过目标上限 ' + Math.round(hi) + ' g。' + NUTR_NOTE.fat_over; }
-          else if (val < lo * 0.7) { cls = 'warn'; badge = '偏低'; text = '脂肪 <b>' + Math.round(val) + ' g</b> 偏低，过低不利脂溶性维生素吸收与激素合成。'; }
-          else { cls = 'ok'; badge = '适宜'; text = '脂肪 <b>' + Math.round(val) + ' g</b>，在目标范围（' + (gp ? goalText(gp) : Math.round(g.fat)) + ' g）内。'; }
-        } else {
-          const hi = gp ? gp.max : g.sodium;
-          if (val > hi) { cls = 'bad'; badge = '过量'; text = '钠 <b>' + Math.round(val) + ' mg</b> 超过上限 ' + Math.round(hi) + ' mg。' + NUTR_NOTE.sodium_over; }
-          else { cls = 'ok'; badge = '适宜'; text = '钠 <b>' + Math.round(val) + ' mg</b>，在建议上限 ' + Math.round(hi) + ' mg 内。'; }
-        }
-        nutrCards.push('<div class="nutr-card ' + cls + '"><span class="nutr-name">' + nr.icon + ' ' + nr.name + '</span><span class="nutr-badge">' + badge + '</span><div class="nutr-text">' + text + '</div></div>');
-      });
-      const dailyNutrHTML = '<h3 class="nutr-title">📊 全天营养总评（蛋白 / 碳水 / 脂肪 / 钠）</h3><div class="nutr-grid">' + nutrCards.join('') + '</div>';
 
       // 将当日饮食按进餐时段聚合
       const byMeal = {};
@@ -2614,7 +2554,7 @@
         items.push({ n: '蛋白', v: Math.round(d.protein), t: Math.round(mg.protein), u: 'g', cls: pPct < 0.8 ? 'low' : (pPct > 1.25 ? 'high' : 'ok'), txt: pPct < 0.8 ? '偏低' : (pPct > 1.25 ? '偏高' : '适宜') });
         items.push({ n: '碳水', v: Math.round(d.carbs), t: Math.round(mg.carbs), u: 'g', cls: cPct > 1.25 ? 'high' : (cPct < 0.6 ? 'low' : 'ok'), txt: cPct > 1.25 ? '偏高' : (cPct < 0.6 ? '偏低' : '适宜') });
         items.push({ n: '脂肪', v: Math.round(d.fat), t: Math.round(mg.fat), u: 'g', cls: fPct > 1.25 ? 'high' : (fPct < 0.6 ? 'low' : 'ok'), txt: fPct > 1.25 ? '偏高' : (fPct < 0.6 ? '偏低' : '适宜') });
-        if (d.sodium > 0) items.push({ n: '钠', v: Math.round(d.sodium), t: Math.round(mg.sodium), u: 'mg', cls: sPct > 1.25 ? 'high' : 'ok', txt: sPct > 1.25 ? '偏高' : '适宜' });
+        items.push({ n: '钠', v: Math.round(d.sodium), t: Math.round(mg.sodium), u: 'mg', cls: sPct > 1.25 ? 'high' : 'ok', txt: sPct > 1.25 ? '偏高' : '适宜' });
         const detailHTML = '<div class="meal-detail">' + items.map(it =>
           '<span class="md-item ' + it.cls + '">' + it.n + ' ' + it.v + it.u + ' / 目标 ' + it.t + it.u + ' · ' + it.txt + '</span>'
         ).join('') + '</div>';
@@ -2690,8 +2630,7 @@
       if (weight) summary += '（当前体重 ' + formatNum(weight, 1) + 'kg' + (bodyFat ? ' · 体脂 ' + formatNum(bodyFat, 1) + '%' : '') + '）';
 
       el.innerHTML =
-        dailyNutrHTML
-        + '<h3 class="nutr-title" style="margin-top:6px;">🍽️ 各餐次营养分析（按进餐时段分别评估 + 后续分配建议）</h3>'
+        '<h3 class="nutr-title" style="margin-top:2px;">🍽️ 各餐次营养分析（按进餐时段分别评估 + 后续分配建议）</h3>'
         + '<div class="meal-ai-grid">' + cards.join('') + '</div>'
         + '<div class="meal-exercise ' + exTag + '">' + exText + '</div>'
         + '<div class="meal-summary">' + summary + '</div>';
