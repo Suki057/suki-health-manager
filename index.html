@@ -41,6 +41,11 @@
       --shadow: 0 10px 24px rgba(26, 22, 48, 0.22);
     }
     * { box-sizing: border-box; }
+    /* 禁止点击输入框/选项时页面意外缩放（iOS 聚焦放大 & 双击缩放） */
+    input, select, textarea { touch-action: manipulation; }
+    @media (pointer: coarse) {
+      input, select, textarea { font-size: 16px !important; }
+    }
     html {
       background: #1a2046;
       min-height: 100%;
