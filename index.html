@@ -700,6 +700,15 @@
     .meal-verdict.ok { background: rgba(120,180,120,0.16); color: #2f6b34; }
     .meal-verdict.warn { background: rgba(230,190,80,0.20); color: #8a6a12; }
     .meal-verdict.bad { background: rgba(220,110,110,0.16); color: #a83232; }
+    /* 每餐营养明细（蛋白/碳水/脂肪/钠 对比该餐目标） */
+    .meal-detail { display: flex; flex-wrap: wrap; gap: 5px 8px; margin: 2px 0 8px; }
+    .md-item { font-size: 12px; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+    .md-item.ok { background: rgba(120,180,120,0.16); color: #2f6b34; }
+    .md-item.low { background: rgba(120,160,210,0.16); color: #2f568b; }
+    .md-item.high { background: rgba(220,110,110,0.16); color: #a83232; }
+    /* 后续餐次分配建议 */
+    .meal-suggest { font-size: 12.5px; line-height: 1.45; padding: 7px 10px; border-radius: 9px; background: rgba(150,130,200,0.12); color: #4a3a6b; margin-top: 6px; }
+    .meal-suggest.warn-s { background: rgba(220,150,80,0.18); color: #9a5a1a; font-weight: 600; }
     .meal-exercise { font-size: 13.5px; line-height: 1.55; padding: 11px 14px; border-radius: 12px; background: rgba(120,150,200,0.12); color: #34405c; margin-bottom: 12px; }
     .meal-summary { font-size: 14px; font-weight: 600; padding: 10px 14px; border-radius: 12px; background: rgba(214,138,166,0.14); color: #7a3b5b; }
     /* 全天营养总评（蛋白/碳水/脂肪/钠：过量·充足） */
@@ -2574,39 +2583,90 @@
         byMeal[m].carbs += c.carbs; byMeal[m].sugar += c.sugar; byMeal[m].count += 1;
       });
 
+      // 各营养素全日目标（用于推导每餐目标 = 按 DIST 比例拆分）
+      const dKcal = goalMid(goals.kcal) || g.kcal;
+      const dProtein = goalMid(goals.protein) || g.protein;
+      const dCarbs = goalMid(goals.carbs) || g.carbs;
+      const dFat = goalMid(goals.fat) || g.fat;
+      const dSodium = goalMid(goals.sodium) || g.sodium;
+
       const cards = [];
       let good = 0, warn = 0, bad = 0;
+      // 每餐目标（按 DIST 比例拆分全日目标）
+      const mealGoal = {};
+      MEAL_ORDER.forEach(m => {
+        const share = DIST[m] || 0;
+        mealGoal[m] = { kcal: dKcal * share, protein: dProtein * share, carbs: dCarbs * share, fat: dFat * share, sodium: dSodium * share };
+      });
+      // 累计摄入（用于计算当日剩余预算与后续分配）
+      const cum = { kcal: 0 };
       MEAL_ORDER.forEach(m => {
         const d = byMeal[m];
         if (!d || d.count === 0) return;
+        cum.kcal += d.kcal;
+        const mg = mealGoal[m];
+        const pPct = mg.protein > 0 ? d.protein / mg.protein : (d.protein > 0 ? 2 : 0);
+        const cPct = mg.carbs > 0 ? d.carbs / mg.carbs : (d.carbs > 0 ? 2 : 0);
+        const fPct = mg.fat > 0 ? d.fat / mg.fat : (d.fat > 0 ? 2 : 0);
+        const sPct = mg.sodium > 0 ? d.sodium / mg.sodium : (d.sodium > 0 ? 2 : 0);
+        // 每餐营养明细：蛋白 / 碳水 / 脂肪 / 钠 对比该餐目标
+        const items = [];
+        items.push({ n: '蛋白', v: Math.round(d.protein), t: Math.round(mg.protein), u: 'g', cls: pPct < 0.8 ? 'low' : (pPct > 1.25 ? 'high' : 'ok'), txt: pPct < 0.8 ? '偏低' : (pPct > 1.25 ? '偏高' : '适宜') });
+        items.push({ n: '碳水', v: Math.round(d.carbs), t: Math.round(mg.carbs), u: 'g', cls: cPct > 1.25 ? 'high' : (cPct < 0.6 ? 'low' : 'ok'), txt: cPct > 1.25 ? '偏高' : (cPct < 0.6 ? '偏低' : '适宜') });
+        items.push({ n: '脂肪', v: Math.round(d.fat), t: Math.round(mg.fat), u: 'g', cls: fPct > 1.25 ? 'high' : (fPct < 0.6 ? 'low' : 'ok'), txt: fPct > 1.25 ? '偏高' : (fPct < 0.6 ? '偏低' : '适宜') });
+        if (d.sodium > 0) items.push({ n: '钠', v: Math.round(d.sodium), t: Math.round(mg.sodium), u: 'mg', cls: sPct > 1.25 ? 'high' : 'ok', txt: sPct > 1.25 ? '偏高' : '适宜' });
+        const detailHTML = '<div class="meal-detail">' + items.map(it =>
+          '<span class="md-item ' + it.cls + '">' + it.n + ' ' + it.v + it.u + ' / 目标 ' + it.t + it.u + ' · ' + it.txt + '</span>'
+        ).join('') + '</div>';
+
+        // 该餐结论（基于本餐实际摄入）
         let tag = 'ok', verdict;
+        const kPct = mg.kcal > 0 ? d.kcal / mg.kcal : 0;
+        const lowProtein = pPct < 0.8;
+        const highCarbs = cPct > 1.25;
+        const overKcal = kPct > 1.3;
         if (m === '宵夜') {
           if (d.kcal > 0) { tag = 'bad'; verdict = '⚠️ 减脂期建议睡前 3 小时不进食，宵夜易囤积脂肪' + (d.kcal > 200 ? '（今宵夜 ' + Math.round(d.kcal) + ' kcal，偏高）' : ''); }
           else { tag = 'ok'; verdict = '✅ 没有宵夜，有利于减脂'; }
         } else if (m === '早餐') {
-          if (d.protein < 15) { tag = 'warn'; verdict = '🌅 早餐蛋白质仅 ' + Math.round(d.protein) + 'g，偏低，建议加蛋/奶/豆浆启动代谢'; }
-          else { tag = 'ok'; verdict = '🌅 早餐蛋白质 ' + Math.round(d.protein) + 'g 充足，开启一天代谢'; }
+          if (lowProtein) { tag = 'warn'; verdict = '🌅 早餐蛋白质偏低（' + Math.round(d.protein) + 'g / 目标 ' + Math.round(mg.protein) + 'g），建议加蛋/奶/豆浆启动代谢'; }
+          else if (overKcal) { tag = 'warn'; verdict = '🌅 早餐热量偏高（' + Math.round(d.kcal) + ' kcal / 目标 ' + Math.round(mg.kcal) + '），中午适当减量'; }
+          else { tag = 'ok'; verdict = '🌅 早餐结构合理，蛋白质 ' + Math.round(d.protein) + 'g 充足，开启一天代谢'; }
         } else if (m === '中餐') {
-          if (d.carbs > d.protein * 2.6) { tag = 'warn'; verdict = '🍚 中餐碳水偏多（' + Math.round(d.carbs) + 'g vs 蛋白 ' + Math.round(d.protein) + 'g），精米面可减半、多加蔬菜蛋白'; }
-          else if (d.kcal > targetKcal * 0.45) { tag = 'warn'; verdict = '🍱 中餐热量 ' + Math.round(d.kcal) + 'kcal 偏高（>45% 全天），减脂期宜控制在 ' + perMealKcal('中餐') + 'kcal 左右'; }
+          if (highCarbs) { tag = 'warn'; verdict = '🍚 中餐碳水偏多（' + Math.round(d.carbs) + 'g / 目标 ' + Math.round(mg.carbs) + 'g），精米面可减半、多加蔬菜蛋白'; }
+          else if (overKcal) { tag = 'warn'; verdict = '🍱 中餐热量偏高（' + Math.round(d.kcal) + ' kcal / 目标 ' + Math.round(mg.kcal) + '），晚餐宜清淡'; }
           else { tag = 'ok'; verdict = '🍱 中餐结构均衡，热量 ' + Math.round(d.kcal) + 'kcal 合理'; }
         } else if (m === '下午茶') {
-          if (d.sugar > 20) { tag = 'warn'; verdict = '🍰 下午茶糖 ' + Math.round(d.sugar) + 'g 偏高，建议换成无糖饮品/坚果'; }
+          if (d.sugar > 20) { tag = 'warn'; verdict = '🍰 下午茶糖 ' + Math.round(d.sugar) + 'g 偏高，建议换无糖饮品/坚果'; }
           else if (d.kcal > 200) { tag = 'warn'; verdict = '🍰 下午茶 ' + Math.round(d.kcal) + 'kcal 偏多，减脂期建议 <150kcal 轻量加餐'; }
           else { tag = 'ok'; verdict = '🍰 下午茶轻量加餐，热量 ' + Math.round(d.kcal) + 'kcal 合适'; }
         } else if (m === '晚餐') {
-          if (d.kcal > targetKcal * 0.4) { tag = 'bad'; verdict = '🌙 晚餐 ' + Math.round(d.kcal) + 'kcal 占比偏高（>40% 全天），减脂期晚餐宜清淡、早吃'; }
-          else if (d.carbs > d.protein * 2) { tag = 'warn'; verdict = '🌙 晚餐碳水偏多，建议提高蛋白、减少主食，减轻夜间脂肪合成'; }
+          if (overKcal) { tag = 'bad'; verdict = '🌙 晚餐热量偏高（' + Math.round(d.kcal) + ' kcal / 目标 ' + Math.round(mg.kcal) + '），减脂期晚餐宜清淡、早吃'; }
+          else if (highCarbs) { tag = 'warn'; verdict = '🌙 晚餐碳水偏多，提高蛋白、减少主食，减轻夜间脂肪合成'; }
           else { tag = 'ok'; verdict = '🌙 晚餐清淡、蛋白充足，利于夜间燃脂'; }
         } else if (m === '零食') {
-          if (d.sugar > 25) { tag = 'bad'; verdict = '🍿 零食糖 ' + Math.round(d.sugar) + 'g 偏高，减脂期尽量选原味坚果/无糖酸奶'; }
-          else if (d.kcal > 250) { tag = 'warn'; verdict = '🍿 零食 ' + Math.round(d.kcal) + 'kcal 偏多，建议控制在 150kcal 内'; }
-          else { tag = 'ok'; verdict = '🍿 零食适量，热量 ' + Math.round(d.kcal) + 'kcal 可控'; }
+          if (d.sugar > 25) { tag = 'bad'; verdict = '🍿 零食糖 ' + Math.round(d.sugar) + 'g 偏高，减脂期选原味坚果/无糖酸奶'; }
+          else if (d.kcal > 250) { tag = 'warn'; verdict = '🍿 零食 ' + Math.round(d.kcal) + 'kcal 偏多，建议控制在 150kcal'; }
+          else { tag = 'ok'; verdict = '🍿 零食适量，热量可控'; }
+        }
+        // 后续餐次分配建议（基于当日剩余预算，按 DIST 拆分到后续餐次）
+        let suggestHTML = '';
+        const later = MEAL_ORDER.slice(MEAL_ORDER.indexOf(m) + 1).filter(x => (DIST[x] || 0) > 0);
+        if (later.length > 0) {
+          const laterShare = later.reduce((s, x) => s + (DIST[x] || 0), 0);
+          const remain = dKcal - cum.kcal;
+          if (remain <= 0) {
+            suggestHTML = '<div class="meal-suggest warn-s">⚠️ 今日热量预算已用尽/超标，后续（' + later.join('、') + '）请尽量清淡：多蔬菜 + 优质蛋白，少油少主食。</div>';
+          } else {
+            const parts = later.map(x => x + ' ≈ ' + Math.round(remain * (DIST[x] || 0) / laterShare) + ' kcal');
+            suggestHTML = '<div class="meal-suggest">📋 今日剩余约 ' + Math.round(remain) + ' kcal，建议分配：' + parts.join(' · ') + '</div>';
+          }
         }
         if (tag === 'ok') good++; else if (tag === 'warn') warn++; else bad++;
-        cards.push('<div class="meal-card"><div class="meal-head"><span>' + m + '</span><span class="meal-kcal">' + Math.round(d.kcal) + ' kcal</span></div>'
-          + '<div class="meal-macros">蛋白 ' + Math.round(d.protein) + 'g · 碳水 ' + Math.round(d.carbs) + 'g · 脂肪 ' + Math.round(d.fat) + 'g</div>'
-          + '<div class="meal-verdict ' + tag + '">' + verdict + '</div></div>');
+        cards.push('<div class="meal-card"><div class="meal-head"><span>' + m + '</span><span class="meal-kcal">' + Math.round(d.kcal) + ' kcal / 目标 ' + Math.round(mg.kcal) + '</span></div>'
+          + detailHTML
+          + '<div class="meal-verdict ' + tag + '">' + verdict + '</div>'
+          + suggestHTML + '</div>');
       });
 
       // 运动合理性评估
@@ -2631,6 +2691,7 @@
 
       el.innerHTML =
         dailyNutrHTML
+        + '<h3 class="nutr-title" style="margin-top:6px;">🍽️ 各餐次营养分析（按进餐时段分别评估 + 后续分配建议）</h3>'
         + '<div class="meal-ai-grid">' + cards.join('') + '</div>'
         + '<div class="meal-exercise ' + exTag + '">' + exText + '</div>'
         + '<div class="meal-summary">' + summary + '</div>';
