@@ -783,7 +783,7 @@
     /* 代谢测试 */
     .metabolism-grid .field.full-width { grid-column: 1 / -1; }
     .radio-row { display: grid; gap: 10px; }
-    .radio-row.gender-row { grid-template-columns: repeat(2, 1fr); }
+    .radio-row.gender-row { grid-template-columns: repeat(2, 78px); justify-content: start; }
     .radio-row.activity-row { grid-template-columns: repeat(3, 1fr); }
     @media (max-width: 360px) { .radio-row.activity-row { grid-template-columns: 1fr; } }
     .radio-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 10px 6px; border-radius: 20px; background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(245,242,234,0.45)); border: 1px solid rgba(214,138,166,0.25); font-size: 13px; text-align: center; line-height: 1.2; cursor: pointer; transition: background .15s, border-color .15s, box-shadow .15s; box-sizing: border-box; width: 100%; aspect-ratio: 1 / 1; min-height: 0; box-shadow: 0 1px 2px rgba(90,58,66,0.04); }
@@ -3649,8 +3649,14 @@
         let bmr = 10 * weight + 6.25 * height - 5 * age;
         bmr += (gender === 'female' ? -161 : 5);
         const tdee = bmr * activity;
+        const tdeeRounded = Math.round(tdee);
         document.getElementById(ids.bmr).textContent = Math.round(bmr);
-        document.getElementById(ids.tdee).textContent = Math.round(tdee);
+        document.getElementById(ids.tdee).textContent = tdeeRounded;
+        // 每日动态消耗自动同步为 TDEE
+        const dynEl = document.getElementById('goal-dynamic-burn');
+        if (dynEl) dynEl.value = tdeeRounded;
+        if (!state.goals) state.goals = {};
+        state.goals.dynamicBurn = tdeeRounded;
         if (!state.metabolism) state.metabolism = {};
         state.metabolism.gender = gender;
         state.metabolism.age = age;
