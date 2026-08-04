@@ -780,6 +780,17 @@
     .data-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     .data-actions.main-actions { margin-top: 18px; }
     .data-actions.main-actions .btn { padding: 7px 13px; font-size: 12.5px; border-radius: 10px; }
+    /* 代谢测试 */
+    .metabolism-grid .field.full-width { grid-column: 1 / -1; }
+    .radio-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .radio-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.25); font-size: 13px; cursor: pointer; transition: background .15s, border-color .15s; }
+    .radio-chip input { margin: 0; accent-color: #D68AA6; }
+    .radio-chip.checked { background: rgba(214,138,166,0.18); border-color: rgba(214,138,166,0.6); font-weight: 600; }
+    .metabolism-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
+    .result-box { background: linear-gradient(135deg, rgba(233,214,228,0.5), rgba(245,242,234,0.35)); border: 1px solid rgba(214,138,166,0.25); border-radius: 14px; padding: 14px; text-align: center; }
+    .result-label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+    .result-value { display: block; font-size: 24px; font-weight: 700; color: var(--text); }
+    .result-unit { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
     .empty-state { color: var(--muted); text-align: center; padding: 26px; font-size: 14px; }
     .hint { color: var(--muted); font-size: 13px; margin: 6px 0 16px; }
     .toast {
@@ -1396,6 +1407,41 @@
         <p class="hint">所有数据保存在你当前浏览器本地（localStorage），不会上传到任何服务器。可随时导出备份或导入恢复。</p>
 
         <details class="section-details" style="margin-top:24px;">
+          <summary>🧬 代谢测试 <small>估算基础代谢与每日总消耗</small></summary>
+          <p class="hint">输入性别、年龄、体重、身高，自动按 Mifflin-St Jeor 公式计算 BMR，再结合活动量估算 TDEE。</p>
+          <div class="form-grid metabolism-grid">
+            <div class="field"><label>性别</label>
+              <div class="radio-row">
+                <label class="radio-chip"><input type="radio" name="metabolism-gender" value="female" checked> 女性</label>
+                <label class="radio-chip"><input type="radio" name="metabolism-gender" value="male"> 男性</label>
+              </div>
+            </div>
+            <div class="field"><label>年龄</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" /></div>
+            <div class="field"><label>体重 (kg)</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" /></div>
+            <div class="field"><label>身高 (cm)</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" /></div>
+            <div class="field full-width"><label>日常活动量</label>
+              <div class="radio-row">
+                <label class="radio-chip"><input type="radio" name="metabolism-activity" value="1.2" checked> 久坐不运动</label>
+                <label class="radio-chip"><input type="radio" name="metabolism-activity" value="1.375"> 轻度运动</label>
+                <label class="radio-chip"><input type="radio" name="metabolism-activity" value="1.55"> 中频规律训练</label>
+              </div>
+            </div>
+          </div>
+          <div class="metabolism-results">
+            <div class="result-box">
+              <span class="result-label">BMR 基础代谢率</span>
+              <span class="result-value" id="metabolism-bmr">--</span>
+              <span class="result-unit">kcal / 天</span>
+            </div>
+            <div class="result-box">
+              <span class="result-label">TDEE 总每日能量消耗</span>
+              <span class="result-value" id="metabolism-tdee">--</span>
+              <span class="result-unit">kcal / 天</span>
+            </div>
+          </div>
+        </details>
+
+        <details class="section-details" style="margin-top:24px;">
           <summary>🎯 每日营养目标 <small>设置目标值 · 点击展开填写</small></summary>
           <p class="hint">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
           <div class="form-grid">
@@ -1512,7 +1558,7 @@
   <script>
     // ==================== 状态 & 本地存储 ====================
     const STORAGE_KEY = 'dietTrackerData';
-    let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {} };
+    let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, metabolism: {} };
     const numericKeys = ['kcal', 'protein', 'sugar', 'fat', 'carbs', 'sodium'];
 
     function loadData() {
@@ -1523,7 +1569,7 @@
           if (parsed && typeof parsed === 'object') return parsed;
         }
       } catch (e) { console.error('读取本地数据失败', e); }
-      return { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, foodReviews: [] };
+      return { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, foodReviews: [], metabolism: {} };
     }
     function save() {
       try {
@@ -1561,6 +1607,7 @@
       if (!state.baseline || typeof state.baseline !== 'object') state.baseline = {};
       if (!state.goals || typeof state.goals !== 'object') state.goals = {};
       if (!Array.isArray(state.foodReviews)) state.foodReviews = [];
+      if (!state.metabolism || typeof state.metabolism !== 'object') state.metabolism = {};
     }
 
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
@@ -3562,6 +3609,70 @@
 
       document.getElementById('goal-save-btn').addEventListener('click', saveGoals);
       renderGoals();
+      setupMetabolismTest();
+    }
+
+    function setupMetabolismTest() {
+      const ids = { age: 'metabolism-age', weight: 'metabolism-weight', height: 'metabolism-height', bmr: 'metabolism-bmr', tdee: 'metabolism-tdee' };
+      const inputs = {
+        age: document.getElementById(ids.age),
+        weight: document.getElementById(ids.weight),
+        height: document.getElementById(ids.height)
+      };
+      const genderEls = document.querySelectorAll('input[name="metabolism-gender"]');
+      const activityEls = document.querySelectorAll('input[name="metabolism-activity"]');
+
+      function updateRadioChipStyle(radios) {
+        radios.forEach(r => {
+          const chip = r.closest('.radio-chip');
+          if (chip) chip.classList.toggle('checked', r.checked);
+        });
+      }
+
+      function calc() {
+        const gender = Array.from(genderEls).find(r => r.checked)?.value || 'female';
+        const activity = parseFloat(Array.from(activityEls).find(r => r.checked)?.value || '1.2');
+        const age = parseFloat(inputs.age.value) || 0;
+        const weight = parseFloat(inputs.weight.value) || 0;
+        const height = parseFloat(inputs.height.value) || 0;
+        if (!age || !weight || !height) {
+          document.getElementById(ids.bmr).textContent = '--';
+          document.getElementById(ids.tdee).textContent = '--';
+          return;
+        }
+        let bmr = 10 * weight + 6.25 * height - 5 * age;
+        bmr += (gender === 'female' ? -161 : 5);
+        const tdee = bmr * activity;
+        document.getElementById(ids.bmr).textContent = Math.round(bmr);
+        document.getElementById(ids.tdee).textContent = Math.round(tdee);
+        if (!state.metabolism) state.metabolism = {};
+        state.metabolism.gender = gender;
+        state.metabolism.age = age;
+        state.metabolism.weight = weight;
+        state.metabolism.height = height;
+        state.metabolism.activity = activity;
+        save();
+      }
+
+      Object.values(inputs).forEach(el => { if (el) el.addEventListener('input', calc); });
+      genderEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(genderEls); calc(); }));
+      activityEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(activityEls); calc(); }));
+
+      const m = state.metabolism || {};
+      if (m.gender) {
+        const el = document.querySelector('input[name="metabolism-gender"][value="' + m.gender + '"]');
+        if (el) el.checked = true;
+      }
+      if (m.activity) {
+        const el = document.querySelector('input[name="metabolism-activity"][value="' + m.activity + '"]');
+        if (el) el.checked = true;
+      }
+      if (m.age) inputs.age.value = m.age;
+      if (m.weight) inputs.weight.value = m.weight;
+      if (m.height) inputs.height.value = m.height;
+      updateRadioChipStyle(genderEls);
+      updateRadioChipStyle(activityEls);
+      calc();
     }
 
     const GOAL_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium', 'dynamicBurn'];
