@@ -782,15 +782,16 @@
     .data-actions.main-actions .btn { padding: 7px 13px; font-size: 12.5px; border-radius: 10px; }
     /* 代谢测试 */
     .metabolism-grid .field.full-width { grid-column: 1 / -1; }
-    .radio-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .radio-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.25); font-size: 13px; cursor: pointer; transition: background .15s, border-color .15s; }
-    .radio-chip input { margin: 0; accent-color: #D68AA6; }
+    .radio-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(86px, 1fr)); gap: 10px; }
+    .radio-chip { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.25); font-size: 13px; white-space: nowrap; cursor: pointer; transition: background .15s, border-color .15s; box-sizing: border-box; width: 100%; min-width: 0; }
+    .radio-chip input { margin: 0; accent-color: #D68AA6; flex-shrink: 0; }
     .radio-chip.checked { background: rgba(214,138,166,0.18); border-color: rgba(214,138,166,0.6); font-weight: 600; }
+    @media (max-width: 360px) { .radio-chip { font-size: 12px; padding: 7px 8px; gap: 4px; } }
     .metabolism-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
-    .result-box { background: linear-gradient(135deg, rgba(233,214,228,0.5), rgba(245,242,234,0.35)); border: 1px solid rgba(214,138,166,0.25); border-radius: 14px; padding: 14px; text-align: center; }
-    .result-label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
-    .result-value { display: block; font-size: 24px; font-weight: 700; color: var(--text); }
-    .result-unit { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .result-box { background: linear-gradient(135deg, rgba(233,214,228,0.5), rgba(245,242,234,0.35)); border: 1px solid rgba(214,138,166,0.25); border-radius: 14px; padding: 14px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 96px; }
+    .result-label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+    .result-value { display: block; font-size: 24px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .result-unit { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
     .empty-state { color: var(--muted); text-align: center; padding: 26px; font-size: 14px; }
     .hint { color: var(--muted); font-size: 13px; margin: 6px 0 16px; }
     .toast {
@@ -1429,12 +1430,12 @@
           </div>
           <div class="metabolism-results">
             <div class="result-box">
-              <span class="result-label">BMR 基础代谢率</span>
+              <span class="result-label">BMR「基础代谢率 」</span>
               <span class="result-value" id="metabolism-bmr">--</span>
               <span class="result-unit">kcal / 天</span>
             </div>
             <div class="result-box">
-              <span class="result-label">TDEE 总每日能量消耗</span>
+              <span class="result-label">TDEE「总每日能量消耗」</span>
               <span class="result-value" id="metabolism-tdee">--</span>
               <span class="result-unit">kcal / 天</span>
             </div>
