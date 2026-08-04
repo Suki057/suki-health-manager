@@ -717,6 +717,16 @@
     .meal-exercise { font-size: 13.5px; line-height: 1.55; padding: 11px 14px; border-radius: 12px; background: rgba(120,150,200,0.12); color: #34405c; margin-bottom: 12px; }
     .meal-summary { font-size: 14px; font-weight: 600; padding: 10px 14px; border-radius: 12px; background: rgba(214,138,166,0.14); color: #7a3b5b; }
     .nutr-title { font-size: 14px; margin: 2px 0 8px; color: #5A3A42; }
+    /* ===== 运动日历 ===== */
+    .exercise-calendar { padding: 4px 2px; }
+    .cal-header { text-align: center; font-size: 15px; font-weight: 600; color: #5A3A42; margin-bottom: 10px; }
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .cal-day { min-height: 46px; border-radius: 12px; background: rgba(255,255,255,0.45); border: 1px solid rgba(214,138,166,0.12); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; color: #3d3a36; position: relative; }
+    .cal-day.empty { background: transparent; border-color: transparent; }
+    .cal-day.has-exercise { background: rgba(214,138,166,0.22); border-color: rgba(214,138,166,0.4); font-weight: 600; }
+    .cal-badge { font-size: 9px; color: #7a3b5b; margin-top: 1px; white-space: nowrap; }
+    @media (max-width: 360px) { .cal-day { min-height: 38px; font-size: 12px; } .cal-badge { font-size: 8px; } }
     /* 分类板块 */
     #food-categories .panel { margin-bottom: 18px; }
     .food-cat-table { min-width: 640px; }
@@ -1119,6 +1129,8 @@
               <label>运动 / 视频</label>
               <input type="text" id="exercise-search" placeholder="输入运动名称" autocomplete="off" />
               <input type="hidden" id="exercise-selected-id" />
+              <input type="hidden" id="exercise-base-duration" />
+              <input type="hidden" id="exercise-base-kcal" />
               <ul id="exercise-suggestions" class="suggestions"></ul>
             </div>
             <div class="field small">
@@ -1218,6 +1230,13 @@
           <p class="empty-state">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>
         </div>
       </div>
+      <div class="panel">
+        <h2>📅 运动日历 <small>当月运动打卡</small></h2>
+        <div id="exercise-calendar" class="exercise-calendar">
+          <p class="empty-state">加载中…</p>
+        </div>
+      </div>
+
       <div class="panel">
         <h2>🏃 运动明细 <small>已记录的运动与消耗</small></h2>
         <div class="table-wrap">
@@ -1789,13 +1808,25 @@
         onSelect: item => {
           document.getElementById('exercise-duration').value = item.durationMin;
           document.getElementById('exercise-kcal').value = Math.round(item.kcal);
+          document.getElementById('exercise-base-duration').value = item.durationMin;
+          document.getElementById('exercise-base-kcal').value = item.kcal;
         },
       });
+
+      function recalcExerciseKcal() {
+        const baseDuration = parseFloat(document.getElementById('exercise-base-duration').value);
+        const baseKcal = parseFloat(document.getElementById('exercise-base-kcal').value);
+        const duration = parseFloat(document.getElementById('exercise-duration').value);
+        if (baseDuration > 0 && baseKcal > 0 && duration > 0) {
+          document.getElementById('exercise-kcal').value = Math.round(baseKcal * duration / baseDuration);
+        }
+      }
 
       document.getElementById('add-food-btn').addEventListener('click', addFoodEntry);
       document.getElementById('food-portion').addEventListener('keydown', e => { if (e.key === 'Enter') addFoodEntry(); });
       document.getElementById('add-exercise-btn').addEventListener('click', addExerciseEntry);
       document.getElementById('exercise-duration').addEventListener('keydown', e => { if (e.key === 'Enter') addExerciseEntry(); });
+      document.getElementById('exercise-duration').addEventListener('input', recalcExerciseKcal);
 
       // 自定义录入弹窗
       document.getElementById('custom-food-btn').addEventListener('click', () => openModal('custom-food-modal'));
@@ -2171,6 +2202,8 @@
     function clearExerciseInput() {
       document.getElementById('exercise-search').value = '';
       document.getElementById('exercise-selected-id').value = '';
+      document.getElementById('exercise-base-duration').value = '';
+      document.getElementById('exercise-base-kcal').value = '';
       document.getElementById('exercise-duration').value = '';
       document.getElementById('exercise-kcal').value = '';
     }
@@ -2471,6 +2504,7 @@
       document.getElementById('total-sodium').textContent = formatNum(t.sodium);
       renderDietAnalysis();
       renderMealAI();
+      renderExerciseCalendar();
       renderBaseline();
     }
 
@@ -2696,6 +2730,40 @@
         + '<div class="meal-ai-grid">' + cards.join('') + '</div>'
         + '<div class="meal-exercise ' + exTag + '">' + exText + '</div>'
         + '<div class="meal-summary">' + summary + '</div>';
+    }
+
+    // ==================== 运动日历 ====================
+    function formatDateLocal(y, m, d) {
+      const mm = String(m + 1).padStart(2, '0');
+      const dd = String(d).padStart(2, '0');
+      return y + '-' + mm + '-' + dd;
+    }
+    function renderExerciseCalendar() {
+      const el = document.getElementById('exercise-calendar');
+      if (!el) return;
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startWeekday = firstDay.getDay();
+      const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+
+      let html = '<div class="cal-header">' + year + '年 ' + monthNames[month] + '</div>';
+      html += '<div class="cal-weekdays">' + weekdays.map(w => '<div>' + w + '</div>').join('') + '</div>';
+      html += '<div class="cal-days">';
+      for (let i = 0; i < startWeekday; i++) html += '<div class="cal-day empty"></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = formatDateLocal(year, month, d);
+        const hasExercise = (state.logs[dateStr] && state.logs[dateStr].exercises && state.logs[dateStr].exercises.length > 0);
+        const cls = hasExercise ? 'cal-day has-exercise' : 'cal-day';
+        const badge = hasExercise ? '<span class="cal-badge">已运动</span>' : '';
+        html += '<div class="' + cls + '"><span>' + d + '</span>' + badge + '</div>';
+      }
+      html += '</div>';
+      el.innerHTML = html;
     }
 
     // ==================== 自动补全 ====================
