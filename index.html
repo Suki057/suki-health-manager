@@ -2610,13 +2610,13 @@
 
       // 将当日饮食按进餐时段聚合
       const byMeal = {};
-      MEAL_ORDER.forEach(m => byMeal[m] = { kcal: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, count: 0 });
+      MEAL_ORDER.forEach(m => byMeal[m] = { kcal: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, sodium: 0, count: 0 });
       log.foods.forEach(entry => {
         const m = entry.meal || '零食';
-        if (!byMeal[m]) byMeal[m] = { kcal: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, count: 0 };
+        if (!byMeal[m]) byMeal[m] = { kcal: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, sodium: 0, count: 0 };
         const c = computeFoodEntry(entry);
         byMeal[m].kcal += c.kcal; byMeal[m].protein += c.protein; byMeal[m].fat += c.fat;
-        byMeal[m].carbs += c.carbs; byMeal[m].sugar += c.sugar; byMeal[m].count += 1;
+        byMeal[m].carbs += c.carbs; byMeal[m].sugar += c.sugar; byMeal[m].sodium += c.sodium; byMeal[m].count += 1;
       });
 
       // 各营养素全日目标（用于推导每餐目标 = 按 DIST 比例拆分）
