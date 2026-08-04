@@ -451,10 +451,14 @@
     .date-bar input[type="date"] { flex: 1 1 auto; min-width: 0; }
     .date-bar .btn { flex: 0 0 auto; }
     .date-bar label { font-weight: 600; font-size: 14px; }
-    /* 统计页日期栏：缩小日期框，– 居中，查看按钮与结束框留间距 */
+    /* 统计页日期栏：结束日期拉长，右边缘与下方表格卡片对齐 */
     #stats .row .field { min-width: 0; }
-    #stats-start, #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 128px; }
-    .date-group { display: flex; align-items: flex-end; gap: 8px; }
+    #stats-start, #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; }
+    #stats-start { width: 110px; }
+    #stats-end { width: 100%; min-width: 110px; }
+    .date-group { display: flex; align-items: flex-end; gap: 8px; flex: 1; min-width: 0; }
+    .date-group .field:first-child { flex: 0 0 auto; min-width: 0; }
+    .date-group .field:last-child { flex: 1; min-width: 0; }
     .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
     .stats-datebar { gap: 18px; }
     #stats-load-btn { padding: 4px 12px; font-size: 12px; }
@@ -2650,7 +2654,7 @@
         items.push({ n: '蛋白', v: Math.round(d.protein), t: Math.round(mg.protein), u: 'g', cls: pPct < 0.8 ? 'low' : (pPct > 1.25 ? 'high' : 'ok'), txt: pPct < 0.8 ? '偏低' : (pPct > 1.25 ? '偏高' : '适宜') });
         items.push({ n: '碳水', v: Math.round(d.carbs), t: Math.round(mg.carbs), u: 'g', cls: cPct > 1.25 ? 'high' : (cPct < 0.6 ? 'low' : 'ok'), txt: cPct > 1.25 ? '偏高' : (cPct < 0.6 ? '偏低' : '适宜') });
         items.push({ n: '脂肪', v: Math.round(d.fat), t: Math.round(mg.fat), u: 'g', cls: fPct > 1.25 ? 'high' : (fPct < 0.6 ? 'low' : 'ok'), txt: fPct > 1.25 ? '偏高' : (fPct < 0.6 ? '偏低' : '适宜') });
-        items.push({ n: '钠', v: Math.round(d.sodium), t: Math.round(mg.sodium), u: 'mg', cls: sPct > 1.25 ? 'high' : 'ok', txt: sPct > 1.25 ? '偏高' : '适宜' });
+        items.push({ n: '钠', v: Math.round(d.sodium), t: Math.round(mg.sodium), u: 'mg', cls: sPct > 1.0 ? 'high' : 'ok', txt: sPct > 1.0 ? '偏高' : '适宜' });
         const detailHTML = '<div class="meal-detail">' + items.map(it =>
           '<span class="md-item ' + it.cls + '">' + it.n + ' ' + it.v + it.u + ' / 目标 ' + it.t + it.u + ' · ' + it.txt + '</span>'
         ).join('') + '</div>';
