@@ -451,10 +451,19 @@
     .date-bar input[type="date"] { flex: 1 1 auto; min-width: 0; }
     .date-bar .btn { flex: 0 0 auto; }
     .date-bar label { font-weight: 600; font-size: 14px; }
-    /* 统计页日期栏：缩小日期框，– 居中，查看按钮与结束框留间距 */
-    #stats .row .field { min-width: 0; }
-    #stats-start, #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 128px; }
-    .date-group { display: flex; align-items: flex-end; gap: 8px; }
+    /* 统计页日期栏：标签并排，输入框同高同行，结束日期框拉长对齐表格右边 */
+    #stats-start { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 128px; }
+    #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 100%; min-width: 128px; }
+    .date-group {
+      display: grid;
+      grid-template-columns: auto 24px 1fr;
+      grid-template-rows: auto auto;
+      gap: 4px 8px;
+      align-items: center;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .date-group label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
     .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
     .stats-datebar { gap: 18px; }
     #stats-load-btn { padding: 4px 12px; font-size: 12px; }
@@ -1371,9 +1380,12 @@
         <h2>📊 热量记录</h2>
         <div class="row stats-datebar">
           <div class="date-group">
-            <div class="field"><label>开始日期</label><input type="date" id="stats-start" /></div>
+            <label for="stats-start">开始日期</label>
+            <span></span>
+            <label for="stats-end">结束日期</label>
+            <input type="date" id="stats-start" />
             <span class="date-sep">–</span>
-            <div class="field"><label>结束日期</label><input type="date" id="stats-end" /></div>
+            <input type="date" id="stats-end" />
           </div>
           <button id="stats-load-btn" class="btn primary">查看</button>
         </div>
