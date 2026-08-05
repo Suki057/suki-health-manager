@@ -451,15 +451,17 @@
     .date-bar input[type="date"] { flex: 1 1 auto; min-width: 0; }
     .date-bar .btn { flex: 0 0 auto; }
     .date-bar label { font-weight: 600; font-size: 14px; }
-    /* 统计页日期栏：开始/结束日期上下两列并排，与下方表格左右对齐 */
+    /* 统计页日期栏：结束日期拉长，右边缘与下方表格卡片对齐 */
     #stats .row .field { min-width: 0; }
-    #stats-start, #stats-end { padding: 6px 10px; font-size: 14px; border-radius: 10px; width: 100%; min-width: 0; box-sizing: border-box; }
+    #stats-start, #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; }
+    #stats-start { width: 110px; }
+    #stats-end { width: 100%; min-width: 110px; }
     .date-group { display: flex; align-items: flex-end; gap: 8px; flex: 1; min-width: 0; }
-    .date-col { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .date-col label { font-size: 13px; color: var(--muted); margin-bottom: 4px; white-space: nowrap; }
-    .date-sep { color: var(--muted); font-size: 15px; user-select: none; padding-bottom: 9px; }
-    .stats-datebar { display: flex; align-items: flex-end; gap: 10px; flex-wrap: nowrap; }
-    #stats-load-btn { padding: 6px 14px; font-size: 13px; flex: 0 0 auto; }
+    .date-group .field:first-child { flex: 0 0 auto; min-width: 0; }
+    .date-group .field:last-child { flex: 1; min-width: 0; }
+    .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
+    .stats-datebar { gap: 18px; }
+    #stats-load-btn { padding: 4px 12px; font-size: 12px; }
     /* 今日记录：饮食/运动录入框（小长框）整体收小，与卡片边缘协调 */
     #today .two-col .field input,
     #today .two-col .field select { padding: 9px 12px; font-size: 16px; }
@@ -1373,15 +1375,9 @@
         <h2>📊 热量记录</h2>
         <div class="row stats-datebar">
           <div class="date-group">
-            <div class="date-col">
-              <label for="stats-start">开始日期</label>
-              <input type="date" id="stats-start" />
-            </div>
+            <div class="field"><label>开始日期</label><input type="date" id="stats-start" /></div>
             <span class="date-sep">–</span>
-            <div class="date-col">
-              <label for="stats-end">结束日期</label>
-              <input type="date" id="stats-end" />
-            </div>
+            <div class="field"><label>结束日期</label><input type="date" id="stats-end" /></div>
           </div>
           <button id="stats-load-btn" class="btn primary">查看</button>
         </div>
