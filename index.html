@@ -2289,6 +2289,14 @@
       };
     }
 
+    // 运动记录：实时从运动库按「参考热量 × 实际时长 ÷ 参考时长」折算；改运动库后已填记录自动同步
+    function computeExerciseKcal(entry) {
+      if (entry.custom) return Number(entry.kcal) || 0;
+      const ex = state.exercises.find(x => x.id === entry.exerciseId);
+      if (!ex || !ex.durationMin) return Number(entry.kcal) || 0; // 运动已删除则回退到记录时快照
+      return Math.round((ex.kcal / ex.durationMin) * entry.durationMin * 10) / 10;
+    }
+
     // 饮食记录行内编辑：点击「编辑」后份量变可输入数字框，修改时营养价值按比例实时更新
     function parseNumFromPortion(text) {
       const m = /(\d+(?:\.\d+)?)/.exec(String(text || ''));
@@ -2414,7 +2422,7 @@
         const c = computeFoodEntry(e);
         numericKeys.forEach(k => totals[k] += c[k]);
       });
-      log.exercises.forEach(e => totals.burn += Number(e.kcal) || 0);
+      log.exercises.forEach(e => totals.burn += computeExerciseKcal(e));
       // 每日动态消耗（非运动活动消耗，用户在「每日营养目标」中设置），作为每日固定消耗计入总消耗
       totals.burn += Number((state.goals && state.goals.dynamicBurn) || 0);
       return totals;
@@ -2496,7 +2504,7 @@
         tr.innerHTML = `
           <td>${escapeHtml(ex ? ex.name : '（已删除运动）')}</td>
           <td class="number">${formatNum(entry.durationMin, 0)} 分</td>
-          <td class="number">${formatNum(entry.kcal)} kcal</td>
+          <td class="number">${formatNum(computeExerciseKcal(entry))} kcal</td>
           <td><button class="btn small danger" data-id="${entry.id}">删除</button></td>`;
         tr.querySelector('button').addEventListener('click', () => {
           log.exercises = log.exercises.filter(x => x.id !== entry.id);
@@ -3190,6 +3198,7 @@
         }
         save();
         renderExerciseLibrary();
+        renderToday();
         resetExerciseForm(form);
         toast(id ? '已保存' : '已添加运动');
       });
