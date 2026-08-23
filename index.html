@@ -447,6 +447,9 @@
       transition: transform .15s ease;
     }
     .section-details:not([open]) > summary::after { content: '▸'; }
+    .section-details > summary { border-radius: 10px; transition: background .12s ease; user-select: none; -webkit-user-select: none; }
+    .section-details > summary:hover { background: rgba(214, 138, 166, 0.10); }
+    .section-details > summary:active { background: rgba(214, 138, 166, 0.16); }
     .date-bar { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
     .date-bar input[type="date"] { flex: 1 1 auto; min-width: 0; }
     .date-bar .btn { flex: 0 0 auto; }
@@ -1324,7 +1327,10 @@
           </div>
         </form>
       </div>
-      <div id="food-categories"></div>
+      <details class="panel section-details" id="food-lib-collapse" open>
+        <summary>🍎 食物库清单 <small>点击展开 / 收起</small></summary>
+        <div id="food-categories"></div>
+      </details>
     </section>
 
     <!-- 运动库 -->
@@ -1397,8 +1403,8 @@
           </table>
         </div>
       </div>
-      <div class="panel">
-        <h2>📐 身材记录</h2>
+      <details class="panel section-details" id="body-stats-collapse">
+        <summary>📐 身材记录 <small>点击展开 / 收起</small></summary>
         <div class="table-wrap">
           <table id="body-stats-table">
             <thead><tr><th>日期</th><th>体重 (kg)</th><th>体脂率 (%)</th><th>小腿围 (cm)</th><th>大腿围 (cm)</th><th>腰围 (cm)</th><th>臀围 (cm)</th><th>操作</th></tr></thead>
@@ -1425,7 +1431,7 @@
           </div>
         </div>
         <div id="body-chart"></div>
-      </div>
+      </details>
     </section>
 
     <!-- 回收站 -->
@@ -3302,6 +3308,9 @@
         if (e.target.id === 'monthly-stats-modal') e.target.style.display = 'none';
       });
       document.getElementById('body-chart-metric').addEventListener('change', renderBodyChart);
+      // 身材记录面板默认收起，展开时重绘趋势图（避免隐藏态 0 宽渲染）
+      const bodyCollapse = document.getElementById('body-stats-collapse');
+      if (bodyCollapse) bodyCollapse.addEventListener('toggle', () => { if (bodyCollapse.open) renderBodyChart(); });
     }
     // 月热量记录：按月份自动汇总
     function renderMonthlyStats() {

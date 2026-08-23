@@ -1,5 +1,5 @@
 // Service Worker —— 让 PWA 可离线、可“添加到主屏幕”
-const CACHE = 'diet-tracker-v66';
+const CACHE = 'diet-tracker-v67';
 const ASSETS = [
   './',
   './index.html',
