@@ -1388,6 +1388,7 @@
             <input type="date" id="stats-end" />
           </div>
           <button id="stats-load-btn" class="btn primary">查看</button>
+          <button id="monthly-stats-btn" class="btn secondary">📅 月热量记录</button>
         </div>
         <div class="table-wrap">
           <table id="stats-table">
@@ -1593,6 +1594,25 @@
       <div class="modal-actions">
         <button class="btn secondary" id="ce-cancel">取消</button>
         <button class="btn primary" id="ce-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 月热量记录弹窗 -->
+  <div id="monthly-stats-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <h3>📅 月热量记录</h3>
+      <p class="hint">自动汇总「热量记录」里每个月的 摄入 / 消耗 / 缺口 之和。</p>
+      <div class="table-wrap">
+        <table id="monthly-stats-table">
+          <thead>
+            <tr><th>月份</th><th>月摄入热量</th><th>月消耗热量</th><th>月热量缺口</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="modal-actions" style="margin-top:14px;">
+        <button class="btn secondary" id="monthly-stats-close">关闭</button>
       </div>
     </div>
   </div>
@@ -3274,7 +3294,46 @@
       document.getElementById('stats-start').value = fmtD(first);
       document.getElementById('stats-end').value = fmtD(last);
       document.getElementById('stats-load-btn').addEventListener('click', renderStats);
+      document.getElementById('monthly-stats-btn').addEventListener('click', renderMonthlyStats);
+      document.getElementById('monthly-stats-close').addEventListener('click', () => {
+        document.getElementById('monthly-stats-modal').style.display = 'none';
+      });
+      document.getElementById('monthly-stats-modal').addEventListener('click', e => {
+        if (e.target.id === 'monthly-stats-modal') e.target.style.display = 'none';
+      });
       document.getElementById('body-chart-metric').addEventListener('change', renderBodyChart);
+    }
+    // 月热量记录：按月份自动汇总
+    function renderMonthlyStats() {
+      const tbody = document.querySelector('#monthly-stats-table tbody');
+      tbody.innerHTML = '';
+      const months = {};
+      Object.keys(state.logs).forEach(day => {
+        const key = String(day).slice(0, 7); // YYYY-MM
+        if (!months[key]) months[key] = { kcal: 0, burn: 0 };
+        const t = computeDayTotals(day);
+        months[key].kcal += t.kcal;
+        months[key].burn += t.burn;
+      });
+      const keys = Object.keys(months).sort((a, b) => b.localeCompare(a)); // 最新月份在顶部
+      if (keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">还没有任何记录</td></tr>';
+      } else {
+        keys.forEach(key => {
+          const kcal = months[key].kcal;
+          const burn = months[key].burn;
+          const deficit = burn - kcal;
+          const [yy, mm] = key.split('-');
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${yy}年${mm}月</td>
+            <td class="number">${formatNum(kcal, 0)}</td>
+            <td class="number">${formatNum(burn, 0)}</td>
+            <td class="number deficit">${formatNum(deficit, 0)}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+      document.getElementById('monthly-stats-modal').style.display = 'flex';
     }
     function renderStats() {
       const start = document.getElementById('stats-start').value;
