@@ -1295,37 +1295,40 @@
     <section id="foods" class="tab-panel">
       <div class="panel">
         <div class="row foods-head">
-          <h2>🍎 食物库 <small>数据导入</small></h2>
+          <h2>🍎 食物库</h2>
           <button id="clear-foods-btn" class="btn danger">消除食物库数据</button>
         </div>
-        <p class="hint">填写「份量」基准（如 100g、1个、1份），下方热量 / 营养按该份量填写。添加后系统会按热量从小到大排序，并归入「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他 / 饮品 / 零食」对应板块；也可手动选择分类。</p>
-        <form id="food-form" class="food-form-grid form-grid">
-          <input type="hidden" class="food-edit-id" />
-          <div class="field"><label>名称</label><input type="text" class="food-name" placeholder="例如：米饭" /></div>
-          <div class="field"><label>份量（基准）</label><input type="text" class="food-portion" placeholder="100g / 1个 / 1份" autocomplete="off" /></div>
-          <div class="field"><label>热量 (kcal)</label><input type="text" inputmode="decimal" class="food-kcal" /></div>
-          <div class="field"><label>蛋白质 (g)</label><input type="text" inputmode="decimal" class="food-protein" /></div>
-          <div class="field"><label>脂肪 (g)</label><input type="text" inputmode="decimal" class="food-fat" /></div>
-          <div class="field"><label>碳水 (g)</label><input type="text" inputmode="decimal" class="food-carbs" /></div>
-          <div class="field"><label>糖 (g)</label><input type="text" inputmode="decimal" class="food-sugar" /></div>
-          <div class="field"><label>钠 (mg)</label><input type="text" inputmode="decimal" class="food-sodium" /></div>
-          <div class="field"><label>分类</label>
-            <select class="food-category">
-              <option value="">自动判断</option>
-              <option value="碳水">碳水</option>
-              <option value="蛋白质">蛋白质</option>
-              <option value="蔬菜">蔬菜</option>
-              <option value="水果">水果</option>
-              <option value="其他">其他</option>
-              <option value="饮品">饮品</option>
-              <option value="零食">零食</option>
-            </select>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn primary food-submit-btn">添加</button>
-            <button type="button" class="btn secondary food-cancel-btn">取消</button>
-          </div>
-        </form>
+        <details class="section-details" id="food-add-collapse">
+          <summary>➕ 添加食物（名称 / 热量 / 营养）<small>点击展开 / 收起</small></summary>
+          <p class="hint">填写「份量」基准（如 100g、1个、1份），下方热量 / 营养按该份量填写。添加后系统会按热量从小到大排序，并归入「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他 / 饮品 / 零食」对应板块；也可手动选择分类。</p>
+          <form id="food-form" class="food-form-grid form-grid">
+            <input type="hidden" class="food-edit-id" />
+            <div class="field"><label>名称</label><input type="text" class="food-name" placeholder="例如：米饭" /></div>
+            <div class="field"><label>份量（基准）</label><input type="text" class="food-portion" placeholder="100g / 1个 / 1份" autocomplete="off" /></div>
+            <div class="field"><label>热量 (kcal)</label><input type="text" inputmode="decimal" class="food-kcal" /></div>
+            <div class="field"><label>蛋白质 (g)</label><input type="text" inputmode="decimal" class="food-protein" /></div>
+            <div class="field"><label>脂肪 (g)</label><input type="text" inputmode="decimal" class="food-fat" /></div>
+            <div class="field"><label>碳水 (g)</label><input type="text" inputmode="decimal" class="food-carbs" /></div>
+            <div class="field"><label>糖 (g)</label><input type="text" inputmode="decimal" class="food-sugar" /></div>
+            <div class="field"><label>钠 (mg)</label><input type="text" inputmode="decimal" class="food-sodium" /></div>
+            <div class="field"><label>分类</label>
+              <select class="food-category">
+                <option value="">自动判断</option>
+                <option value="碳水">碳水</option>
+                <option value="蛋白质">蛋白质</option>
+                <option value="蔬菜">蔬菜</option>
+                <option value="水果">水果</option>
+                <option value="其他">其他</option>
+                <option value="饮品">饮品</option>
+                <option value="零食">零食</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn primary food-submit-btn">添加</button>
+              <button type="button" class="btn secondary food-cancel-btn">取消</button>
+            </div>
+          </form>
+        </details>
       </div>
       <details class="panel section-details" id="food-lib-collapse" open>
         <summary>🍎 食物库清单 <small>点击展开 / 收起</small></summary>
@@ -3166,6 +3169,9 @@
       form.querySelector('.food-sodium').value = food.sodium;
       form.querySelector('.food-category').value = getFoodCategory(food);
       form.querySelector('.food-submit-btn').textContent = '保存';
+      // 若添加表单处于收起状态，自动展开以便编辑
+      const addWrap = document.getElementById('food-add-collapse');
+      if (addWrap) addWrap.open = true;
       // 跳转到上方对应的编辑框并高亮，名称/数值保持现状
       try { form.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
       form.classList.add('editing-flash');
