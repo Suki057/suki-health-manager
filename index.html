@@ -1572,7 +1572,7 @@
   <div id="custom-food-modal" class="modal-overlay" style="display:none">
     <div class="modal-box">
       <h3>➕ 自定义食物</h3>
-      <p class="hint">直接登记一条今日饮食，无需先加入食物库。热量 / 营养为这条记录的实际数值。</p>
+      <p class="hint">登记一条今日饮食，保存后会同时加入「食物库」，方便以后快速选用。热量 / 营养为这条记录的实际数值。</p>
       <div class="modal-grid">
         <div class="field"><label>食物名称</label><input type="text" id="cf-name" placeholder="例如：自制沙拉" autocomplete="off" /></div>
         <div class="field"><label>份量</label><input type="text" id="cf-portion" placeholder="1碗 / 200g" autocomplete="off" /></div>
@@ -1594,9 +1594,15 @@
   <div id="custom-exercise-modal" class="modal-overlay" style="display:none">
     <div class="modal-box">
       <h3>🏃 自定义运动</h3>
-      <p class="hint">直接登记一条今日运动消耗，无需先加入运动库。</p>
+      <p class="hint">登记一条今日运动消耗，保存后会同时加入「运动库」，可选无氧 / 有氧类型。</p>
       <div class="modal-grid">
         <div class="field"><label>运动名称</label><input type="text" id="ce-name" placeholder="例如：散步" autocomplete="off" /></div>
+        <div class="field"><label>类型</label>
+          <select id="ce-type">
+            <option value="ana">无氧运动</option>
+            <option value="aer">有氧运动</option>
+          </select>
+        </div>
         <div class="field"><label>时长 (分)</label><input type="text" inputmode="decimal" id="ce-duration" /></div>
         <div class="field"><label>消耗 (kcal)</label><input type="text" inputmode="decimal" id="ce-kcal" /></div>
       </div>
@@ -2258,22 +2264,32 @@
       if (!name) return toast('请输入食物名称');
       const day = getCurrentDate();
       if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
+      const kcal = parseFloat(document.getElementById('cf-kcal').value) || 0;
+      const protein = parseFloat(document.getElementById('cf-protein').value) || 0;
+      const fat = parseFloat(document.getElementById('cf-fat').value) || 0;
+      const carbs = parseFloat(document.getElementById('cf-carbs').value) || 0;
+      const sugar = parseFloat(document.getElementById('cf-sugar').value) || 0;
+      const sodium = parseFloat(document.getElementById('cf-sodium').value) || 0;
       state.logs[day].foods.push({
         id: generateId(), custom: true, name,
         meal: document.getElementById('food-meal').value,
         portionRaw: document.getElementById('cf-portion').value.trim(),
-        kcal: parseFloat(document.getElementById('cf-kcal').value) || 0,
-        protein: parseFloat(document.getElementById('cf-protein').value) || 0,
-        fat: parseFloat(document.getElementById('cf-fat').value) || 0,
-        carbs: parseFloat(document.getElementById('cf-carbs').value) || 0,
-        sugar: parseFloat(document.getElementById('cf-sugar').value) || 0,
-        sodium: parseFloat(document.getElementById('cf-sodium').value) || 0,
+        kcal, protein, fat, carbs, sugar, sodium,
       });
+      // 同步保存到食物库（按名称去重，避免重复添加）
+      const portion = document.getElementById('cf-portion').value.trim();
+      const unit = /[g克G]/.test(portion) ? '100g' : 'serving';
+      const baseGrams = unit === '100g' ? (parseGramsInText(portion) || 100) : 100;
+      const category = classifyFood({ name, portion });
+      if (!state.foods.some(f => f.name && f.name.trim().toLowerCase() === name.toLowerCase())) {
+        state.foods.push({ id: generateId(), name, portion, unit, baseGrams, kcal, protein, fat, carbs, sugar, sodium, category });
+        renderFoodLibrary();
+      }
       save();
       renderToday();
       closeModal('custom-food-modal');
       ['cf-name', 'cf-portion', 'cf-kcal', 'cf-protein', 'cf-fat', 'cf-carbs', 'cf-sugar', 'cf-sodium'].forEach(id => document.getElementById(id).value = '');
-      toast('已记录：' + name);
+      toast('已记录并同步到食物库：' + name);
     }
     function saveCustomExercise() {
       const name = document.getElementById('ce-name').value.trim();
@@ -2281,14 +2297,20 @@
       const duration = parseFloat(document.getElementById('ce-duration').value);
       const kcal = parseFloat(document.getElementById('ce-kcal').value) || 0;
       if (!duration || duration <= 0) return toast('请输入有效时长');
+      const type = document.getElementById('ce-type').value || 'ana';
       const day = getCurrentDate();
       if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
-      state.logs[day].exercises.push({ id: generateId(), custom: true, name, durationMin: duration, kcal: kcal });
+      state.logs[day].exercises.push({ id: generateId(), custom: true, name, durationMin: duration, kcal: kcal, type });
+      // 同步保存到运动库（按名称去重）
+      if (!state.exercises.some(x => x.name && x.name.trim().toLowerCase() === name.toLowerCase())) {
+        state.exercises.push({ id: generateId(), name, type, durationMin: duration, kcal, kcalPerMin: duration > 0 ? kcal / duration : 0 });
+        renderExerciseLibrary();
+      }
       save();
       renderToday();
       closeModal('custom-exercise-modal');
       ['ce-name', 'ce-duration', 'ce-kcal'].forEach(id => document.getElementById(id).value = '');
-      toast('已记录运动：' + name);
+      toast('已记录运动并同步到运动库：' + name);
     }
 
     function computeFoodEntry(entry) {
