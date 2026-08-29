@@ -207,7 +207,7 @@
       -webkit-user-select: none;
       scrollbar-width: none;
       margin: 0 -16px;
-      padding: 0 16px;
+      padding: 0;
     }
     .progress-table-wrap::-webkit-scrollbar { display: none; }
     .progress-table-wrap.dragging { cursor: grabbing; }
@@ -244,6 +244,7 @@
       text-align: left;
       z-index: 5;
       min-width: 92px;
+      padding-left: 16px;
       box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.25);
     }
     .progress-table th.row-header {
@@ -1240,42 +1241,6 @@
         </div>
       </div>
 
-      <div class="panel">
-        <h2>📊 体重档案 <small>基线 · 目标 · 记录</small></h2>
-        <div class="baseline-box">
-          <details>
-            <summary>🎯 初始基线（对比参考）· 点击设置</summary>
-            <p class="hint">填写你开始记录时的初始体重与各围度，之后每次录入都会显示与初始值的对比（变化量）。</p>
-            <div class="form-grid">
-              <div class="field"><label>体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" /></div>
-              <div class="field"><label>体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" /></div>
-              <div class="field"><label>小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" /></div>
-              <div class="field"><label>大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" /></div>
-              <div class="field"><label>腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" /></div>
-              <div class="field"><label>臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" /></div>
-              <div class="form-actions">
-                <button type="button" class="btn secondary" id="base-save-btn">保存初始基线</button>
-              </div>
-            </div>
-            <p class="hint" id="base-hint"></p>
-          </details>
-        </div>
-        <div class="target-box">
-          <details>
-            <summary>🎯 目标管理（你想达到的）· 点击设置</summary>
-            <p class="hint">填写你希望达到的目标体重与目标体脂率，开屏界面会据此显示「距目标体重」与「体脂可降」。</p>
-            <div class="form-grid">
-              <div class="field"><label>目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" /></div>
-              <div class="field"><label>目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" /></div>
-              <div class="form-actions">
-                <button type="button" class="btn secondary" id="target-save-btn">保存目标管理</button>
-              </div>
-            </div>
-            <p class="hint" id="target-hint"></p>
-          </details>
-        </div>
-        <div id="baseline-compare" class="baseline-compare"></div>
-      </div>
     </section>
 
     <!-- 热量明细表 -->
@@ -1346,6 +1311,43 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div class="panel">
+        <h2>📊 体重档案 <small>基线 · 目标 · 记录</small></h2>
+        <div class="baseline-box">
+          <details>
+            <summary>🎯 初始基线（对比参考）· 点击设置</summary>
+            <p class="hint">填写你开始记录时的初始体重与各围度，之后每次录入都会显示与初始值的对比（变化量）。</p>
+            <div class="form-grid">
+              <div class="field"><label>体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" /></div>
+              <div class="field"><label>体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" /></div>
+              <div class="field"><label>小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" /></div>
+              <div class="field"><label>大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" /></div>
+              <div class="field"><label>腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" /></div>
+              <div class="field"><label>臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" /></div>
+              <div class="form-actions">
+                <button type="button" class="btn secondary" id="base-save-btn">保存初始基线</button>
+              </div>
+            </div>
+            <p class="hint" id="base-hint"></p>
+          </details>
+        </div>
+        <div class="target-box">
+          <details>
+            <summary>🎯 目标管理（你想达到的）· 点击设置</summary>
+            <p class="hint">填写你希望达到的目标体重与目标体脂率，开屏界面会据此显示「距目标体重」与「体脂可降」。</p>
+            <div class="form-grid">
+              <div class="field"><label>目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" /></div>
+              <div class="field"><label>目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" /></div>
+              <div class="form-actions">
+                <button type="button" class="btn secondary" id="target-save-btn">保存目标管理</button>
+              </div>
+            </div>
+            <p class="hint" id="target-hint"></p>
+          </details>
+        </div>
+        <div id="baseline-compare" class="baseline-compare"></div>
       </div>
     </section>
 
@@ -1839,6 +1841,7 @@
           if (btn.dataset.tab === 'stats') renderStats();
           if (btn.dataset.tab === 'trash') renderTrash();
           if (btn.dataset.tab === 'food-review') renderFoodReview();
+          if (btn.dataset.tab === 'progress') { renderProgress(); renderBaseline(); renderTargetManagement(); }
           if (btn.dataset.tab === 'calories') {
             const cdp = document.getElementById('cal-date-picker');
             if (cdp) cdp.value = document.getElementById('date-picker').value;
