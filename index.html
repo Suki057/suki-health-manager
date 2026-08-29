@@ -241,15 +241,20 @@
       background: #faf6ec;
       color: #2c2c54;
       font-weight: 600;
-      text-align: left;
+      text-align: center;
       z-index: 5;
-      min-width: 92px;
-      padding-left: 16px;
+      min-width: 46px;
+      padding: 7px 4px;
+      white-space: normal;
+      line-height: 1.25;
+      font-size: 12px;
       box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.25);
     }
     .progress-table th.row-header {
       z-index: 4;
     }
+    .progress-table .rh-name { display: block; }
+    .progress-table .rh-unit { display: block; font-size: 0.82em; font-weight: 500; color: #9a8f6f; margin-top: 2px; }
     .progress-table td.number {
       font-variant-numeric: tabular-nums;
     }
@@ -266,7 +271,7 @@
     }
     .year-header .year-label {
       display: inline-block;
-      padding: 12px 14px 12px 16px;
+      padding: 8px 4px;
       pointer-events: none;
     }
     .year-header .year-select {
@@ -3612,19 +3617,19 @@
       const cls = (v) => (v === 0 || v === null || v === undefined || Number.isNaN(v)) ? 'number zero' : 'number';
 
       const rows = [
-        { label: '现体重 (kg)', values: cols.map(c => ({ text: fmt(c.weight, 1), cls: cls(c.weight) })) },
-        { label: '现体脂率 (%)', values: cols.map(c => ({ text: fmt(c.fat, 1), cls: cls(c.fat) })) },
-        { label: '现脂肪重量 (kg)', values: cols.map(c => ({ text: fmt(c.fatMass, 2), cls: cls(c.fatMass) })) },
-        { label: '已减脂 (%)', values: cols.map(c => ({ text: fmt(c.lostFat, 1), cls: cls(c.lostFat) })) },
-        { label: '已减重 (kg)', values: cols.map(c => ({ text: fmt(c.lostWeight, 1), cls: cls(c.lostWeight) })) },
-        { label: '减重进度 %', values: cols.map(c => ({ text: fmt(c.weightProgress, 1), cls: cls(c.weightProgress) })) },
-        { label: '已减掉的脂肪 (kg)', values: cols.map(c => ({ text: fmt(c.cutFat, 2), cls: cls(c.cutFat) })) },
-        { label: '月热量缺口 (kcal)', values: cols.map(c => ({ text: kcal(c.deficit), cls: cls(c.deficit) })) },
+        { name: '现体重', unit: 'kg', values: cols.map(c => ({ text: fmt(c.weight, 1), cls: cls(c.weight) })) },
+        { name: '现体脂率', unit: '%', values: cols.map(c => ({ text: fmt(c.fat, 1), cls: cls(c.fat) })) },
+        { name: '现脂肪重量', unit: 'kg', values: cols.map(c => ({ text: fmt(c.fatMass, 2), cls: cls(c.fatMass) })) },
+        { name: '已减脂', unit: '%', values: cols.map(c => ({ text: fmt(c.lostFat, 1), cls: cls(c.lostFat) })) },
+        { name: '已减重', unit: 'kg', values: cols.map(c => ({ text: fmt(c.lostWeight, 1), cls: cls(c.lostWeight) })) },
+        { name: '减重进度', unit: '%', values: cols.map(c => ({ text: fmt(c.weightProgress, 1), cls: cls(c.weightProgress) })) },
+        { name: '已减脂肪', unit: 'kg', values: cols.map(c => ({ text: fmt(c.cutFat, 2), cls: cls(c.cutFat) })) },
+        { name: '月热量缺口', unit: 'kcal', values: cols.map(c => ({ text: kcal(c.deficit), cls: cls(c.deficit) })) },
       ];
 
       tbody.innerHTML = rows.map(r => `
         <tr>
-          <td class="row-header">${r.label}</td>
+          <td class="row-header"><span class="rh-name">${r.name}</span><span class="rh-unit">「${r.unit}」</span></td>
           ${r.values.map(v => `<td class="${v.cls}">${v.text}</td>`).join('')}
         </tr>
       `).join('');
