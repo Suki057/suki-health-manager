@@ -197,6 +197,66 @@
       transition: opacity 0.25s ease;
     }
     .bottom-nav.can-scroll-right::after { opacity: 1; }
+
+    /* 管理进度表格：横向拖动，文字不换行 */
+    .progress-table-wrap {
+      overflow-x: auto;
+      overflow-y: hidden;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      scrollbar-width: none;
+      margin: 0 -16px;
+      padding: 0 16px;
+    }
+    .progress-table-wrap::-webkit-scrollbar { display: none; }
+    .progress-table-wrap.dragging { cursor: grabbing; }
+    .progress-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+      white-space: nowrap;
+    }
+    .progress-table th,
+    .progress-table td {
+      padding: 12px 14px;
+      text-align: center;
+      border: 1px solid rgba(246, 231, 176, 0.25);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .progress-table th {
+      background: rgba(246, 231, 176, 0.12);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .progress-table th.row-header,
+    .progress-table td.row-header {
+      position: sticky;
+      left: 0;
+      background: rgba(250, 246, 236, 0.96);
+      color: #2c2c54;
+      font-weight: 600;
+      text-align: left;
+      z-index: 3;
+      min-width: 120px;
+    }
+    .progress-table th.row-header {
+      z-index: 4;
+    }
+    .progress-table td.number {
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-table td.zero {
+      color: #999;
+    }
+    .progress-table tr:nth-child(even) td:not(.row-header) {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
     .bottom-nav .tab-btn {
       flex: 0 0 calc(25% - 2px);
       text-align: center;
@@ -1262,6 +1322,32 @@
       </div>
     </section>
 
+    <!-- 管理进度 -->
+    <section id="progress" class="tab-panel">
+      <div class="panel">
+        <h2>📈 管理进度 <small>体重 · 体脂 · 减脂进度</small></h2>
+        <p class="hint">表格自动读取每月月底（7/31、8/31…12/31）的身材记录与月热量缺口。请先填写「初始基线」与「目标管理」中的体重/体脂率，进度条才会正确计算。</p>
+        <div class="progress-table-wrap" id="progress-table-wrap">
+          <table id="progress-table" class="progress-table">
+            <thead>
+              <tr>
+                <th class="row-header">指标</th>
+                <th>7月31日</th>
+                <th>8月31日</th>
+                <th>9月30日</th>
+                <th>10月31日</th>
+                <th>11月30日</th>
+                <th>12月31日</th>
+              </tr>
+            </thead>
+            <tbody id="progress-table-body">
+              <tr><td colspan="7" class="empty-state">加载中…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <!-- 食物记录复盘 -->
     <section id="food-review" class="tab-panel">
       <div class="panel review-panel">
@@ -1548,6 +1634,7 @@
     <button class="tab-btn active" data-tab="today">今日记录</button>
     <button class="tab-btn" data-tab="stats">热量记录</button>
     <button class="tab-btn" data-tab="calories">热量明细表</button>
+    <button class="tab-btn" data-tab="progress">管理进度</button>
     <button class="tab-btn" data-tab="food-review">复盘记录</button>
     <button class="tab-btn" data-tab="foods">食物库</button>
     <button class="tab-btn" data-tab="exercises">运动库</button>
@@ -3372,6 +3459,134 @@
       }
       document.getElementById('monthly-stats-modal').style.display = 'flex';
     }
+
+    // ==================== 管理进度 ====================
+    const PROGRESS_DATES = ['2026-07-31', '2026-08-31', '2026-09-30', '2026-10-31', '2026-11-30', '2026-12-31'];
+    function getBodyAtEndOfMonth(dateStr) {
+      // 找当月最后一天及之前最近一条身材记录
+      const [y, m] = dateStr.split('-').map(Number);
+      const lastDay = new Date(y, m, 0).getDate();
+      const monthPrefix = String(y) + '-' + String(m).padStart(2, '0');
+      const days = Object.keys(state.logs)
+        .filter(d => d.startsWith(monthPrefix))
+        .sort((a, b) => b.localeCompare(a));
+      for (const d of days) {
+        const body = state.logs[d].body;
+        if (body && (body.weight !== undefined || body.bodyFat !== undefined)) {
+          return body;
+        }
+      }
+      return null;
+    }
+    function getMonthDeficit(dateStr) {
+      const [y, m] = dateStr.split('-').map(Number);
+      const monthPrefix = String(y) + '-' + String(m).padStart(2, '0');
+      let kcal = 0, burn = 0;
+      Object.keys(state.logs).filter(d => d.startsWith(monthPrefix)).forEach(day => {
+        const t = computeDayTotals(day);
+        kcal += t.kcal;
+        burn += t.burn;
+      });
+      return burn - kcal;
+    }
+    function renderProgress() {
+      const tbody = document.getElementById('progress-table-body');
+      if (!tbody) return;
+      const base = state.baseline || {};
+      const goals = state.goals || {};
+      const baseWeight = base.weight;
+      const baseFat = base.bodyFat;
+      const targetWeight = goals.targetWeight;
+      const targetFat = goals.targetBodyFat;
+
+      // 准备每列数据
+      const cols = PROGRESS_DATES.map(date => {
+        const body = getBodyAtEndOfMonth(date);
+        const weight = body && body.weight !== undefined ? body.weight : null;
+        const fat = body && body.bodyFat !== undefined ? body.bodyFat : null;
+        const fatMass = (weight !== null && fat !== null) ? weight * fat / 100 : null;
+        const deficit = getMonthDeficit(date);
+        const lostFat = (baseFat !== undefined && fat !== null) ? fat - baseFat : null;
+        const fatProgress = (baseFat !== undefined && targetFat !== undefined && fat !== null)
+          ? (fat - baseFat) / (baseFat - targetFat) * 100
+          : null;
+        const lostWeight = (baseWeight !== undefined && weight !== null) ? weight - baseWeight : null;
+        const weightProgress = (baseWeight !== undefined && targetWeight !== undefined && weight !== null)
+          ? (weight - baseWeight) / (baseWeight - targetWeight) * 100
+          : null;
+        const cutFat = (targetFat !== undefined && targetWeight !== undefined && weight !== null && fat !== null)
+          ? (targetFat * targetWeight / 100) - (fat * weight / 100)
+          : null;
+        return { weight, fat, fatMass, lostFat, fatProgress, lostWeight, weightProgress, cutFat, deficit };
+      });
+
+      const fmt = (v, digits = 2) => {
+        if (v === null || v === undefined || Number.isNaN(v)) return '—';
+        return formatNum(v, digits);
+      };
+      const pct = (v) => {
+        if (v === null || v === undefined || Number.isNaN(v)) return '—';
+        return formatNum(v, 1) + '%';
+      };
+      const kcal = (v) => {
+        if (v === null || v === undefined || Number.isNaN(v)) return '—';
+        return formatNum(v, 0);
+      };
+      const cls = (v) => (v === 0 || v === null || v === undefined || Number.isNaN(v)) ? 'number zero' : 'number';
+
+      const rows = [
+        { label: '现体重 (kg)', values: cols.map(c => ({ text: fmt(c.weight, 1), cls: cls(c.weight) })) },
+        { label: '现体脂率 (%)', values: cols.map(c => ({ text: fmt(c.fat, 1), cls: cls(c.fat) })) },
+        { label: '现脂肪重量 (kg)', values: cols.map(c => ({ text: fmt(c.fatMass, 2), cls: cls(c.fatMass) })) },
+        { label: '已减脂 (%)', values: cols.map(c => ({ text: fmt(c.lostFat, 1), cls: cls(c.lostFat) })) },
+        { label: '减脂进度', values: cols.map(c => ({ text: pct(c.fatProgress), cls: cls(c.fatProgress) })) },
+        { label: '已减重 (kg)', values: cols.map(c => ({ text: fmt(c.lostWeight, 1), cls: cls(c.lostWeight) })) },
+        { label: '减重进度', values: cols.map(c => ({ text: pct(c.weightProgress), cls: cls(c.weightProgress) })) },
+        { label: '已剪掉的脂肪 (kg)', values: cols.map(c => ({ text: fmt(c.cutFat, 2), cls: cls(c.cutFat) })) },
+        { label: '月热量缺口 (kcal)', values: cols.map(c => ({ text: kcal(c.deficit), cls: cls(c.deficit) })) },
+      ];
+
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td class="row-header">${r.label}</td>
+          ${r.values.map(v => `<td class="${v.cls}">${v.text}</td>`).join('')}
+        </tr>
+      `).join('');
+    }
+    function setupProgressTab() {
+      renderProgress();
+      // 表格区域拖动滚动
+      const wrap = document.getElementById('progress-table-wrap');
+      if (!wrap) return;
+      let isDown = false, startX = 0, scrollLeft = 0;
+      wrap.addEventListener('mousedown', e => {
+        isDown = true;
+        wrap.classList.add('dragging');
+        startX = e.pageX - wrap.offsetLeft;
+        scrollLeft = wrap.scrollLeft;
+      });
+      wrap.addEventListener('mouseleave', () => { isDown = false; wrap.classList.remove('dragging'); });
+      wrap.addEventListener('mouseup', () => { isDown = false; wrap.classList.remove('dragging'); });
+      wrap.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - wrap.offsetLeft;
+        wrap.scrollLeft = scrollLeft - (x - startX) * 1.2;
+      });
+      // 触摸支持
+      wrap.addEventListener('touchstart', e => {
+        isDown = true;
+        startX = e.touches[0].pageX - wrap.offsetLeft;
+        scrollLeft = wrap.scrollLeft;
+      }, { passive: true });
+      wrap.addEventListener('touchend', () => { isDown = false; });
+      wrap.addEventListener('touchmove', e => {
+        if (!isDown) return;
+        const x = e.touches[0].pageX - wrap.offsetLeft;
+        wrap.scrollLeft = scrollLeft - (x - startX) * 1.2;
+      }, { passive: true });
+    }
+
     function renderStats() {
       const start = document.getElementById('stats-start').value;
       const end = document.getElementById('stats-end').value;
@@ -4447,6 +4662,7 @@
       renderFoodLibrary();
       renderExerciseLibrary();
       renderStats();
+      renderProgress();
       renderTrash();
       renderFoodReview();
     }
@@ -4496,6 +4712,7 @@
       setupExerciseLibrary();
       setupFoodReview();
       setupStatsTab();
+      setupProgressTab();
       setupDataTab();
       setupTrashTab();
       renderAll();
