@@ -242,7 +242,7 @@
       font-weight: 600;
       text-align: left;
       z-index: 3;
-      min-width: 120px;
+      min-width: 92px;
     }
     .progress-table th.row-header {
       z-index: 4;
@@ -1326,7 +1326,6 @@
     <section id="progress" class="tab-panel">
       <div class="panel">
         <h2>📈 管理进度 <small>体重 · 体脂 · 减脂进度</small></h2>
-        <p class="hint">表格自动读取每月月底（7/31、8/31…12/31）的身材记录与月热量缺口。请先填写「初始基线」与「目标管理」中的体重/体脂率，进度条才会正确计算。</p>
         <div class="progress-table-wrap" id="progress-table-wrap">
           <table id="progress-table" class="progress-table">
             <thead>
@@ -3506,16 +3505,16 @@
         const fat = body && body.bodyFat !== undefined ? body.bodyFat : null;
         const fatMass = (weight !== null && fat !== null) ? weight * fat / 100 : null;
         const deficit = getMonthDeficit(date);
-        const lostFat = (baseFat !== undefined && fat !== null) ? fat - baseFat : null;
+        const lostFat = (baseFat !== undefined && fat !== null) ? baseFat - fat : null;
         const fatProgress = (baseFat !== undefined && targetFat !== undefined && fat !== null)
-          ? (fat - baseFat) / (baseFat - targetFat) * 100
+          ? (baseFat - fat) / (baseFat - targetFat) * 100
           : null;
-        const lostWeight = (baseWeight !== undefined && weight !== null) ? weight - baseWeight : null;
+        const lostWeight = (baseWeight !== undefined && weight !== null) ? baseWeight - weight : null;
         const weightProgress = (baseWeight !== undefined && targetWeight !== undefined && weight !== null)
-          ? (weight - baseWeight) / (baseWeight - targetWeight) * 100
+          ? (baseWeight - weight) / (baseWeight - targetWeight) * 100
           : null;
-        const cutFat = (targetFat !== undefined && targetWeight !== undefined && weight !== null && fat !== null)
-          ? (targetFat * targetWeight / 100) - (fat * weight / 100)
+        const cutFat = (baseFat !== undefined && baseWeight !== undefined && weight !== null && fat !== null)
+          ? (baseFat * baseWeight / 100) - (fat * weight / 100)
           : null;
         return { weight, fat, fatMass, lostFat, fatProgress, lostWeight, weightProgress, cutFat, deficit };
       });
@@ -3542,7 +3541,7 @@
         { label: '减脂进度', values: cols.map(c => ({ text: pct(c.fatProgress), cls: cls(c.fatProgress) })) },
         { label: '已减重 (kg)', values: cols.map(c => ({ text: fmt(c.lostWeight, 1), cls: cls(c.lostWeight) })) },
         { label: '减重进度', values: cols.map(c => ({ text: pct(c.weightProgress), cls: cls(c.weightProgress) })) },
-        { label: '已剪掉的脂肪 (kg)', values: cols.map(c => ({ text: fmt(c.cutFat, 2), cls: cls(c.cutFat) })) },
+        { label: '已减掉的脂肪 (kg)', values: cols.map(c => ({ text: fmt(c.cutFat, 2), cls: cls(c.cutFat) })) },
         { label: '月热量缺口 (kcal)', values: cols.map(c => ({ text: kcal(c.deficit), cls: cls(c.deficit) })) },
       ];
 
