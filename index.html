@@ -4270,6 +4270,70 @@
       ];
     })();
 
+    // 外卖 /  restaurant 品牌菜品数据（2026-08-29）：来自 Suki 上传的三张截图，按最左侧「品牌」分板块。
+    // 营养数值为该菜品的总值；unit 为 serving，录入时默认 1 份即一份菜品。
+    const SUKI_RESTAURANT_FOODS = [
+      // 越南菜
+      { brand: '越南菜', name: '火车头牛肉河粉（大碗带汤）', portion: '1份', kcal: 380, protein: 24, fat: 12, carbs: 52, sugar: 6, sodium: 2700 },
+      { brand: '越南菜', name: '鸡肉河粉（大碗）', portion: '1份', kcal: 310, protein: 22, fat: 7, carbs: 48, sugar: 7, sodium: 2450 },
+      { brand: '越南菜', name: '鲜虾鲜春卷（2条，米纸不油炸）', portion: '1份', kcal: 170, protein: 11, fat: 4, carbs: 22, sugar: 3, sodium: 320 },
+      { brand: '越南菜', name: '猪肉炸春卷（4只）', portion: '1份', kcal: 300, protein: 13, fat: 18, carbs: 28, sugar: 4, sodium: 950 },
+      { brand: '越南菜', name: '香茅烤鸡配米饭（全套含鱼露汁）', portion: '1份', kcal: 640, protein: 38, fat: 26, carbs: 62, sugar: 14, sodium: 1300 },
+      { brand: '越南菜', name: '檬粉·烤猪肉干捞粉（含酱汁）', portion: '1份', kcal: 520, protein: 26, fat: 20, carbs: 60, sugar: 11, sodium: 1560 },
+      { brand: '越南菜', name: '越式咖喱牛腩（配米饭）', portion: '1份', kcal: 680, protein: 29, fat: 36, carbs: 66, sugar: 16, sodium: 1720 },
+      // 费大厨
+      { brand: '费大厨', name: '辣椒炒肉（招牌整份）', portion: '1份', kcal: 930, protein: 32, fat: 68, carbs: 12, sugar: 4, sodium: 1620 },
+      { brand: '费大厨', name: '小炒鲜牛肉', portion: '1份', kcal: 580, protein: 36, fat: 38, carbs: 8, sugar: 3, sodium: 1480 },
+      { brand: '费大厨', name: '皮蛋青椒擂茄子', portion: '1份', kcal: 320, protein: 12, fat: 22, carbs: 14, sugar: 5, sodium: 1210 },
+      { brand: '费大厨', name: '砂锅嫩豆腐', portion: '1份', kcal: 790, protein: 24, fat: 55, carbs: 22, sugar: 6, sodium: 1750 },
+      { brand: '费大厨', name: '大厨手撕鸡', portion: '1份', kcal: 1060, protein: 44, fat: 76, carbs: 10, sugar: 3, sodium: 1840 },
+      { brand: '费大厨', name: '干锅包菜', portion: '1份', kcal: 410, protein: 6, fat: 34, carbs: 16, sugar: 4, sodium: 1330 },
+      { brand: '费大厨', name: '海带苗肉丸汤', portion: '1份', kcal: 260, protein: 20, fat: 14, carbs: 8, sugar: 2, sodium: 940 },
+      { brand: '费大厨', name: '南瓜馒头（2个）', portion: '1份', kcal: 240, protein: 6, fat: 2, carbs: 48, sugar: 11, sodium: 85 },
+      // 喜姐炸串
+      { brand: '喜姐炸串', name: '香嫩大里脊（1串）', portion: '1串', kcal: 185, protein: 14, fat: 10, carbs: 9, sugar: 3, sodium: 720 },
+      { brand: '喜姐炸串', name: '脆皮水磨年糕（1串）', portion: '1串', kcal: 210, protein: 4, fat: 7, carbs: 34, sugar: 11, sodium: 610 },
+      { brand: '喜姐炸串', name: '旋风大面筋（1串）', portion: '1串', kcal: 160, protein: 7, fat: 8, carbs: 18, sugar: 4, sodium: 830 },
+      { brand: '喜姐炸串', name: '放心淀粉肠（1根）', portion: '1根', kcal: 245, protein: 6, fat: 18, carbs: 14, sugar: 3, sodium: 1120 },
+      { brand: '喜姐炸串', name: '酱汁臭豆腐（1份4块）', portion: '1份', kcal: 320, protein: 13, fat: 22, carbs: 16, sugar: 6, sodium: 1360 },
+      { brand: '喜姐炸串', name: '掌中宝（1串3颗）', portion: '1串', kcal: 225, protein: 11, fat: 17, carbs: 7, sugar: 2, sodium: 780 },
+      { brand: '喜姐炸串', name: '招牌五花肉（1串）', portion: '1串', kcal: 240, protein: 9, fat: 21, carbs: 4, sugar: 2, sodium: 690 },
+      { brand: '喜姐炸串', name: '必点炸排骨（1串）', portion: '1串', kcal: 270, protein: 18, fat: 19, carbs: 8, sugar: 2, sodium: 810 },
+      { brand: '喜姐炸串', name: '鲜嫩真牛肉（10小串）', portion: '1份', kcal: 290, protein: 22, fat: 18, carbs: 11, sugar: 3, sodium: 1240 },
+      { brand: '喜姐炸串', name: '滑嫩鸡肉小串（10串）', portion: '1份', kcal: 230, protein: 24, fat: 11, carbs: 9, sugar: 2, sodium: 1070 },
+      { brand: '喜姐炸串', name: '生炸大鸡腿（1个）', portion: '1个', kcal: 440, protein: 36, fat: 28, carbs: 12, sugar: 3, sodium: 1410 },
+      { brand: '喜姐炸串', name: '手掌大鸡排（1份）', portion: '1份', kcal: 420, protein: 30, fat: 24, carbs: 21, sugar: 4, sodium: 1280 },
+      { brand: '喜姐炸串', name: '炸豆角（1串）', portion: '1串', kcal: 95, protein: 2, fat: 7, carbs: 7, sugar: 2, sodium: 440 },
+      { brand: '喜姐炸串', name: '炸莲藕片（1串）', portion: '1串', kcal: 110, protein: 2, fat: 8, carbs: 9, sugar: 3, sodium: 470 },
+      // 中式糖水
+      { brand: '中式糖水', name: '红豆沙（正常糖）', portion: '1份', kcal: 330, protein: 8, fat: 2, carbs: 68, sugar: 42, sodium: 35 },
+      { brand: '中式糖水', name: '绿豆沙（正常糖）', portion: '1份', kcal: 260, protein: 7, fat: 1, carbs: 52, sugar: 34, sodium: 30 },
+      { brand: '中式糖水', name: '双皮奶', portion: '1份', kcal: 285, protein: 12, fat: 14, carbs: 32, sugar: 24, sodium: 85 },
+      { brand: '中式糖水', name: '芝麻糊', portion: '1份', kcal: 370, protein: 10, fat: 22, carbs: 38, sugar: 26, sodium: 40 },
+      { brand: '中式糖水', name: '番薯糖水', portion: '1份', kcal: 240, protein: 3, fat: 1, carbs: 56, sugar: 36, sodium: 25 },
+      { brand: '中式糖水', name: '莲子百合银耳糖水', portion: '1份', kcal: 210, protein: 4, fat: 1, carbs: 48, sugar: 32, sodium: 20 },
+      { brand: '中式糖水', name: '杨枝甘露（糖水铺版）', portion: '1份', kcal: 365, protein: 4, fat: 12, carbs: 62, sugar: 44, sodium: 45 },
+      { brand: '中式糖水', name: '椰汁西米露', portion: '1份', kcal: 320, protein: 3, fat: 11, carbs: 54, sugar: 38, sodium: 50 },
+      { brand: '中式糖水', name: '豆腐花（甜，正常糖）', portion: '1份', kcal: 220, protein: 10, fat: 6, carbs: 34, sugar: 28, sodium: 90 },
+      { brand: '中式糖水', name: '姜汁撞奶', portion: '1份', kcal: 250, protein: 11, fat: 13, carbs: 28, sugar: 20, sodium: 75 },
+      { brand: '中式糖水', name: '桃胶皂角米炖奶', portion: '1份', kcal: 275, protein: 8, fat: 9, carbs: 44, sugar: 30, sodium: 60 },
+      { brand: '中式糖水', name: '桂花酒酿小圆子', portion: '1份', kcal: 340, protein: 6, fat: 3, carbs: 68, sugar: 46, sodium: 42 },
+      { brand: '中式糖水', name: '芋圆烧仙草（正常糖）', portion: '1份', kcal: 390, protein: 5, fat: 7, carbs: 76, sugar: 48, sodium: 55 },
+      { brand: '中式糖水', name: '龟苓膏（配糖浆）', portion: '1份', kcal: 200, protein: 1, fat: 0, carbs: 48, sugar: 36, sodium: 30 },
+      { brand: '中式糖水', name: '芋圆烧仙草（大满贯，正常糖）', portion: '1份', kcal: 420, protein: 6, fat: 9, carbs: 82, sugar: 52, sodium: 60 },
+      { brand: '中式糖水', name: '糖水全家福（杂锦全料）', portion: '1份', kcal: 440, protein: 7, fat: 8, carbs: 88, sugar: 54, sodium: 65 },
+      { brand: '中式糖水', name: '海南椰奶清补凉', portion: '1份', kcal: 410, protein: 6, fat: 14, carbs: 74, sugar: 46, sodium: 70 },
+      { brand: '中式糖水', name: '闽南四果汤（正常糖）', portion: '1份', kcal: 320, protein: 4, fat: 2, carbs: 68, sugar: 42, sodium: 40 },
+      // 街边粉面店
+      { brand: '街边粉面店', name: '炒米粉（普通，鸡蛋肉丝）', portion: '1份', kcal: 620, protein: 20, fat: 28, carbs: 72, sugar: 5, sodium: 1450 },
+      { brand: '街边粉面店', name: '炒面（鸡蛋肉丝炒面）', portion: '1份', kcal: 650, protein: 22, fat: 30, carbs: 74, sugar: 6, sodium: 1520 },
+      { brand: '街边粉面店', name: '干炒河粉（牛河）', portion: '1份', kcal: 680, protein: 24, fat: 32, carbs: 78, sugar: 5, sodium: 1600 },
+      { brand: '街边粉面店', name: '汤米粉（肉汤、肉丝鸡蛋）', portion: '1份', kcal: 430, protein: 21, fat: 14, carbs: 60, sugar: 4, sodium: 1780 },
+      { brand: '街边粉面店', name: '汤面（肉汤、肉丝鸡蛋）', portion: '1份', kcal: 450, protein: 23, fat: 15, carbs: 62, sugar: 5, sodium: 1820 },
+      { brand: '街边粉面店', name: '江西冷粉（拌冷粉，带香油酱料）', portion: '1份', kcal: 480, protein: 16, fat: 22, carbs: 64, sugar: 7, sodium: 1660 },
+      { brand: '街边粉面店', name: '南昌拌粉', portion: '1份', kcal: 510, protein: 18, fat: 24, carbs: 66, sugar: 8, sodium: 1720 },
+    ];
+
     // Suki 运动表（2026-08-01）：来自两张无氧图 + 两张有氧图。时长与热量为图中对应数值，kcalPerMin 由程序计算。
     const SUKI_EXERCISES = [
       // 无氧
@@ -4363,6 +4427,19 @@
       return added;
     }
 
+    function addSukiRestaurantFoods() {
+      let added = 0;
+      SUKI_RESTAURANT_FOODS.forEach(c => {
+        if (!state.foods.some(f => f.brand === c.brand && f.name === c.name)) {
+          state.foods.push(normalizeFood({ id: generateId(), unit: 'serving', ...c }));
+          added++;
+        }
+      });
+      save();
+      renderAll();
+      return added;
+    }
+
     function renderAll() {
       renderToday();
       renderBody();
@@ -4395,6 +4472,13 @@
         if (mtAdded > 0) toast(`已导入 ${mtAdded} 款饮品数据（含美式咖啡等），去「食物库」看看吧`);
       } catch (err) {
         console.warn('自动导入饮品数据失败', err);
+      }
+      // 自动导入外卖 / restaurant 品牌菜品（越南菜 / 费大厨 / 喜姐炸串 / 中式糖水 / 街边粉面店），已存在则去重
+      try {
+        const rfAdded = addSukiRestaurantFoods();
+        if (rfAdded > 0) toast(`已导入 ${rfAdded} 款外卖品牌菜品，去「食物库」看看吧`);
+      } catch (err) {
+        console.warn('自动导入外卖品牌菜品失败', err);
       }
       // 自动导入食材图库（100g 基准：蛋白质 / 碳水 / 蔬菜 / 水果等，含马鲛鱼），已存在则去重
       try {
