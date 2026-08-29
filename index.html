@@ -259,6 +259,36 @@
     .progress-table tr:nth-child(even) td:not(.row-header) {
       background: rgba(255, 255, 255, 0.04);
     }
+    .year-header {
+      position: relative;
+      cursor: pointer;
+      padding: 0;
+    }
+    .year-header .year-label {
+      display: inline-block;
+      padding: 12px 14px 12px 16px;
+      pointer-events: none;
+    }
+    .year-header .year-select {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      font-size: inherit;
+    }
+    .year-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(214, 138, 166, 0.18);
+      color: #8a4a63;
+      font-size: 12px;
+      font-weight: 600;
+      vertical-align: middle;
+    }
 
     .bottom-nav .tab-btn {
       flex: 0 0 calc(25% - 2px);
@@ -1292,22 +1322,20 @@
     <!-- 管理进度 -->
     <section id="progress" class="tab-panel">
       <div class="panel">
-        <h2>📈 管理进度 <small>体重 · 体脂 · 减重进度</small></h2>
+        <h2>📈 管理进度 <small>体重 · 体脂 · 减重进度</small><span id="progress-year-badge" class="year-badge">2026年</span></h2>
         <div class="progress-table-wrap" id="progress-table-wrap">
           <table id="progress-table" class="progress-table">
-            <thead>
+            <thead id="progress-thead">
               <tr>
-                <th class="row-header">指标</th>
-                <th>7月31日</th>
-                <th>8月31日</th>
-                <th>9月30日</th>
-                <th>10月31日</th>
-                <th>11月30日</th>
-                <th>12月31日</th>
+                <th class="row-header year-header">
+                  <span class="year-label">日期</span>
+                  <select id="progress-year" class="year-select" aria-label="选择年份"></select>
+                </th>
+                <!-- 日期列由 JS 根据所选年份生成 -->
               </tr>
             </thead>
             <tbody id="progress-table-body">
-              <tr><td colspan="7" class="empty-state">加载中…</td></tr>
+              <tr><td colspan="13" class="empty-state">加载中…</td></tr>
             </tbody>
           </table>
         </div>
@@ -3465,7 +3493,22 @@
     }
 
     // ==================== 管理进度 ====================
-    const PROGRESS_DATES = ['2026-07-31', '2026-08-31', '2026-09-30', '2026-10-31', '2026-11-30', '2026-12-31'];
+    let progressYear = 2026;
+    function getProgressDates(year) {
+      if (year === 2026) {
+        return ['2026-07-31', '2026-08-31', '2026-09-30', '2026-10-31', '2026-11-30', '2026-12-31'];
+      }
+      const dates = [];
+      for (let m = 1; m <= 12; m++) {
+        const lastDay = new Date(year, m, 0).getDate();
+        dates.push(`${year}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`);
+      }
+      return dates;
+    }
+    function formatMonthHeader(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return `${m}月${d}日`;
+    }
     function getBodyAtEndOfMonth(dateStr) {
       // 找当月最后一天及之前最近一条身材记录
       const [y, m] = dateStr.split('-').map(Number);
@@ -3495,7 +3538,9 @@
     }
     function renderProgress() {
       const tbody = document.getElementById('progress-table-body');
-      if (!tbody) return;
+      const thead = document.getElementById('progress-thead');
+      const yearBadge = document.getElementById('progress-year-badge');
+      if (!tbody || !thead) return;
       const base = state.baseline || {};
       const goals = state.goals || {};
       const baseWeight = base.weight;
@@ -3503,8 +3548,36 @@
       const targetWeight = goals.targetWeight;
       const targetFat = goals.targetBodyFat;
 
+      if (yearBadge) yearBadge.textContent = progressYear + '年';
+
+      const dates = getProgressDates(progressYear);
+
+      // 渲染表头
+      thead.innerHTML = `
+        <tr>
+          <th class="row-header year-header">
+            <span class="year-label">日期</span>
+            <select id="progress-year" class="year-select" aria-label="选择年份">
+              ${Array.from({ length: 101 }, (_, i) => {
+                const y = 2026 + i;
+                return `<option value="${y}" ${y === progressYear ? 'selected' : ''}>${y}年</option>`;
+              }).join('')}
+            </select>
+          </th>
+          ${dates.map(d => `<th>${formatMonthHeader(d)}</th>`).join('')}
+        </tr>
+      `;
+      // 重新绑定年份选择事件
+      const newYearSelect = document.getElementById('progress-year');
+      if (newYearSelect) {
+        newYearSelect.addEventListener('change', e => {
+          progressYear = parseInt(e.target.value, 10);
+          renderProgress();
+        });
+      }
+
       // 准备每列数据
-      const cols = PROGRESS_DATES.map(date => {
+      const cols = dates.map(date => {
         const body = getBodyAtEndOfMonth(date);
         const weight = body && body.weight !== undefined ? body.weight : null;
         const fat = body && body.bodyFat !== undefined ? body.bodyFat : null;
