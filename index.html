@@ -214,7 +214,8 @@
     .progress-table {
       width: max-content;
       min-width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       table-layout: auto;
       white-space: nowrap;
     }
@@ -237,12 +238,13 @@
     .progress-table td.row-header {
       position: sticky;
       left: 0;
-      background: rgba(250, 246, 236, 0.96);
+      background: #faf6ec;
       color: #2c2c54;
       font-weight: 600;
       text-align: left;
-      z-index: 3;
+      z-index: 5;
       min-width: 92px;
+      box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.25);
     }
     .progress-table th.row-header {
       z-index: 4;
@@ -1325,7 +1327,7 @@
     <!-- 管理进度 -->
     <section id="progress" class="tab-panel">
       <div class="panel">
-        <h2>📈 管理进度 <small>体重 · 体脂 · 减脂进度</small></h2>
+        <h2>📈 管理进度 <small>体重 · 体脂 · 减重进度</small></h2>
         <div class="progress-table-wrap" id="progress-table-wrap">
           <table id="progress-table" class="progress-table">
             <thead>
@@ -3538,9 +3540,8 @@
         { label: '现体脂率 (%)', values: cols.map(c => ({ text: fmt(c.fat, 1), cls: cls(c.fat) })) },
         { label: '现脂肪重量 (kg)', values: cols.map(c => ({ text: fmt(c.fatMass, 2), cls: cls(c.fatMass) })) },
         { label: '已减脂 (%)', values: cols.map(c => ({ text: fmt(c.lostFat, 1), cls: cls(c.lostFat) })) },
-        { label: '减脂进度', values: cols.map(c => ({ text: pct(c.fatProgress), cls: cls(c.fatProgress) })) },
         { label: '已减重 (kg)', values: cols.map(c => ({ text: fmt(c.lostWeight, 1), cls: cls(c.lostWeight) })) },
-        { label: '减重进度', values: cols.map(c => ({ text: pct(c.weightProgress), cls: cls(c.weightProgress) })) },
+        { label: '减重进度 %', values: cols.map(c => ({ text: fmt(c.weightProgress, 1), cls: cls(c.weightProgress) })) },
         { label: '已减掉的脂肪 (kg)', values: cols.map(c => ({ text: fmt(c.cutFat, 2), cls: cls(c.cutFat) })) },
         { label: '月热量缺口 (kcal)', values: cols.map(c => ({ text: kcal(c.deficit), cls: cls(c.deficit) })) },
       ];
