@@ -1101,8 +1101,8 @@
     <div class="splash-cards" id="splash-cards">
       <div class="splash-card"><div class="num" id="sp-kg">—</div><div class="lbl">距目标体重 (kg)</div></div>
       <div class="splash-card"><div class="num" id="sp-fat">—</div><div class="lbl">体脂可降 (%)</div></div>
-      <div class="splash-card"><div class="num" id="sp-kcal">—</div><div class="lbl">还可吃·含结余 (kcal)</div></div>
-      <div class="splash-card"><div class="num" id="sp-protein">—</div><div class="lbl">还可吃蛋白·含结余 (g)</div></div>
+      <div class="splash-card"><div class="num" id="sp-kcal">—</div><div class="lbl">今日还需摄入 (kcal)</div></div>
+      <div class="splash-card"><div class="num" id="sp-protein">—</div><div class="lbl">今日还需蛋白 (g)</div></div>
     </div>
     <button class="splash-enter" id="splash-enter">🌟 开始管理</button>
   </div>
@@ -2270,18 +2270,6 @@
       });
       return latest;
     }
-    // 截至某天的累计结余：Σ(每日目标 - 每日摄入)，把前几天没吃完/吃超的部分结转
-    function cumulativeBalance(uptoDay, goalMid, kind) {
-      let bal = 0;
-      Object.keys(state.logs || {}).forEach(d => {
-        if (d > uptoDay) return;
-        const t = computeDayTotals(d);
-        const intake = kind === 'protein' ? t.protein : t.kcal;
-        bal += goalMid - intake;
-      });
-      return bal;
-    }
-
     // ==================== 开屏界面 ====================
     function renderSplash() {
       if (!document.getElementById('sp-kg')) return;
@@ -2309,16 +2297,17 @@
         fatEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '可降' : '已低') + '</small>';
       } else { fatEl.textContent = '—'; }
 
+      const totals = computeDayTotals(day);
       const gk = parseGoal(g.kcal);
       if (gk) {
-        // 累计可吃 = 各日(目标-摄入) 累计结余，把前几天没吃完/吃超的部分结转，不再每天清零
-        const net = cumulativeBalance(day, gk.mid, 'kcal');
+        // 今日还需摄入 = 目标热量(取区间中点) - 摄入热量（仅当日，不含之前结余）
+        const net = gk.mid - totals.kcal;
         kcalEl.innerHTML = formatNum(Math.abs(net)) + '<small> ' + (net >= 0 ? '还可吃' : '已超') + '</small>';
       } else { kcalEl.textContent = '—'; }
 
       const gp = parseGoal(g.protein);
       if (gp) {
-        const need = cumulativeBalance(day, gp.mid, 'protein');
+        const need = gp.mid - totals.protein;
         proEl.innerHTML = formatNum(Math.abs(need)) + '<small> ' + (need >= 0 ? '可吃' : '已超') + '</small>';
       } else { proEl.textContent = '—'; }
     }
