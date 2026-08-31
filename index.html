@@ -1582,8 +1582,9 @@
 
         <details class="section-details" style="margin-top:24px;">
           <summary>🧬 代谢测试 <small>估算基础代谢与每日总消耗</small></summary>
-          <p class="hint">输入性别、年龄、体重、身高，自动按 Mifflin-St Jeor 公式计算 BMR，再结合活动量估算 TDEE。</p>
+          <p class="hint">输入性别、年龄、体重、身高，自动按 Mifflin-St Jeor 公式计算 BMR，再结合活动量估算 TDEE。计算结果按「测试生效年月」写入对应月份的每日动态消耗（体重不同月份，动态消耗也不同）。</p>
           <div class="form-grid metabolism-grid">
+            <div class="field month-field"><label>测试生效年月</label><input type="month" id="metabolism-month" /></div>
             <div class="field"><label>性别</label>
               <div class="radio-row gender-row">
                 <label class="radio-chip"><input type="radio" name="metabolism-gender" value="female" checked><span>女性</span></label>
@@ -1820,6 +1821,20 @@
           if (state.goals[k] !== undefined && state.goals[k] !== null) base[k] = state.goals[k];
         });
         if (Object.keys(base).length) state.goalsByMonth['2020-01'] = base;
+      }
+      // 迁移：代谢测试输入按「年月」存多份版本（metabolismByMonth）
+      if (!state.metabolismByMonth || typeof state.metabolismByMonth !== 'object') {
+        state.metabolismByMonth = {};
+        if (state.metabolism && typeof state.metabolism === 'object' && state.metabolism.weight) {
+          const ym = getTodayStr().slice(0, 7);
+          state.metabolismByMonth[ym] = {
+            gender: state.metabolism.gender,
+            age: state.metabolism.age,
+            weight: state.metabolism.weight,
+            height: state.metabolism.height,
+            activity: state.metabolism.activity
+          };
+        }
       }
     }
 
@@ -4192,6 +4207,7 @@
         const age = parseFloat(inputs.age.value) || 0;
         const weight = parseFloat(inputs.weight.value) || 0;
         const height = parseFloat(inputs.height.value) || 0;
+        const ym = getCurrentMetabolismMonth();
         if (!age || !weight || !height) {
           document.getElementById(ids.bmr).textContent = '--';
           document.getElementById(ids.tdee).textContent = '--';
@@ -4203,20 +4219,17 @@
         const tdeeRounded = Math.round(tdee);
         document.getElementById(ids.bmr).textContent = Math.round(bmr);
         document.getElementById(ids.tdee).textContent = tdeeRounded;
-        // 每日动态消耗自动同步为 TDEE
+        // 每日动态消耗自动同步为 TDEE，按「测试生效年月」写入对应月份的目标（体重不同月份，动态消耗不同）
         const dynEl = document.getElementById('goal-dynamic-burn');
-        if (dynEl) dynEl.value = tdeeRounded;
+        if (dynEl && ym === getCurrentGoalMonth()) dynEl.value = tdeeRounded;
         if (!state.goalsByMonth) state.goalsByMonth = {};
-        const ym = getCurrentGoalMonth();
         if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
         state.goalsByMonth[ym].dynamicBurn = tdeeRounded;
-        syncCurrentGoals();
-        if (!state.metabolism) state.metabolism = {};
-        state.metabolism.gender = gender;
-        state.metabolism.age = age;
-        state.metabolism.weight = weight;
-        state.metabolism.height = height;
-        state.metabolism.activity = activity;
+        if (!state.metabolismByMonth) state.metabolismByMonth = {};
+        state.metabolismByMonth[ym] = { gender, age, weight, height, activity };
+        // 兼容旧版单一 state.metabolism（始终等于当前正在编辑的月份）
+        state.metabolism = state.metabolismByMonth[ym];
+        if (ym === getTodayStr().slice(0, 7)) syncCurrentGoals();
         save();
       }
 
@@ -4224,21 +4237,35 @@
       genderEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(genderEls); calc(); }));
       activityEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(activityEls); calc(); }));
 
-      const m = state.metabolism || {};
-      if (m.gender) {
-        const el = document.querySelector('input[name="metabolism-gender"][value="' + m.gender + '"]');
-        if (el) el.checked = true;
+      const mmEl = document.getElementById('metabolism-month');
+      function loadMetabolismMonth(ym) {
+        const m = (state.metabolismByMonth && state.metabolismByMonth[ym]) || state.metabolism || {};
+        if (m.gender) {
+          const el = document.querySelector('input[name="metabolism-gender"][value="' + m.gender + '"]');
+          if (el) el.checked = true;
+        }
+        if (m.activity) {
+          const el = document.querySelector('input[name="metabolism-activity"][value="' + m.activity + '"]');
+          if (el) el.checked = true;
+        }
+        if (m.age !== undefined) inputs.age.value = m.age;
+        if (m.weight !== undefined) inputs.weight.value = m.weight;
+        if (m.height !== undefined) inputs.height.value = m.height;
+        updateRadioChipStyle(genderEls);
+        updateRadioChipStyle(activityEls);
+        calc();
       }
-      if (m.activity) {
-        const el = document.querySelector('input[name="metabolism-activity"][value="' + m.activity + '"]');
-        if (el) el.checked = true;
+      if (mmEl) {
+        mmEl.value = getTodayStr().slice(0, 7);
+        mmEl.addEventListener('change', () => loadMetabolismMonth(mmEl.value));
       }
-      if (m.age) inputs.age.value = m.age;
-      if (m.weight) inputs.weight.value = m.weight;
-      if (m.height) inputs.height.value = m.height;
-      updateRadioChipStyle(genderEls);
-      updateRadioChipStyle(activityEls);
-      calc();
+      loadMetabolismMonth(getTodayStr().slice(0, 7));
+    }
+
+    // 当前「代谢测试」表单选中的年月
+    function getCurrentMetabolismMonth() {
+      const el = document.getElementById('metabolism-month');
+      return (el && el.value) ? el.value : getTodayStr().slice(0, 7);
     }
 
     const GOAL_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium', 'dynamicBurn'];
