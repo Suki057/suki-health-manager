@@ -2273,7 +2273,8 @@
     // ==================== 开屏界面 ====================
     function renderSplash() {
       if (!document.getElementById('sp-kg')) return;
-      const day = getCurrentDate();
+      // 饮食卡片一律按"今天"计算，跟日期选择器脱钩，避免显示成前一天的结余
+      const today = getTodayStr();
       // 取最近一次有身材记录的数据（不止当天），没每天称重时也显示上次记录
       const body = getLatestBody() || {};
       const g = state.goals || {};
@@ -2297,7 +2298,7 @@
         fatEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '可降' : '已低') + '</small>';
       } else { fatEl.textContent = '—'; }
 
-      const totals = computeDayTotals(day);
+      const totals = computeDayTotals(today);
       const gk = parseGoal(g.kcal);
       if (gk) {
         // 今日还需摄入 = 目标热量(取区间中点) - 摄入热量（仅当日，不含之前结余）
