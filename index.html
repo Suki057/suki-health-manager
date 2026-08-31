@@ -1619,6 +1619,7 @@
           <summary>🎯 每日营养目标 <small>设置目标值 · 点击展开填写</small></summary>
           <p class="hint">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
           <div class="form-grid">
+            <div class="field month-field"><label>目标生效年月</label><input type="month" id="goal-month" /></div>
             <div class="field"><label>每日目标摄入热量（kcal）</label><input type="text" id="goal-kcal" inputmode="text" placeholder="如 1500 或 1400-1600" /></div>
             <div class="field"><label>每日动态消耗 (kcal)</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" /></div>
             <div class="field"><label>蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90 或 80-100" /></div>
@@ -1808,6 +1809,18 @@
       if (!state.goals || typeof state.goals !== 'object') state.goals = {};
       if (!Array.isArray(state.foodReviews)) state.foodReviews = [];
       if (!state.metabolism || typeof state.metabolism !== 'object') state.metabolism = {};
+
+      // 迁移：每日营养目标支持按「年月」存多份版本（goalsByMonth）。
+      // 把已有的单一目标作为历史基准放入很早的年月，使所有真实日期都能命中；
+      // 之后用户在某月单独设置目标时，不会影响此前已记录的历史数据。
+      if (!state.goalsByMonth || typeof state.goalsByMonth !== 'object') {
+        state.goalsByMonth = {};
+        const base = {};
+        ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium', 'dynamicBurn'].forEach(k => {
+          if (state.goals[k] !== undefined && state.goals[k] !== null) base[k] = state.goals[k];
+        });
+        if (Object.keys(base).length) state.goalsByMonth['2020-01'] = base;
+      }
     }
 
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
@@ -2277,7 +2290,8 @@
       const today = getTodayStr();
       // 取最近一次有身材记录的数据（不止当天），没每天称重时也显示上次记录
       const body = getLatestBody() || {};
-      const g = state.goals || {};
+      const g = getGoalsForDay(today); // 营养目标按今天生效月
+      const tg = state.goals || {};    // 目标体重/体脂（单一当前，不随年月版本化）
       const base = state.baseline || {};
       const curWeight = (body.weight !== undefined && body.weight !== null) ? body.weight
         : (base.weight !== undefined ? base.weight : null);
@@ -2288,12 +2302,12 @@
       const kcalEl = document.getElementById('sp-kcal');
       const proEl = document.getElementById('sp-protein');
 
-      if (g.targetWeight && curWeight) {
+      if (tg.targetWeight && curWeight) {
         const d = curWeight - g.targetWeight;
         kgEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '还差' : '已超') + '</small>';
       } else { kgEl.textContent = '—'; }
 
-      if (g.targetBodyFat && curFat) {
+      if (tg.targetBodyFat && curFat) {
         const d = curFat - g.targetBodyFat;
         fatEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '可降' : '已低') + '</small>';
       } else { fatEl.textContent = '—'; }
@@ -2599,6 +2613,32 @@
       actions.querySelector('.act-cancel').addEventListener('click', () => renderToday());
     }
 
+    // ==================== 按「年月」版本化的每日营养目标 ====================
+    // 取某天生效的每日营养目标：优先该天所在「年月」单独设置的目标，否则向前回溯最近一份
+    function getGoalsForDay(day) {
+      if (!state.goalsByMonth || typeof state.goalsByMonth !== 'object') return state.goals || {};
+      const ym = String(day).slice(0, 7);
+      const keys = Object.keys(state.goalsByMonth).filter(k => k <= ym).sort();
+      const key = keys.length ? keys[keys.length - 1] : null;
+      return key ? state.goalsByMonth[key] : (state.goals || {});
+    }
+    // 当前「每日营养目标」表单选中的年月
+    function getCurrentGoalMonth() {
+      const el = document.getElementById('goal-month');
+      return (el && el.value) ? el.value : getTodayStr().slice(0, 7);
+    }
+    // 从目标对象中挑出「目标管理」的体重/体脂（这两项不随年月版本化）
+    function pickTargets(src) {
+      const o = {};
+      if (src && src.targetWeight !== undefined) o.targetWeight = src.targetWeight;
+      if (src && src.targetBodyFat !== undefined) o.targetBodyFat = src.targetBodyFat;
+      return o;
+    }
+    // 让 state.goals 始终等于「今天生效的月目标 + target*」，供启动页/AI 当日评估等直接读取
+    function syncCurrentGoals() {
+      state.goals = Object.assign({}, getGoalsForDay(getTodayStr()), pickTargets(state.goals));
+    }
+
     function computeDayTotals(day) {
       const log = state.logs[day] || { foods: [], exercises: [] };
       const totals = { kcal: 0, protein: 0, sugar: 0, fat: 0, carbs: 0, sodium: 0, burn: 0 };
@@ -2607,8 +2647,9 @@
         numericKeys.forEach(k => totals[k] += c[k]);
       });
       log.exercises.forEach(e => totals.burn += computeExerciseKcal(e));
-      // 每日动态消耗（非运动活动消耗，用户在「每日营养目标」中设置），作为每日固定消耗计入总消耗
-      totals.burn += Number((state.goals && state.goals.dynamicBurn) || 0);
+      // 每日动态消耗（用户在「每日营养目标」按年月设置），取该天当时生效的那份目标，保证历史数据不随后来改目标而变
+      const dayGoals = getGoalsForDay(day);
+      totals.burn += Number(dayGoals.dynamicBurn) || 0;
       return totals;
     }
 
@@ -2736,7 +2777,7 @@
       const body = (state.logs[day] && state.logs[day].body) || {};
       const weight = body.weight || state.baseline.weight;
       const g = estimateGoals(weight);
-      const goals = Object.assign({}, g, state.goals || {});
+      const goals = Object.assign({}, g, getGoalsForDay(day));
       GOAL_RANGE_KEYS.forEach(k => {
         if (goals[k] === undefined || goals[k] === null || goals[k] === '') goals[k] = g[k];
         goals[k] = parseGoal(goals[k]); // 统一解析为 {min,max,mid,isRange}
@@ -2806,7 +2847,7 @@
       const weight = body.weight || state.baseline.weight;
       const bodyFat = body.bodyFat || state.baseline.bodyFat;
       const g = estimateGoals(weight);
-      const goals = Object.assign({}, g, state.goals || {});
+      const goals = Object.assign({}, g, getGoalsForDay(day));
       Object.keys(goals).forEach(k => { if (goals[k] === '' || goals[k] === null || goals[k] === undefined) goals[k] = g[k]; });
 
       // 各时段建议占全天热量比例（减脂期分配）
@@ -4109,6 +4150,11 @@
       });
 
       document.getElementById('goal-save-btn').addEventListener('click', saveGoals);
+      const gmEl = document.getElementById('goal-month');
+      if (gmEl) {
+        gmEl.value = getTodayStr().slice(0, 7);
+        gmEl.addEventListener('change', renderGoals);
+      }
       renderGoals();
       setupMetabolismTest();
     }
@@ -4150,8 +4196,11 @@
         // 每日动态消耗自动同步为 TDEE
         const dynEl = document.getElementById('goal-dynamic-burn');
         if (dynEl) dynEl.value = tdeeRounded;
-        if (!state.goals) state.goals = {};
-        state.goals.dynamicBurn = tdeeRounded;
+        if (!state.goalsByMonth) state.goalsByMonth = {};
+        const ym = getCurrentGoalMonth();
+        if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
+        state.goalsByMonth[ym].dynamicBurn = tdeeRounded;
+        syncCurrentGoals();
         if (!state.metabolism) state.metabolism = {};
         state.metabolism.gender = gender;
         state.metabolism.age = age;
@@ -4213,10 +4262,11 @@
     }
 
     function saveGoals() {
-      const g = {};
+      const ym = getCurrentGoalMonth();
+      const g = state.goalsByMonth[ym] ? Object.assign({}, state.goalsByMonth[ym]) : {};
       GOAL_KEYS.forEach(k => {
         const raw = document.getElementById(GOAL_IDS[k]).value.trim();
-        if (raw === '') return;
+        if (raw === '') { delete g[k]; return; }
         if (k === 'dynamicBurn') {
           const v = parseFloat(raw);
           if (!Number.isNaN(v) && v >= 0) g[k] = v;
@@ -4225,23 +4275,21 @@
           if (p) g[k] = raw; // 存原始串，分析时再用 parseGoal 解析（支持区间）
         }
       });
-      // 保留「目标管理」里的体重/体脂目标，避免保存每日营养目标时被覆盖清空
-      if (state.goals && typeof state.goals === 'object') {
-        if (state.goals.targetWeight !== undefined) g.targetWeight = state.goals.targetWeight;
-        if (state.goals.targetBodyFat !== undefined) g.targetBodyFat = state.goals.targetBodyFat;
-      }
-      state.goals = g;
+      state.goalsByMonth[ym] = g;
+      syncCurrentGoals();
       save();
       const n = Object.keys(g).length;
       document.getElementById('goals-hint').textContent = n
-        ? ('已保存 ' + n + ' 项目标，去「今日记录」查看 AI 分析。')
-        : '已清空目标（将使用通用参考值估算）。';
+        ? ('已保存 ' + ym + ' 月份目标（共 ' + n + ' 项）。翻看历史数据时，会按当时月份的目标精确计算热量缺口。')
+        : '已清空该月目标（将使用通用参考值估算）。';
       toast('每日目标已保存');
     }
     function renderGoals() {
+      const ym = getCurrentGoalMonth();
+      const g = state.goalsByMonth[ym] || getGoalsForDay(ym) || {};
       GOAL_KEYS.forEach(k => {
         const el = document.getElementById(GOAL_IDS[k]);
-        el.value = (state.goals[k] !== undefined && state.goals[k] !== null) ? state.goals[k] : '';
+        if (el) el.value = (g[k] !== undefined && g[k] !== null) ? g[k] : '';
       });
     }
 
