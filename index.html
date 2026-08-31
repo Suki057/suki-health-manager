@@ -2614,13 +2614,23 @@
     }
 
     // ==================== 按「年月」版本化的每日营养目标 ====================
-    // 取某天生效的每日营养目标：优先该天所在「年月」单独设置的目标，否则向前回溯最近一份
+    // 取某天生效的每日营养目标：合并该天所在月及之前所有版本（向后继承默认值），
+    // 未填的字段自动沿用更早月份填过的值；这样单独保存某个月份时不会把历史/基准目标清零。
     function getGoalsForDay(day) {
       if (!state.goalsByMonth || typeof state.goalsByMonth !== 'object') return state.goals || {};
       const ym = String(day).slice(0, 7);
-      const keys = Object.keys(state.goalsByMonth).filter(k => k <= ym).sort();
-      const key = keys.length ? keys[keys.length - 1] : null;
-      return key ? state.goalsByMonth[key] : (state.goals || {});
+      const merged = {};
+      Object.keys(state.goalsByMonth)
+        .filter(k => k <= ym)
+        .sort()
+        .forEach(k => { Object.assign(merged, state.goalsByMonth[k]); });
+      // 兼容未迁移残留：补上旧版单一 state.goals 中的营养键（不覆盖已有时段目标）
+      if (state.goals && typeof state.goals === 'object') {
+        ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium', 'dynamicBurn'].forEach(k => {
+          if (merged[k] === undefined && state.goals[k] !== undefined) merged[k] = state.goals[k];
+        });
+      }
+      return merged;
     }
     // 当前「每日营养目标」表单选中的年月
     function getCurrentGoalMonth() {
