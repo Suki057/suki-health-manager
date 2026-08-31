@@ -2303,12 +2303,12 @@
       const proEl = document.getElementById('sp-protein');
 
       if (tg.targetWeight && curWeight) {
-        const d = curWeight - g.targetWeight;
+        const d = curWeight - tg.targetWeight;
         kgEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '还差' : '已超') + '</small>';
       } else { kgEl.textContent = '—'; }
 
       if (tg.targetBodyFat && curFat) {
-        const d = curFat - g.targetBodyFat;
+        const d = curFat - tg.targetBodyFat;
         fatEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '可降' : '已低') + '</small>';
       } else { fatEl.textContent = '—'; }
 
