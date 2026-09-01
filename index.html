@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<html lang="zh-CN" data-page-node-id="3IJPerHsxTiPvOvLGQzLaV">
+<head data-page-node-id="YO2LZK4gkCbvwt4pE4QhyL">
+  <meta charset="UTF-8" data-page-node-id="nkMbJswy7R8iKGf1RfvAH7" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" data-page-node-id="ghCfIcpi29xposFW0CvKNi" />
   <title>🌹 Suki 的小星球</title>
-  <meta name="theme-color" content="#1c2350" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Suki 的小星球" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="apple-touch-icon-v2.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192-v2.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="icon-512-v2.png" />
+  <meta name="theme-color" content="#1c2350" data-page-node-id="Zz8gXRppm0UTNdS36vda0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" data-page-node-id="Wv84UnDQFMGh8W0KOxCahO" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-page-node-id="ui0UDsQ2nu77c4P0GAn52X" />
+  <meta name="apple-mobile-web-app-title" content="Suki 的小星球" data-page-node-id="W1Hvo8g7t0K8OyMwtJItWA" />
+  <link rel="manifest" href="manifest.webmanifest" data-page-node-id="sOQfMkkO1S8tkfwPRg3QLa" />
+  <link rel="apple-touch-icon" href="apple-touch-icon-v2.png" data-page-node-id="Dq14b1pufHqf09nZXQK158" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192-v2.png" data-page-node-id="vuPloGaKSfr4E05jUFpECj" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512-v2.png" data-page-node-id="sGbqnpAcD6az2mMdrIVbfZ" />
   <style>
     :root {
       --bg: #1c2350;
@@ -682,7 +682,13 @@
     #exercise-lib-table-ana, #exercise-lib-table-aer,
     #exercise-table,
     #diet-table { min-width: 640px; }
-    #exercise-table th:first-child, #exercise-table td:first-child { min-width: 160px; }
+    #exercise-table th:first-child, #exercise-table td:first-child { min-width: 120px; }
+    /* 运动明细：时长/消耗列左对齐、数字等宽、保留间距，并整体左移一点 */
+    #exercise-table td.number { text-align: left; font-variant-numeric: tabular-nums; font-weight: 600; }
+    #exercise-table th:nth-child(2), #exercise-table th:nth-child(3) { text-align: left; }
+    /* 汇总行：最后一项运动下方，自动合计时长与总消耗 */
+    .exercise-total td { border-top: 2px solid rgba(61, 58, 54, 0.18); font-weight: 700; background: rgba(242, 234, 226, 0.55); padding-top: 12px; padding-bottom: 12px; }
+    .exercise-total td:first-child { color: var(--muted, #6b6b6b); }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
     th {
@@ -1080,681 +1086,681 @@
     h3 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
   </style>
 </head>
-<body>
+<body data-page-node-id="Ld1VyMmi0nClFmge4e7LeO">
   <!-- ===== 开屏界面 ===== -->
-  <div class="splash" id="splash">
-    <svg class="splash-art" viewBox="0 0 200 200" role="img" aria-label="小王子与玫瑰">
-      <circle cx="100" cy="120" r="66" fill="#3a4a8c"/>
-      <circle cx="100" cy="120" r="66" fill="none" stroke="#ffe7b3" stroke-opacity="0.35" stroke-width="1.5"/>
-      <circle cx="100" cy="72" r="19" fill="#f3d9b0"/>
-      <path d="M82 60 q18 -22 36 0" fill="#ffd66b"/>
-      <rect x="88" y="89" width="24" height="30" rx="9" fill="#7fb38f"/>
-      <path d="M134 122 q4 -28 -2 -34" stroke="#7fae6b" stroke-width="3" fill="none"/>
-      <circle cx="132" cy="86" r="9" fill="#e98aa6"/>
-      <circle cx="132" cy="86" r="4" fill="#f6b9c9"/>
-      <g fill="#ffe7b3">
-        <circle cx="40" cy="42" r="2"/><circle cx="160" cy="32" r="2.5"/><circle cx="170" cy="84" r="1.8"/>
-        <circle cx="32" cy="98" r="1.6"/><circle cx="150" cy="156" r="2"/><circle cx="48" cy="150" r="1.6"/>
+  <div class="splash" id="splash" data-page-node-id="SQwKY80RvzwStfHevjhcSP">
+    <svg class="splash-art" viewBox="0 0 200 200" role="img" aria-label="小王子与玫瑰" data-page-node-id="nkpiXvS2ieyyGLSFsgC79U">
+      <circle cx="100" cy="120" r="66" fill="#3a4a8c" data-page-node-id="BqeBxYfdIEvy4qAkLYfX3M"/>
+      <circle cx="100" cy="120" r="66" fill="none" stroke="#ffe7b3" stroke-opacity="0.35" stroke-width="1.5" data-page-node-id="1SKcH2f2ZMwcCe73VcxLJQ"/>
+      <circle cx="100" cy="72" r="19" fill="#f3d9b0" data-page-node-id="0RkYSCt415qof1SZQYshf4"/>
+      <path d="M82 60 q18 -22 36 0" fill="#ffd66b" data-page-node-id="oRtUG9kp4bJniAoYWJUgSX"/>
+      <rect x="88" y="89" width="24" height="30" rx="9" fill="#7fb38f" data-page-node-id="ZxQ09vLMQL9j9xFm8lA6Fx"/>
+      <path d="M134 122 q4 -28 -2 -34" stroke="#7fae6b" stroke-width="3" fill="none" data-page-node-id="3G0N5Zm5tNnPLjrZA0UHEI"/>
+      <circle cx="132" cy="86" r="9" fill="#e98aa6" data-page-node-id="E6YNvPoNDBQXXDlR14ZH6u"/>
+      <circle cx="132" cy="86" r="4" fill="#f6b9c9" data-page-node-id="PI6WmqhPr5YjrInozCsBzk"/>
+      <g fill="#ffe7b3" data-page-node-id="sOUIT318G80YV6yG5N8Sr1">
+        <circle cx="40" cy="42" r="2" data-page-node-id="oLqokTD0URUbE9C7X43ElN"/><circle cx="160" cy="32" r="2.5" data-page-node-id="Cv8WJABGNPcmJbb2OMEbZ3"/><circle cx="170" cy="84" r="1.8" data-page-node-id="oLCvrTtpMe2kklBnJYdKV9"/>
+        <circle cx="32" cy="98" r="1.6" data-page-node-id="FAG5sSgox9q2TDQ3z4IxQV"/><circle cx="150" cy="156" r="2" data-page-node-id="FAwZHppCiC441cmsEyxKWs"/><circle cx="48" cy="150" r="1.6" data-page-node-id="Xdsbmp0xVu0lbsBD3Aqrz6"/>
       </g>
     </svg>
-    <div class="splash-name" id="splash-name">Suki 的小星球</div>
-    <div class="splash-sub"><span class="splash-rose">🌹</span> 规矩就是规矩，我不能随意停下</div>
-    <p class="splash-quote">「也许世界上也有五千朵和你一模一样的花，但只有你浇灌的那朵，才属于你。」</p>
-    <div class="splash-cards" id="splash-cards">
-      <div class="splash-card"><div class="num" id="sp-kg">—</div><div class="lbl">距目标体重 (kg)</div></div>
-      <div class="splash-card"><div class="num" id="sp-fat">—</div><div class="lbl">体脂可降 (%)</div></div>
-      <div class="splash-card"><div class="num" id="sp-kcal">—</div><div class="lbl">今日还需摄入 (kcal)</div></div>
-      <div class="splash-card"><div class="num" id="sp-protein">—</div><div class="lbl">今日还需蛋白 (g)</div></div>
+    <div class="splash-name" id="splash-name" data-page-node-id="pHVJ0qRI9xBaQrJRPUOW6V">Suki 的小星球</div>
+    <div class="splash-sub" data-page-node-id="OdWVxUiXt5SRwmxOetZhtd"><span class="splash-rose" data-page-node-id="g4ac9Q1vBErGUx8Tj61K0i">🌹</span> 规矩就是规矩，我不能随意停下</div>
+    <p class="splash-quote" data-page-node-id="zQh6LSYa5CoevqHGnsQlbF">「也许世界上也有五千朵和你一模一样的花，但只有你浇灌的那朵，才属于你。」</p>
+    <div class="splash-cards" id="splash-cards" data-page-node-id="E3qRi2x8cRJ7D7O0oC0jBB">
+      <div class="splash-card" data-page-node-id="fuGESDW1kkJxjis2qB2Dq8"><div class="num" id="sp-kg" data-page-node-id="L9ySnXiEQc2Yaf44tDUhr0">—</div><div class="lbl" data-page-node-id="o7dhDZY6YfrgaNYQ6YGQs0">距目标体重 (kg)</div></div>
+      <div class="splash-card" data-page-node-id="HjXgc1qpKlpVQtQYsviDhx"><div class="num" id="sp-fat" data-page-node-id="HIeAHrSA54G6RKysv2ilZt">—</div><div class="lbl" data-page-node-id="QAGOhUrSvSUxsf0Oo7i3P0">体脂可降 (%)</div></div>
+      <div class="splash-card" data-page-node-id="kWdVfGZbiif6vGTguAQSlG"><div class="num" id="sp-kcal" data-page-node-id="S7dE55DPnf95AmLYbdXbnZ">—</div><div class="lbl" data-page-node-id="ilICgGsa2yEflAbo2Hzvr6">今日还需摄入 (kcal)</div></div>
+      <div class="splash-card" data-page-node-id="urvPACEBnWXJFvrrfxsnhv"><div class="num" id="sp-protein" data-page-node-id="8gyhDgkOEP9DIPjHT4mUVQ">—</div><div class="lbl" data-page-node-id="t00HplljKXwjMcAiXDyJoZ">今日还需蛋白 (g)</div></div>
     </div>
-    <button class="splash-enter" id="splash-enter">🌟 开始管理</button>
+    <button class="splash-enter" id="splash-enter" data-page-node-id="EtYedJnKbnZl2x1XRcCap9">🌟 开始管理</button>
   </div>
 
-  <header class="app-header">
-    <h1><span class="title-emoji" id="app-emoji">🌹</span><span class="title-text" id="app-title">Suki 的小星球</span></h1>
+  <header class="app-header" data-page-node-id="DefIbxv34vvD364RBk1ov4">
+    <h1 data-page-node-id="Cw9wwwas1BMSOKAVVw4wBc"><span class="title-emoji" id="app-emoji" data-page-node-id="bS0Wgbg7ZGpDjO8XFr3EfJ">🌹</span><span class="title-text" id="app-title" data-page-node-id="batozig6pNw3rTUYLXD4tG">Suki 的小星球</span></h1>
   </header>
 
-  <main class="container">
+  <main class="container" data-page-node-id="iGZP1Fkg9yn4noLq3Lbnxm">
     <!-- 今日记录 -->
-    <section id="today" class="tab-panel active">
-      <div class="lp-hero">
-        <svg viewBox="0 0 600 210" class="lp-art" role="img" aria-label="小王子与他的玫瑰">
-          <defs>
-            <linearGradient id="lp-sky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#1c2350"/>
-              <stop offset="0.55" stop-color="#574a73"/>
-              <stop offset="1" stop-color="#caa0b3"/>
+    <section id="today" class="tab-panel active" data-page-node-id="5RjfiB5dVrWN2mnITSRNKt">
+      <div class="lp-hero" data-page-node-id="9qpJdA8Q2CdvIN0Olmszr0">
+        <svg viewBox="0 0 600 210" class="lp-art" role="img" aria-label="小王子与他的玫瑰" data-page-node-id="FDwuYeEb6pDEAby1JJ9Q6r">
+          <defs data-page-node-id="1iWrGJR1ht89jsYDB1gYoP">
+            <linearGradient id="lp-sky" x1="0" y1="0" x2="0" y2="1" data-page-node-id="zO8y9E9vDS0KHz4bATKAID">
+              <stop offset="0" stop-color="#1c2350" data-page-node-id="ovkZtAkDgKCT9nq0YOeX8J"/>
+              <stop offset="0.55" stop-color="#574a73" data-page-node-id="5AJdzKp54IFKx9CcU1zbFR"/>
+              <stop offset="1" stop-color="#caa0b3" data-page-node-id="P0ckolc8w0VANJuLDToAq8"/>
             </linearGradient>
-            <radialGradient id="lp-moon" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0" stop-color="#fbf3d8"/>
-              <stop offset="1" stop-color="#f3e3b0"/>
+            <radialGradient id="lp-moon" cx="0.5" cy="0.5" r="0.5" data-page-node-id="coB6VKM2X5kZLFqgGZzohX">
+              <stop offset="0" stop-color="#fbf3d8" data-page-node-id="pBD8LFuT0HnDWiqM6Kx3U6"/>
+              <stop offset="1" stop-color="#f3e3b0" data-page-node-id="IrAhx3vXb0ysoZOonEB2EV"/>
             </radialGradient>
-            <linearGradient id="lp-coat" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#8fb98f"/>
-              <stop offset="1" stop-color="#6f9e74"/>
+            <linearGradient id="lp-coat" x1="0" y1="0" x2="0" y2="1" data-page-node-id="0OBgNHyIyutVEk2NEwVT7D">
+              <stop offset="0" stop-color="#8fb98f" data-page-node-id="b6S327E2Sm3IesckJvFu2I"/>
+              <stop offset="1" stop-color="#6f9e74" data-page-node-id="6CHGqHu7VkqHmOwQ1UwUHB"/>
             </linearGradient>
-            <linearGradient id="lp-glass" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="rgba(255,255,255,0.55)"/>
-              <stop offset="1" stop-color="rgba(255,255,255,0.10)"/>
+            <linearGradient id="lp-glass" x1="0" y1="0" x2="0" y2="1" data-page-node-id="73sxIyQE9YW92zHOz1JFE8">
+              <stop offset="0" stop-color="rgba(255,255,255,0.55)" data-page-node-id="UNxDGYzQLQlHJ4jFhJbD1w"/>
+              <stop offset="1" stop-color="rgba(255,255,255,0.10)" data-page-node-id="NLPwtTPPHuiF2EozY0Giiw"/>
             </linearGradient>
           </defs>
-          <rect x="0" y="0" width="600" height="210" rx="20" fill="url(#lp-sky)"/>
-          <g fill="#f6e7b0">
-            <circle cx="70" cy="40" r="1.8"/><circle cx="140" cy="26" r="1.4"/>
-            <circle cx="210" cy="48" r="1.6"/><circle cx="300" cy="30" r="1.3"/>
-            <circle cx="380" cy="52" r="1.7"/><circle cx="470" cy="34" r="1.4"/>
-            <circle cx="540" cy="60" r="1.6"/><circle cx="110" cy="78" r="1.2"/>
-            <circle cx="430" cy="84" r="1.2"/><circle cx="350" cy="20" r="1.1"/>
+          <rect x="0" y="0" width="600" height="210" rx="20" fill="url(#lp-sky)" data-page-node-id="vnxjZFh5aenWVtmLMvBvGi"/>
+          <g fill="#f6e7b0" data-page-node-id="fU0AbsORG0iy3zdRuav4ZR">
+            <circle cx="70" cy="40" r="1.8" data-page-node-id="UJvynehGnvslGfGOyrbFL8"/><circle cx="140" cy="26" r="1.4" data-page-node-id="u4XAfRs0v5DF0ATYTUdL4y"/>
+            <circle cx="210" cy="48" r="1.6" data-page-node-id="ef8dCgXdAxmG3AsZJiHDLY"/><circle cx="300" cy="30" r="1.3" data-page-node-id="hapdSXV7rLGyVwXFdbvezV"/>
+            <circle cx="380" cy="52" r="1.7" data-page-node-id="aPFCVw1FNYig8SD5OEJYr9"/><circle cx="470" cy="34" r="1.4" data-page-node-id="oVyRDA2cDuqoVHqxn12W92"/>
+            <circle cx="540" cy="60" r="1.6" data-page-node-id="nJa16qfzItF675gnYpTIEF"/><circle cx="110" cy="78" r="1.2" data-page-node-id="0aBODS14522B4pcmLeTsAZ"/>
+            <circle cx="430" cy="84" r="1.2" data-page-node-id="TgXJ8NjNDuo5YQp8QjPZ4s"/><circle cx="350" cy="20" r="1.1" data-page-node-id="DROgDZgy0UmsRLD0s7QoCs"/>
           </g>
-          <g fill="#fff">
-            <path d="M250 60 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z"/>
-            <path d="M495 38 l2.4 6 6 2.4 -6 2.4 -2.4 6 -2.4 -6 -6 -2.4 6 -2.4 z"/>
+          <g fill="#fff" data-page-node-id="NwBAMKf04cKIoFGFizK7v4">
+            <path d="M250 60 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z" data-page-node-id="lUtqeWoUjwpIOJmRqvfoAh"/>
+            <path d="M495 38 l2.4 6 6 2.4 -6 2.4 -2.4 6 -2.4 -6 -6 -2.4 6 -2.4 z" data-page-node-id="El2a96IUPDmtnRSJrlVGJ0"/>
           </g>
-          <circle cx="545" cy="46" r="22" fill="url(#lp-moon)"/>
-          <circle cx="545" cy="46" r="31" fill="none" stroke="rgba(246,231,176,0.22)" stroke-width="9"/>
-          <ellipse cx="178" cy="180" rx="120" ry="26" fill="rgba(20,18,40,0.18)"/>
-          <circle cx="170" cy="150" r="46" fill="#6d5b86"/>
-          <circle cx="170" cy="150" r="46" fill="rgba(255,255,255,0.06)"/>
-          <path d="M150 120 l10 -16 10 16 z" fill="#8a6f9c"/>
-          <g transform="translate(170,106)">
-            <rect x="-7" y="34" width="5" height="14" rx="2.5" fill="#3b3a5a"/>
-            <rect x="2" y="34" width="5" height="14" rx="2.5" fill="#3b3a5a"/>
-            <path d="M-12 8 q12 -10 24 0 l3 30 -30 0 z" fill="url(#lp-coat)"/>
-            <path d="M-9 10 q9 6 18 0 l0 5 -18 0 z" fill="#d98a7e"/>
-            <circle cx="0" cy="-4" r="11" fill="#f6d9b0"/>
-            <path d="M-11 -6 q2 -12 11 -12 q9 0 11 12 q-4 -5 -11 -4 q-7 -1 -11 4 z" fill="#f2cf5e"/>
+          <circle cx="545" cy="46" r="22" fill="url(#lp-moon)" data-page-node-id="Xe2VqMVyDQr8KA32nbpUnS"/>
+          <circle cx="545" cy="46" r="31" fill="none" stroke="rgba(246,231,176,0.22)" stroke-width="9" data-page-node-id="FaZMmEvgDTQ9WzYeFKs9Zw"/>
+          <ellipse cx="178" cy="180" rx="120" ry="26" fill="rgba(20,18,40,0.18)" data-page-node-id="QAtQDli3n1Wv8mPdliD5fo"/>
+          <circle cx="170" cy="150" r="46" fill="#6d5b86" data-page-node-id="HIFmPkYgTZ4BpLdRKX7pr1"/>
+          <circle cx="170" cy="150" r="46" fill="rgba(255,255,255,0.06)" data-page-node-id="JhugBPaFPkruxlgc0aPMwC"/>
+          <path d="M150 120 l10 -16 10 16 z" fill="#8a6f9c" data-page-node-id="yAPUixOECiqFhXYwt8jbJy"/>
+          <g transform="translate(170,106)" data-page-node-id="BAyONeiJMSaStoTnZxPfbT">
+            <rect x="-7" y="34" width="5" height="14" rx="2.5" fill="#3b3a5a" data-page-node-id="HVElW4zYy6JjxPUqw9R0XW"/>
+            <rect x="2" y="34" width="5" height="14" rx="2.5" fill="#3b3a5a" data-page-node-id="tnKomNQJeVWl4eHh6Jhoqq"/>
+            <path d="M-12 8 q12 -10 24 0 l3 30 -30 0 z" fill="url(#lp-coat)" data-page-node-id="sCbFbWqLfvi3tUYOHmkoQH"/>
+            <path d="M-9 10 q9 6 18 0 l0 5 -18 0 z" fill="#d98a7e" data-page-node-id="VQAGRpRUZVmaC0VwCOh0TT"/>
+            <circle cx="0" cy="-4" r="11" fill="#f6d9b0" data-page-node-id="Irrkf584Yt8PQvMbL00V9p"/>
+            <path d="M-11 -6 q2 -12 11 -12 q9 0 11 12 q-4 -5 -11 -4 q-7 -1 -11 4 z" fill="#f2cf5e" data-page-node-id="eqiIoSVXJZVLwHiErNL5LI"/>
           </g>
-          <g transform="translate(430,92)">
-            <rect x="-2" y="82" width="44" height="8" rx="4" fill="#b89ad0"/>
-            <rect x="18" y="42" width="4" height="42" rx="2" fill="#6f9e74"/>
-            <path d="M20 58 q14 -4 18 -16 q-14 2 -18 16 z" fill="#8fb98f"/>
-            <circle cx="20" cy="36" r="13" fill="#d65f7e"/>
-            <circle cx="20" cy="36" r="7" fill="#e88aa3"/>
-            <path d="M13 32 q7 -8 14 0 q-7 6 -14 0 z" fill="#c64d6c"/>
-            <path d="M-4 84 C -4 30, 8 4, 20 4 C 32 4, 44 30, 44 84 Z" fill="url(#lp-glass)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
-            <path d="M14 78 C 10 50, 16 22, 20 10" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>
-            <ellipse cx="20" cy="84" rx="26" ry="4" fill="rgba(255,255,255,0.30)"/>
+          <g transform="translate(430,92)" data-page-node-id="qEWiIVWBmOxbIwG0u34bpX">
+            <rect x="-2" y="82" width="44" height="8" rx="4" fill="#b89ad0" data-page-node-id="AUGDkQxTZYN4uFr6loIHBM"/>
+            <rect x="18" y="42" width="4" height="42" rx="2" fill="#6f9e74" data-page-node-id="nFjsoty0RhiTzHEyE8SEXx"/>
+            <path d="M20 58 q14 -4 18 -16 q-14 2 -18 16 z" fill="#8fb98f" data-page-node-id="CAMBJOVR5F8TLlJZ5GAIXR"/>
+            <circle cx="20" cy="36" r="13" fill="#d65f7e" data-page-node-id="rFN1HZPDLmhqDD1de5H12d"/>
+            <circle cx="20" cy="36" r="7" fill="#e88aa3" data-page-node-id="AdKwKVFRzGH96wHQsc340M"/>
+            <path d="M13 32 q7 -8 14 0 q-7 6 -14 0 z" fill="#c64d6c" data-page-node-id="YVYCkyVg4cBvz3xbORJpMA"/>
+            <path d="M-4 84 C -4 30, 8 4, 20 4 C 32 4, 44 30, 44 84 Z" fill="url(#lp-glass)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" data-page-node-id="YmML2jCXdQnzQQ4Rm1kY16"/>
+            <path d="M14 78 C 10 50, 16 22, 20 10" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1" data-page-node-id="ekGGjJvcuEnZLuH6c1OwII"/>
+            <ellipse cx="20" cy="84" rx="26" ry="4" fill="rgba(255,255,255,0.30)" data-page-node-id="E3ZNN8UffoxbhF0E4WTh4Q"/>
           </g>
         </svg>
-        <div class="lp-caption">
-          <p class="lp-quote">“也许世界上也有五千朵和你一模一样的花，<br>但只有你浇灌的那<b>一朵</b>，才真正属于你。”</p>
+        <div class="lp-caption" data-page-node-id="GuZEw94STpMvNK4inxi7ha">
+          <p class="lp-quote" data-page-node-id="RZWZcKn6r8GY4lKFgFFnoP">“也许世界上也有五千朵和你一模一样的花，<br data-page-node-id="VCHavY1eAgp9bEByFUvhOi">但只有你浇灌的那<b data-page-node-id="K6sHoVyquqBrTB6OZNjXSa">一朵</b>，才真正属于你。”</p>
         </div>
       </div>
-      <div class="date-bar">
-        <input type="date" id="date-picker" />
-        <button id="today-btn" class="btn secondary">回到今天</button>
+      <div class="date-bar" data-page-node-id="j7pnNNpG8evb6732hmYjj6">
+        <input type="date" id="date-picker" data-page-node-id="10DzDTWIDEnfaxfTrmwZM2" />
+        <button id="today-btn" class="btn secondary" data-page-node-id="RzJCRRIGxeBNIUE8dQHE66">回到今天</button>
       </div>
 
-      <div class="panel">
-        <details class="section-details">
-          <summary class="section-summary">📏 体重记录 <small>每日量测 · 点击展开填写</small></summary>
-          <div class="form-grid">
-            <div class="field"><label>体重 (kg)</label><input type="number" id="body-weight" min="0" step="0.1" placeholder="如 55.5" /></div>
-            <div class="field"><label>体脂率 (%)</label><input type="number" id="body-fat" min="0" step="0.1" placeholder="如 22.5" /></div>
-            <div class="field"><label>小腿围 (cm)</label><input type="number" id="body-calf" min="0" step="0.1" placeholder="如 36" /></div>
-            <div class="field"><label>大腿围 (cm)</label><input type="number" id="body-thigh" min="0" step="0.1" placeholder="如 52" /></div>
-            <div class="field"><label>腰围 (cm)</label><input type="number" id="body-waist" min="0" step="0.1" placeholder="如 68" /></div>
-            <div class="field"><label>臀围 (cm)</label><input type="number" id="body-hip" min="0" step="0.1" placeholder="如 92" /></div>
-            <div class="form-actions">
-              <button type="button" class="btn primary" id="body-save-btn">保存身材数据</button>
+      <div class="panel" data-page-node-id="CxYqo0hEImxEh6K5HIqH7G">
+        <details class="section-details" data-page-node-id="ZFzB9dwnDmmdNGqmM5pEjF">
+          <summary class="section-summary" data-page-node-id="coy3IMvCIJaNDtOKInMrpK">📏 体重记录 <small data-page-node-id="3zawjCNdfAGvmpLcWFEsnM">每日量测 · 点击展开填写</small></summary>
+          <div class="form-grid" data-page-node-id="vCVm5ki4uXlJOGfgchDuC5">
+            <div class="field" data-page-node-id="hyEOYlMgbWPzSTIWOKbGMK"><label data-page-node-id="COUqxskXefuPIL3G6GcHEP">体重 (kg)</label><input type="number" id="body-weight" min="0" step="0.1" placeholder="如 55.5" data-page-node-id="RgZkzgDhnD8ds13wt0BwAo" /></div>
+            <div class="field" data-page-node-id="wMUWaSNKHnV6jBdQUb2JJW"><label data-page-node-id="gnFmeVmH1E8VyLbm7CGY9a">体脂率 (%)</label><input type="number" id="body-fat" min="0" step="0.1" placeholder="如 22.5" data-page-node-id="LopWsphSQCbzcEe9jPVdaQ" /></div>
+            <div class="field" data-page-node-id="rnxK2djQzhwfJ6bDomNBPL"><label data-page-node-id="Ydby1GSu5uDBfuFEyauA7n">小腿围 (cm)</label><input type="number" id="body-calf" min="0" step="0.1" placeholder="如 36" data-page-node-id="7w5JDS6jxjVzTZbpomBplC" /></div>
+            <div class="field" data-page-node-id="aAwmasYSIJ0Nu23NW8VSSZ"><label data-page-node-id="ayCFHXSEkEykwG5OgVoiS2">大腿围 (cm)</label><input type="number" id="body-thigh" min="0" step="0.1" placeholder="如 52" data-page-node-id="ZLoGapLnmTTD0UCtadlcah" /></div>
+            <div class="field" data-page-node-id="k8v6NiraqdfMU0TZeTgAP1"><label data-page-node-id="vHyNyNnOX3PXtV4MSJDU2E">腰围 (cm)</label><input type="number" id="body-waist" min="0" step="0.1" placeholder="如 68" data-page-node-id="DST4eP6fRfdUli3RCgxnfp" /></div>
+            <div class="field" data-page-node-id="s6E5f0G85pmveSDELIwyKv"><label data-page-node-id="wK47n7yOrFXrxjfXtah8T5">臀围 (cm)</label><input type="number" id="body-hip" min="0" step="0.1" placeholder="如 92" data-page-node-id="TMJ45OG6Y7SG4a19FOzicA" /></div>
+            <div class="form-actions" data-page-node-id="2SxKhs6ou9ITxkwhxalRUR">
+              <button type="button" class="btn primary" id="body-save-btn" data-page-node-id="ZMvNEyPElCI8CbBewoyQF1">保存身材数据</button>
             </div>
           </div>
-          <p class="hint" id="body-saved-hint"></p>
+          <p class="hint" id="body-saved-hint" data-page-node-id="7YYv1CMhDg9gSGH83oYcfQ"></p>
         </details>
       </div>
 
-      <div class="two-col">
-        <div class="panel">
-          <h2>🍱 饮食记录</h2>
-          <div class="row autocomplete-row">
-            <div class="field small meal-field">
-              <label>进餐时段</label>
-              <select id="food-meal">
-                <option value="早餐">早餐</option>
-                <option value="中餐">中餐</option>
-                <option value="下午茶">下午茶</option>
-                <option value="晚餐">晚餐</option>
-                <option value="宵夜">宵夜</option>
-                <option value="零食">零食</option>
+      <div class="two-col" data-page-node-id="IDvqkg09aLySY8IFwbfD0I">
+        <div class="panel" data-page-node-id="m9EzFl2p3XN3PDNFQpESje">
+          <h2 data-page-node-id="eIJjSdqQMHP3licOxGzcMJ">🍱 饮食记录</h2>
+          <div class="row autocomplete-row" data-page-node-id="yDNIDvUrrO0DHtXX8h7Bm7">
+            <div class="field small meal-field" data-page-node-id="71R0azwZl2nzv9VyqHNWux">
+              <label data-page-node-id="1BDxFVVgBhKl26Len3WKiF">进餐时段</label>
+              <select id="food-meal" data-page-node-id="MiIyyfwAO9Fxj6RfV1zSMa">
+                <option value="早餐" data-page-node-id="qH5KfC8XVlvfFIxyv3osJ2">早餐</option>
+                <option value="中餐" data-page-node-id="s1bkRkUsmcch0pRTCWYEmr">中餐</option>
+                <option value="下午茶" data-page-node-id="wT2TNLbiHBXnqYZrvlL6PV">下午茶</option>
+                <option value="晚餐" data-page-node-id="ELOn9vOLobSeXFQip32NOK">晚餐</option>
+                <option value="宵夜" data-page-node-id="r4wKcG44r9a93BRvMa0rrB">宵夜</option>
+                <option value="零食" data-page-node-id="GfLTynBg3cLYQInkDurK1U">零食</option>
               </select>
             </div>
-            <div class="field autocomplete">
-              <label>食物</label>
-              <input type="text" id="food-search" placeholder="输入食物名称" autocomplete="off" />
-              <input type="hidden" id="food-selected-id" />
-              <ul id="food-suggestions" class="suggestions"></ul>
+            <div class="field autocomplete" data-page-node-id="YpzavyrOwkA5Bf09z70XZu">
+              <label data-page-node-id="XMW18vdKTNUCbmGrltxY0H">食物</label>
+              <input type="text" id="food-search" placeholder="输入食物名称" autocomplete="off" data-page-node-id="t4M2aDkHfiQ6ko2bCKrDNO" />
+              <input type="hidden" id="food-selected-id" data-page-node-id="sMT1m5L974Ky0Cd5d0hakN" />
+              <ul id="food-suggestions" class="suggestions" data-page-node-id="UsUjkNT8GNt38vRSWjYb35"></ul>
             </div>
-            <div class="field small">
-              <label>份量</label>
-              <input type="text" id="food-portion" placeholder="100 或 1份" autocomplete="off" />
+            <div class="field small" data-page-node-id="8rc5hiwmwxBFKEnbU0aFTL">
+              <label data-page-node-id="2SfINIQ5fscrvf5hrILTly">份量</label>
+              <input type="text" id="food-portion" placeholder="100 或 1份" autocomplete="off" data-page-node-id="Eo0lCbH6E3UQs3RxJ2ygje" />
             </div>
-            <button id="add-food-btn" class="btn primary">添加</button>
+            <button id="add-food-btn" class="btn primary" data-page-node-id="m9Y42b3gsnX0avYvVeqdoB">添加</button>
           </div>
-          <div class="row" style="margin-bottom:14px;">
-            <button id="custom-food-btn" class="btn secondary">＋ 另外添加（自定义食物）</button>
+          <div class="row" style="margin-bottom:14px;" data-page-node-id="Y42kYQ53Dnf4EdrsVCSHOZ">
+            <button id="custom-food-btn" class="btn secondary" data-page-node-id="JxtCSyP2jB32fcGtucwqZH">＋ 另外添加（自定义食物）</button>
           </div>
         </div>
 
-        <div class="panel">
-          <h2>🏃 运动记录</h2>
-          <div class="row autocomplete-row">
-            <div class="field autocomplete">
-              <label>运动 / 视频</label>
-              <input type="text" id="exercise-search" placeholder="输入运动名称" autocomplete="off" />
-              <input type="hidden" id="exercise-selected-id" />
-              <input type="hidden" id="exercise-base-duration" />
-              <input type="hidden" id="exercise-base-kcal" />
-              <ul id="exercise-suggestions" class="suggestions"></ul>
+        <div class="panel" data-page-node-id="vtM7HrJnhfmWqkRJBK3gNf">
+          <h2 data-page-node-id="nwBiuMn30GSOwPMDppuMzD">🏃 运动记录</h2>
+          <div class="row autocomplete-row" data-page-node-id="0KsKORUR9yShFFPxjvKZS5">
+            <div class="field autocomplete" data-page-node-id="CB8ZeuZVFFlK0ncuqX4gcK">
+              <label data-page-node-id="FUKrf7x4eOOwOMD1wMmKBO">运动 / 视频</label>
+              <input type="text" id="exercise-search" placeholder="输入运动名称" autocomplete="off" data-page-node-id="DiUk4l581RrmO0aVDse8xd" />
+              <input type="hidden" id="exercise-selected-id" data-page-node-id="PW6IMBtCRqw5HnupGkPABC" />
+              <input type="hidden" id="exercise-base-duration" data-page-node-id="UK3tetX81Q8VEwa5sSnESD" />
+              <input type="hidden" id="exercise-base-kcal" data-page-node-id="6Caadswqzucc2ojOJnYxEX" />
+              <ul id="exercise-suggestions" class="suggestions" data-page-node-id="kkSRkpnr8MlHlagDKR32Hc"></ul>
             </div>
-            <div class="field small">
-              <label>时长 (分)</label>
-              <input type="number" id="exercise-duration" placeholder="30" min="0" step="1" />
+            <div class="field small" data-page-node-id="N1gRRkE7CnrXYcgDRmpKOK">
+              <label data-page-node-id="6wyA88XUeHF7Ps86f6CLgP">时长 (分)</label>
+              <input type="number" id="exercise-duration" placeholder="30" min="0" step="1" data-page-node-id="P7g23aCHjFmze7OGm2tIIw" />
             </div>
-            <div class="field small">
-              <label>热量 (kcal)</label>
-              <input type="number" id="exercise-kcal" placeholder="0" min="0" step="1" />
+            <div class="field small" data-page-node-id="fWlw9PGwLNnpCatX1aG7m7">
+              <label data-page-node-id="AMJ9c3IAe9ZE46r8zqub7C">热量 (kcal)</label>
+              <input type="number" id="exercise-kcal" placeholder="0" min="0" step="1" data-page-node-id="zXf3U9D0pgogcKvBGBRyRR" />
             </div>
-            <button id="add-exercise-btn" class="btn primary">添加</button>
-            <button id="custom-exercise-btn" class="btn secondary">另外添加</button>
+            <button id="add-exercise-btn" class="btn primary" data-page-node-id="bvBAbybN3yL6HQfDCQTHtm">添加</button>
+            <button id="custom-exercise-btn" class="btn secondary" data-page-node-id="udNIbR3u1tp6jmoCwns8O9">另外添加</button>
           </div>
         </div>
       </div>
 
-      <div class="summary-grid">
-        <div class="card intake"><span class="label">摄入热量</span><span class="value" id="total-intake-kcal">0</span><span class="unit">kcal</span></div>
-        <div class="card burn"><span class="label">今日消耗</span><span class="value" id="total-burn-kcal">0</span><span class="unit">kcal</span></div>
-        <div class="card net"><span class="label">热量缺口</span><span class="value" id="net-kcal">0</span><span class="unit">kcal</span></div>
-        <div class="card"><span class="label">蛋白质</span><span class="value" id="total-protein">0</span><span class="unit">g</span></div>
-        <div class="card"><span class="label">脂肪</span><span class="value" id="total-fat">0</span><span class="unit">g</span></div>
-        <div class="card"><span class="label">碳水</span><span class="value" id="total-carbs">0</span><span class="unit">g</span></div>
-        <div class="card"><span class="label">糖</span><span class="value" id="total-sugar">0</span><span class="unit">g</span></div>
-        <div class="card"><span class="label">钠</span><span class="value" id="total-sodium">0</span><span class="unit">mg</span></div>
+      <div class="summary-grid" data-page-node-id="pleqIAXfLQ2Ahxr1M2FWzM">
+        <div class="card intake" data-page-node-id="vtHmU2xfDOZN1EgUMtoW2D"><span class="label" data-page-node-id="VrwxZviCyBm5zB5eAiSXw9">摄入热量</span><span class="value" id="total-intake-kcal" data-page-node-id="QewCZGTuizCtIS6aN2kQMN">0</span><span class="unit" data-page-node-id="DuJeqas6qzPz5oRPkMLjwq">kcal</span></div>
+        <div class="card burn" data-page-node-id="d2v9O9CMWpRhk2bTDGi77c"><span class="label" data-page-node-id="GMy3cUVAEOTDV40znAmwDu">今日消耗</span><span class="value" id="total-burn-kcal" data-page-node-id="2rVw0Bdkwpfma59mxJPZ9f">0</span><span class="unit" data-page-node-id="MY4t2qVIBcVInjogDvDjbm">kcal</span></div>
+        <div class="card net" data-page-node-id="4BUKwBHFgh6aHU1j8PzmSz"><span class="label" data-page-node-id="CFdNvQyB205gc8fawe62pr">热量缺口</span><span class="value" id="net-kcal" data-page-node-id="JJ5jX2jw3Ia4CrfUUyeh4c">0</span><span class="unit" data-page-node-id="d0PE1NMQEUHmfHbbNyx0DB">kcal</span></div>
+        <div class="card" data-page-node-id="mJBJE0WehnDZkk4F8EOKt1"><span class="label" data-page-node-id="t2PHU9raN7OUf2j2dME6Vc">蛋白质</span><span class="value" id="total-protein" data-page-node-id="jMBLJwqioZCRW8sCETnzdi">0</span><span class="unit" data-page-node-id="ntZw8OU2jI0vCLmphnSLTN">g</span></div>
+        <div class="card" data-page-node-id="Ws1JZ8uxIUSUfKCJB54CFH"><span class="label" data-page-node-id="n6fLPWE5i9ZiCc6l3AEpY4">脂肪</span><span class="value" id="total-fat" data-page-node-id="uJeyBrzE7tKhSBrnqhYLiq">0</span><span class="unit" data-page-node-id="9V1cwg27Wk3tsdbCmcW3Bn">g</span></div>
+        <div class="card" data-page-node-id="z9oPEMw9bNU91apzERHtnn"><span class="label" data-page-node-id="gohPEVQd5Iz6BOFJRZUbOM">碳水</span><span class="value" id="total-carbs" data-page-node-id="o2lPaF4INmMH9JL976giji">0</span><span class="unit" data-page-node-id="V8ys34NDcDd5B6odJUdb5K">g</span></div>
+        <div class="card" data-page-node-id="7qLfgqrH5VSHzFXGCu5UkM"><span class="label" data-page-node-id="Et7DifvmElN7YfeNy9VJLL">糖</span><span class="value" id="total-sugar" data-page-node-id="aPxs2kZUeYbRNR5tkeCJAO">0</span><span class="unit" data-page-node-id="sZRet71l8tQB3raXGOC4A6">g</span></div>
+        <div class="card" data-page-node-id="Zr0vRCDDbn8TnVsTPsgLvh"><span class="label" data-page-node-id="riiFOHHNZ5q5WEsXe0yFC1">钠</span><span class="value" id="total-sodium" data-page-node-id="70gKLSB5vJXeTHxerHtc0p">0</span><span class="unit" data-page-node-id="rQgn9K9vbMZaDgiMWNPsqV">mg</span></div>
       </div>
 
-      <div class="panel analysis-panel">
-        <h2>🤖 AI 饮食分析 <small>当日摄入合理性评估</small></h2>
-        <p class="hint">请在「数据页」输入你的每日营养目标，以便自动评估当日营养是否摄入充足。</p>
-        <div id="diet-analysis" class="analysis-body">
-          <p class="empty-state">记录完饮食后，这里会给出当日营养合理性分析。</p>
+      <div class="panel analysis-panel" data-page-node-id="2KSp0ELrlOERGBO3DW4sol">
+        <h2 data-page-node-id="atm1DfSGGs1o2MrzyWIEf4">🤖 AI 饮食分析 <small data-page-node-id="NqoAwfZFvkOEMwEIasMgkz">当日摄入合理性评估</small></h2>
+        <p class="hint" data-page-node-id="mMkFtnWFxix8kM2dXBRFbz">请在「数据页」输入你的每日营养目标，以便自动评估当日营养是否摄入充足。</p>
+        <div id="diet-analysis" class="analysis-body" data-page-node-id="bDKrteIql2ELy6YzIxOE2t">
+          <p class="empty-state" data-page-node-id="8pGU06SXlS8KvFSAOONCWZ">记录完饮食后，这里会给出当日营养合理性分析。</p>
         </div>
       </div>
 
     </section>
 
     <!-- 热量明细表 -->
-    <section id="calories" class="tab-panel">
-      <div class="date-bar">
-        <input type="date" id="cal-date-picker" />
-        <button id="cal-today-btn" class="btn secondary">回到今天</button>
+    <section id="calories" class="tab-panel" data-page-node-id="C7mGlv0VQQlKBY4v0f7ZaC">
+      <div class="date-bar" data-page-node-id="BaLSfuNENMP5uZeexKmd9H">
+        <input type="date" id="cal-date-picker" data-page-node-id="9vTyDPqYFBjDajuUpbfkz8" />
+        <button id="cal-today-btn" class="btn secondary" data-page-node-id="hWZGot20qHTYqdJwVphEJx">回到今天</button>
       </div>
-      <div class="panel">
-        <h2>🍱 饮食明细 <small>已记录的饮食与热量</small></h2>
-        <div class="table-wrap">
-          <table id="diet-table">
-            <thead>
-              <tr>
-                <th>进餐时段</th><th>食物</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>
+      <div class="panel" data-page-node-id="yVsb4UDvpw1IGVdMMDhNwl">
+        <h2 data-page-node-id="itfyG8a8Jc2ljyWJPizzCs">🍱 饮食明细 <small data-page-node-id="YoBA54099o51FsoSuErpcd">已记录的饮食与热量</small></h2>
+        <div class="table-wrap" data-page-node-id="oU0LH8ISn2v2P38lKKxW7W">
+          <table id="diet-table" data-page-node-id="0dt4XVvMlwoYcbkb4j6gso">
+            <thead data-page-node-id="BC7JL8kHlmr6uSGJp4AJeG">
+              <tr data-page-node-id="GZY2eyrB9uAQchvQfMNGoQ">
+                <th data-page-node-id="twsUdMlv298E0c51H5g3C4">进餐时段</th><th data-page-node-id="nAFgf1psRrq4YfqqlGw1oM">食物</th><th data-page-node-id="B6qqc3tncmZrTz05Sfhezm">份量</th><th data-page-node-id="i42PefETvx93cmviaMKRfH">热量</th><th data-page-node-id="nwVj0PnXxpXJ4HQ7jGNIrj">蛋白质</th><th data-page-node-id="NOxjGAhP7DooA5wYQDPgmh">脂肪</th><th data-page-node-id="RdPgSQh1mb2ZOoBUKWlnCL">碳水</th><th data-page-node-id="FPtD01jEo6SwfrJix57Sx1">糖</th><th data-page-node-id="c6dHVHgYZRhNGR79GD71CQ">钠</th><th data-page-node-id="otDKYd6aM0FW1YNwQS8exS"></th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody data-page-node-id="GKZpkl7w4pltztx987T9HO"></tbody>
           </table>
         </div>
       </div>
-      <div class="panel">
-        <h2>🤖 AI 进餐分析 <small>每日时段摄入与运动合理性</small></h2>
-        <p class="hint">基于你的体重、体脂率与每日目标，逐时段评估摄入是否利于减脂瘦身，并判断当日运动是否合理。</p>
-        <div id="meal-ai" class="meal-ai-body">
-          <p class="empty-state">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>
+      <div class="panel" data-page-node-id="WoGFLxC56O5nPs0meX36MR">
+        <h2 data-page-node-id="uGFXeZurP2huERNWoFkFwJ">🤖 AI 进餐分析 <small data-page-node-id="1nZ5ZgzQwZqL3E2SXq7PDN">每日时段摄入与运动合理性</small></h2>
+        <p class="hint" data-page-node-id="TdUkzIwghI1Af4ZLMgOXXo">基于你的体重、体脂率与每日目标，逐时段评估摄入是否利于减脂瘦身，并判断当日运动是否合理。</p>
+        <div id="meal-ai" class="meal-ai-body" data-page-node-id="WPpVet2VAJAt1JeC5Hj7hV">
+          <p class="empty-state" data-page-node-id="Bx1iVo1WxxByQfEuScGhDD">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>
         </div>
       </div>
-      <div class="panel">
-        <h2>📅 运动日历 <small>当月运动打卡</small></h2>
-        <div id="exercise-calendar" class="exercise-calendar">
-          <p class="empty-state">加载中…</p>
+      <div class="panel" data-page-node-id="opZy3ON8FFjM9wHPaUHexk">
+        <h2 data-page-node-id="t3nBfMgkXds6mmikJlz4Jg">📅 运动日历 <small data-page-node-id="J4Q5nyHaSotabWSIGjYmRL">当月运动打卡</small></h2>
+        <div id="exercise-calendar" class="exercise-calendar" data-page-node-id="UCM1XcwonZI2VGA04y6CbS">
+          <p class="empty-state" data-page-node-id="VXPpVsFooiJF5ymTVbz4L6">加载中…</p>
         </div>
       </div>
 
-      <div class="panel">
-        <h2>🏃 运动明细 <small>已记录的运动与消耗</small></h2>
-        <div class="table-wrap">
-          <table id="exercise-table">
-            <thead>
-              <tr><th>运动</th><th>时长「分」</th><th>消耗「kcal」</th><th>总消耗热量</th><th></th></tr>
+      <div class="panel" data-page-node-id="whvZKvdDOHZVm51wMoJp1G">
+        <h2 data-page-node-id="JQqkZerARcUF2Z2tC5q5ak">🏃 运动明细 <small data-page-node-id="ntaPRmuNzcERNXKnsg7lb5">已记录的运动与消耗</small></h2>
+        <div class="table-wrap" data-page-node-id="6nftyqk8GTAubKNQ8zkc8n">
+          <table id="exercise-table" data-page-node-id="CgXHbLDtVu1XT4hft1QLwq">
+            <thead data-page-node-id="D0OMMa9xfoqXsu9dk5GXr2">
+              <tr data-page-node-id="g49e6R4fmnH67amvtQw25A"><th data-page-node-id="zunCFGC3IGi46A15T4AfnQ">运动</th><th data-page-node-id="ACJ7HXW3VsAwcmKa1H2Bwe">时长「分」</th><th data-page-node-id="041KKqGdBA7b7ASBMXf4l0">消耗「kcal」</th><th data-page-node-id="PtQq7LjOLln70wAPahoUGi"></th></tr>
             </thead>
-            <tbody></tbody>
+            <tbody data-page-node-id="msvxRwkJFFIxgLPg2ZZZQO"></tbody>
           </table>
         </div>
       </div>
     </section>
 
     <!-- 管理进度 -->
-    <section id="progress" class="tab-panel">
-      <div class="panel">
-        <h2>📈 管理进度 <small>体重 · 体脂 · 减重进度</small><span id="progress-year-badge" class="year-badge">2026年</span></h2>
-        <div class="progress-table-wrap" id="progress-table-wrap">
-          <table id="progress-table" class="progress-table">
-            <thead id="progress-thead">
-              <tr>
-                <th class="row-header year-header">
-                  <span class="year-label">日期</span>
-                  <select id="progress-year" class="year-select" aria-label="选择年份"></select>
+    <section id="progress" class="tab-panel" data-page-node-id="6HeJP5Z52a5JBzAbVz1DUG">
+      <div class="panel" data-page-node-id="2kipOSRGJLCUNDSEExq6XB">
+        <h2 data-page-node-id="3LXp6Sa1Jk9LE8KripzMM9">📈 管理进度 <small data-page-node-id="tTKVUgWYyqMOaEEnf2Alji">体重 · 体脂 · 减重进度</small><span id="progress-year-badge" class="year-badge" data-page-node-id="DXsDYt4bRqoa5y7oC305Kx">2026年</span></h2>
+        <div class="progress-table-wrap" id="progress-table-wrap" data-page-node-id="HOq24FEK4fiWVycb3K4VPC">
+          <table id="progress-table" class="progress-table" data-page-node-id="NRErrAmHNCaUgaIY8i3x5v">
+            <thead id="progress-thead" data-page-node-id="WywBzaycwoDU4aVfhXEkO9">
+              <tr data-page-node-id="ZIAIHFePciycDSZEL6nkC2">
+                <th class="row-header year-header" data-page-node-id="FLIkqnQyf8q8H1S76so48s">
+                  <span class="year-label" data-page-node-id="aVjyM0KCCS4EGqUPuhOFTE">日期</span>
+                  <select id="progress-year" class="year-select" aria-label="选择年份" data-page-node-id="QREefCPBVtYJSPX5Hz7wqj"></select>
                 </th>
                 <!-- 日期列由 JS 根据所选年份生成 -->
               </tr>
             </thead>
-            <tbody id="progress-table-body">
-              <tr><td colspan="13" class="empty-state">加载中…</td></tr>
+            <tbody id="progress-table-body" data-page-node-id="XTiNHVqyVdgKcMgAgJr5fH">
+              <tr data-page-node-id="CAvj1xb8utEKP0aIqrchRG"><td colspan="13" class="empty-state" data-page-node-id="OP3hQHSgdVgt9ue4wISCDY">加载中…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="panel">
-        <h2>📊 体重档案 <small>基线 · 目标 · 记录</small></h2>
-        <div class="baseline-box">
-          <details>
-            <summary>🎯 初始基线（对比参考）· 点击设置</summary>
-            <p class="hint">填写你开始记录时的初始体重与各围度，之后每次录入都会显示与初始值的对比（变化量）。</p>
-            <div class="form-grid">
-              <div class="field"><label>体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" /></div>
-              <div class="field"><label>体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" /></div>
-              <div class="field"><label>小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" /></div>
-              <div class="field"><label>大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" /></div>
-              <div class="field"><label>腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" /></div>
-              <div class="field"><label>臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" /></div>
-              <div class="form-actions">
-                <button type="button" class="btn secondary" id="base-save-btn">保存初始基线</button>
+      <div class="panel" data-page-node-id="VYeCZFZvjXTeIapFySYb49">
+        <h2 data-page-node-id="JBN4ydwC03GdXJUkGvD1Gq">📊 体重档案 <small data-page-node-id="D0LpB8UvE4pGutEwZEv4tk">基线 · 目标 · 记录</small></h2>
+        <div class="baseline-box" data-page-node-id="tTNz4H4Uj7g46TpUituANp">
+          <details data-page-node-id="xSn10CNNIphp8U7k5JVfD7">
+            <summary data-page-node-id="oPAdr3AeUbSMiymTd2njUD">🎯 初始基线（对比参考）· 点击设置</summary>
+            <p class="hint" data-page-node-id="tuhNGiOl8cN6ELmewgjhVF">填写你开始记录时的初始体重与各围度，之后每次录入都会显示与初始值的对比（变化量）。</p>
+            <div class="form-grid" data-page-node-id="0AL9jYBHHxlcuXuLMlahRj">
+              <div class="field" data-page-node-id="p5bcmpPDp30gCAIW4SMGBy"><label data-page-node-id="4h8kZiPmwJeAHrHDANssI3">体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" data-page-node-id="xCR7xeUortb9VK3QNuyRis" /></div>
+              <div class="field" data-page-node-id="lGWOUaktWt7MlUAYQ4P27k"><label data-page-node-id="1Ud13EHCpkqK68qHC0WBFc">体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" data-page-node-id="JF8ndqRKv0YABpJJ3cSxG9" /></div>
+              <div class="field" data-page-node-id="cNv5YYckh1qk4A8R62SwHf"><label data-page-node-id="wKdQ3por4E9WjuKujzoF9L">小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" data-page-node-id="aW4x575BTvoFxDEAqCdIuJ" /></div>
+              <div class="field" data-page-node-id="j5pg75W5PQ5A72MAC0j8Jb"><label data-page-node-id="e7F3RRLgPKrRcQ41WKtJDV">大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" data-page-node-id="hmJ68HWuOkOFauTvBLVD9B" /></div>
+              <div class="field" data-page-node-id="xoyCRWP67i1pOPyRdqqULO"><label data-page-node-id="Wx6XuhEF4D5zW4kD2vPGUW">腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" data-page-node-id="vpwZPhBiFAxsB7U6toyrVo" /></div>
+              <div class="field" data-page-node-id="0LbtCrYyO6dxGtXNqJC81i"><label data-page-node-id="7E0ZWrB3hndYk8ylJotHV6">臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" data-page-node-id="A8E15PIWdQcdtUciWVByYN" /></div>
+              <div class="form-actions" data-page-node-id="2XrXbovYCmUQ5mSwqKvXMp">
+                <button type="button" class="btn secondary" id="base-save-btn" data-page-node-id="hH1ZlEgMax27LXdqKtGdrf">保存初始基线</button>
               </div>
             </div>
-            <p class="hint" id="base-hint"></p>
+            <p class="hint" id="base-hint" data-page-node-id="vCVZEIHpl8CHHdxvqcQCRG"></p>
           </details>
         </div>
-        <div class="target-box">
-          <details>
-            <summary>🎯 目标管理（你想达到的）· 点击设置</summary>
-            <p class="hint">填写你希望达到的目标体重与目标体脂率，开屏界面会据此显示「距目标体重」与「体脂可降」。</p>
-            <div class="form-grid">
-              <div class="field"><label>目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" /></div>
-              <div class="field"><label>目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" /></div>
-              <div class="form-actions">
-                <button type="button" class="btn secondary" id="target-save-btn">保存目标管理</button>
+        <div class="target-box" data-page-node-id="ahoGLnVHgIONYde5It3ZfC">
+          <details data-page-node-id="8wjs5pN4os33sUpWKs60w8">
+            <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 目标管理（你想达到的）· 点击设置</summary>
+            <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">填写你希望达到的目标体重与目标体脂率，开屏界面会据此显示「距目标体重」与「体脂可降」。</p>
+            <div class="form-grid" data-page-node-id="yoEjPKu395qEDmZgzIBwUm">
+              <div class="field" data-page-node-id="GEB6lJjFkupB4bArur2cOb"><label data-page-node-id="ictECLXnpHgTmyZDSUqIx7">目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" data-page-node-id="RL4xvs1seZhUJBLgHeoEoK" /></div>
+              <div class="field" data-page-node-id="t4doNpIZ5jDcbunDANEbmF"><label data-page-node-id="4TSEg5QtruidZ7QQSrudBz">目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" data-page-node-id="wVJikT3JofFvCcJlcpaSBB" /></div>
+              <div class="form-actions" data-page-node-id="uPv4HEBuOt2WhdYYDkcMZt">
+                <button type="button" class="btn secondary" id="target-save-btn" data-page-node-id="KRDKWcBtRK80OxHa6pNfDb">保存目标管理</button>
               </div>
             </div>
-            <p class="hint" id="target-hint"></p>
+            <p class="hint" id="target-hint" data-page-node-id="Q4wpZDHADsbLQ1YUiuFEtg"></p>
           </details>
         </div>
-        <div id="baseline-compare" class="baseline-compare"></div>
+        <div id="baseline-compare" class="baseline-compare" data-page-node-id="ZeOKbCWc9ChTnDFwYmUII2"></div>
       </div>
     </section>
 
     <!-- 食物记录复盘 -->
-    <section id="food-review" class="tab-panel">
-      <div class="panel review-panel">
-        <div class="review-header">
-          <h2><span class="review-badge" id="review-count">0</span> 复盘记录</h2>
-          <p class="hint">记录每餐/每天的心得、原则与行动清单，沉淀为可复用的饮食信条。</p>
+    <section id="food-review" class="tab-panel" data-page-node-id="WS9DQ3Qsn1v5oSKgOzCmNr">
+      <div class="panel review-panel" data-page-node-id="QzwgBReCMV2xIDUAqmk29y">
+        <div class="review-header" data-page-node-id="eadqwc8aQfF9LPipFgLlx0">
+          <h2 data-page-node-id="H05cpwbJZLyJ2e4rQQHX0w"><span class="review-badge" id="review-count" data-page-node-id="LhucJ94DnCeKn6Cig4Erva">0</span> 复盘记录</h2>
+          <p class="hint" data-page-node-id="KbJdAZmhFmAsBGda4AMF48">记录每餐/每天的心得、原则与行动清单，沉淀为可复用的饮食信条。</p>
         </div>
 
         <!-- 编辑/添加区 -->
-        <div class="review-editor" id="review-editor">
-          <input type="text" class="review-editor-title" id="review-editor-title" placeholder="输入复盘标题（如：晚餐复盘）" />
+        <div class="review-editor" id="review-editor" data-page-node-id="xnTacoAwAh6spbKiDfxDqv">
+          <input type="text" class="review-editor-title" id="review-editor-title" placeholder="输入复盘标题（如：晚餐复盘）" data-page-node-id="cLbuxKHKZg7TbGIte5C16l" />
           <textarea class="review-editor-content" id="review-editor-content" placeholder=""></textarea>
-          <div class="review-editor-time">
-            <label>🕐 添加时间</label>
-            <input type="datetime-local" id="review-editor-time" />
+          <div class="review-editor-time" data-page-node-id="pPzAx2HqvkoGbzyjffz7Ev">
+            <label data-page-node-id="BwWz1cWAj9tV2dHal9wn0a">🕐 添加时间</label>
+            <input type="datetime-local" id="review-editor-time" data-page-node-id="Svs6euxtRqK6yxnnFdFbHy" />
           </div>
-          <div class="review-editor-actions">
-            <button type="button" class="btn primary review-add-btn" id="add-review-btn">+ 添加一条复盘</button>
+          <div class="review-editor-actions" data-page-node-id="pewTsIOB8suEJetgrl3fku">
+            <button type="button" class="btn primary review-add-btn" id="add-review-btn" data-page-node-id="1aDTVEtZLLbusLi1FxNNlh">+ 添加一条复盘</button>
           </div>
         </div>
 
         <!-- 复盘列表展示区 -->
-        <div class="review-list-section" id="review-list-section" style="display:none;">
-          <h3>📋 我的复盘记录</h3>
-          <div id="review-list" class="review-list"></div>
+        <div class="review-list-section" id="review-list-section" style="display:none;" data-page-node-id="Gz3qrwVw3EHQa96tZNHkdM">
+          <h3 data-page-node-id="tRAfKrXfozekMWuKskW58r">📋 我的复盘记录</h3>
+          <div id="review-list" class="review-list" data-page-node-id="OzdtwGtO6fOuAqb6nPTEaK"></div>
         </div>
       </div>
     </section>
 
     <!-- 食物库 -->
-    <section id="foods" class="tab-panel">
-      <div class="panel">
-        <div class="row foods-head">
-          <h2>🍎 食物库</h2>
-          <button id="clear-foods-btn" class="btn danger">消除食物库数据</button>
+    <section id="foods" class="tab-panel" data-page-node-id="IDTxbUxKlQ1ttJMIQYtdLm">
+      <div class="panel" data-page-node-id="7JsTFMnufmOtGf7yChh6M2">
+        <div class="row foods-head" data-page-node-id="LKUSkZVKD9Ru91FBFNOBwm">
+          <h2 data-page-node-id="IlBD4xkikA3DJZtEKxfBbR">🍎 食物库</h2>
+          <button id="clear-foods-btn" class="btn danger" data-page-node-id="SK6rQ1ik6hYBztyzJH8tqt">消除食物库数据</button>
         </div>
-        <details class="section-details" id="food-add-collapse">
-          <summary><small>点击展开 / 收起</small></summary>
-          <p class="hint">填写「份量」基准（如 100g、1个、1份），下方热量 / 营养按该份量填写。添加后系统会按热量从小到大排序，并归入「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他 / 饮品 / 零食」对应板块；也可手动选择分类。</p>
-          <form id="food-form" class="food-form-grid form-grid">
-            <input type="hidden" class="food-edit-id" />
-            <div class="field"><label>名称</label><input type="text" class="food-name" placeholder="例如：米饭" /></div>
-            <div class="field"><label>份量（基准）</label><input type="text" class="food-portion" placeholder="100g / 1个 / 1份" autocomplete="off" /></div>
-            <div class="field"><label>热量 (kcal)</label><input type="text" inputmode="decimal" class="food-kcal" /></div>
-            <div class="field"><label>蛋白质 (g)</label><input type="text" inputmode="decimal" class="food-protein" /></div>
-            <div class="field"><label>脂肪 (g)</label><input type="text" inputmode="decimal" class="food-fat" /></div>
-            <div class="field"><label>碳水 (g)</label><input type="text" inputmode="decimal" class="food-carbs" /></div>
-            <div class="field"><label>糖 (g)</label><input type="text" inputmode="decimal" class="food-sugar" /></div>
-            <div class="field"><label>钠 (mg)</label><input type="text" inputmode="decimal" class="food-sodium" /></div>
-            <div class="field"><label>分类</label>
-              <select class="food-category">
-                <option value="">自动判断</option>
-                <option value="碳水">碳水</option>
-                <option value="蛋白质">蛋白质</option>
-                <option value="蔬菜">蔬菜</option>
-                <option value="水果">水果</option>
-                <option value="其他">其他</option>
-                <option value="饮品">饮品</option>
-                <option value="零食">零食</option>
+        <details class="section-details" id="food-add-collapse" data-page-node-id="rOTRhMVGAUSg0Fur7pHAeb">
+          <summary data-page-node-id="ZOk7NC6jXGhWcOVGxYJHGx"><small data-page-node-id="H5TvKAaEfqLne9ir3VoGkO">点击展开 / 收起</small></summary>
+          <p class="hint" data-page-node-id="B3qe5on5OMFwb0V309JVBl">填写「份量」基准（如 100g、1个、1份），下方热量 / 营养按该份量填写。添加后系统会按热量从小到大排序，并归入「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他 / 饮品 / 零食」对应板块；也可手动选择分类。</p>
+          <form id="food-form" class="food-form-grid form-grid" data-page-node-id="zAuyOfQ50fJQRDO19xh8vZ">
+            <input type="hidden" class="food-edit-id" data-page-node-id="GHqBPIqzRqwP1bWvZINGug" />
+            <div class="field" data-page-node-id="u0BVv9KBhFVsxFAUlEwKNv"><label data-page-node-id="1835ktNuKbnYlV4wxiYEMb">名称</label><input type="text" class="food-name" placeholder="例如：米饭" data-page-node-id="GIsXQ7CCb7Pa3FQPKuRKX1" /></div>
+            <div class="field" data-page-node-id="UGuW3lBbh2fUrfe9SDLDNz"><label data-page-node-id="KvdMNfNQuBvqmLyBD9mLd6">份量（基准）</label><input type="text" class="food-portion" placeholder="100g / 1个 / 1份" autocomplete="off" data-page-node-id="UppWlfULeQZCa9wVnY0RBC" /></div>
+            <div class="field" data-page-node-id="CI7dVL2ZAof1GM4b1RiJPN"><label data-page-node-id="2tP7A9ZwHawhiJgvpIj6BH">热量 (kcal)</label><input type="text" inputmode="decimal" class="food-kcal" data-page-node-id="Y365g7HONcNhJdhP61y6cG" /></div>
+            <div class="field" data-page-node-id="7jFrjMonJ1yexbrn6SEU8o"><label data-page-node-id="x70MXyhmUJCDekjclRjwLP">蛋白质 (g)</label><input type="text" inputmode="decimal" class="food-protein" data-page-node-id="3mwR61fSyYM459l8vTrCpp" /></div>
+            <div class="field" data-page-node-id="OuhQKDijMYY0umcPENwZWS"><label data-page-node-id="mD7tHeRDZc8KSZUhkPG3oa">脂肪 (g)</label><input type="text" inputmode="decimal" class="food-fat" data-page-node-id="RYmnfw8pHc3k6dDyKk1YF9" /></div>
+            <div class="field" data-page-node-id="RRjSdnqIXxYKWxcf7uLKRc"><label data-page-node-id="duUDRW09Lhl1vEwmesEMSd">碳水 (g)</label><input type="text" inputmode="decimal" class="food-carbs" data-page-node-id="vnypDFvTVxXEdRlNXRPd4x" /></div>
+            <div class="field" data-page-node-id="J0bZLLDT54CpPXeFbAqn0E"><label data-page-node-id="98QOJVXK2tpj2sjDedhvv5">糖 (g)</label><input type="text" inputmode="decimal" class="food-sugar" data-page-node-id="EFtouaK8tJu6z0HkAxywnw" /></div>
+            <div class="field" data-page-node-id="WGfX6Pc8S1dc1956DlAGzF"><label data-page-node-id="UeJQ6qNfbN5sjW1Upw1e3q">钠 (mg)</label><input type="text" inputmode="decimal" class="food-sodium" data-page-node-id="sbrcQSGySbD35Y7fufWw9e" /></div>
+            <div class="field" data-page-node-id="8WfWwLIwr8LIMSSyAekLex"><label data-page-node-id="K45mzzv6b39orPCfOqF6l9">分类</label>
+              <select class="food-category" data-page-node-id="dnoKQzN2oEJmCuqiJ8mrgc">
+                <option value="" data-page-node-id="4YhGkXocgg4kfF1bw8ywnJ">自动判断</option>
+                <option value="碳水" data-page-node-id="78dzS61LcCKY7Pai3jdbhs">碳水</option>
+                <option value="蛋白质" data-page-node-id="3vL1MhCMaGK6wx04gxqkZx">蛋白质</option>
+                <option value="蔬菜" data-page-node-id="4xtGCnW0OIlApdV6EXSfPY">蔬菜</option>
+                <option value="水果" data-page-node-id="UIpW4aoKLmhPYTmugAJZmT">水果</option>
+                <option value="其他" data-page-node-id="SE3sfCQjfmiYx7I6xV4I9w">其他</option>
+                <option value="饮品" data-page-node-id="BfEI1pQ1CDiiU7VVnOMBfe">饮品</option>
+                <option value="零食" data-page-node-id="UoYGzBjFsse4z0VxyAY35L">零食</option>
               </select>
             </div>
-            <div class="form-actions">
-              <button type="submit" class="btn primary food-submit-btn">添加</button>
-              <button type="button" class="btn secondary food-cancel-btn">取消</button>
+            <div class="form-actions" data-page-node-id="4CIAdebpB01yDFHtVAZTws">
+              <button type="submit" class="btn primary food-submit-btn" data-page-node-id="smvawgJbvdbtr3ayFRvLny">添加</button>
+              <button type="button" class="btn secondary food-cancel-btn" data-page-node-id="f5Hq6BLvs61qgi0Tb6ZzC8">取消</button>
             </div>
           </form>
         </details>
       </div>
-      <details class="panel section-details" id="food-lib-collapse" open>
-        <summary>🍎 食物库清单 <small>点击展开 / 收起</small></summary>
-        <div id="food-categories"></div>
+      <details class="panel section-details" id="food-lib-collapse" open data-page-node-id="ddLiB52jF7enx4RWf8HCON">
+        <summary data-page-node-id="krCniNSF2cFxX2BXLKCqHn">🍎 食物库清单 <small data-page-node-id="uOVcxoFeDsNrF2oj2u0D6E">点击展开 / 收起</small></summary>
+        <div id="food-categories" data-page-node-id="kzqBIpUpTAIVWQiLFFhUtO"></div>
       </details>
     </section>
 
     <!-- 运动库 -->
-    <section id="exercises" class="tab-panel">
-      <div class="panel">
-        <div class="row foods-head">
-          <h2>🏋️ 运动库 <small>运动库</small></h2>
-          <button id="clear-exercises-btn" class="btn danger">消除运动库数据</button>
+    <section id="exercises" class="tab-panel" data-page-node-id="XVWWS5CZDixliNqEGFN6Fb">
+      <div class="panel" data-page-node-id="Yv1qto6ozZAnKSs455mllG">
+        <div class="row foods-head" data-page-node-id="gTnOX91NSuvr3KIQa7SRDM">
+          <h2 data-page-node-id="ggQoDKujLu53RMzClIFQPj">🏋️ 运动库 <small data-page-node-id="foLNChb241ilSeO8LPyX00">运动库</small></h2>
+          <button id="clear-exercises-btn" class="btn danger" data-page-node-id="YB1zM4KSKFPzQ7skCixWNM">消除运动库数据</button>
         </div>
-        <h2>🏋️ 无氧运动 <small>力量 / 抗阻类</small></h2>
-        <form id="exercise-form-ana" class="form-grid" data-type="ana">
-          <input type="hidden" class="exercise-edit-id" />
-          <div class="field"><label>名称</label><input type="text" class="exercise-name" placeholder="例如：哑铃卧推" /></div>
-          <div class="field"><label>参考时长 (分)</label><input type="text" inputmode="decimal" class="exercise-duration-lib" /></div>
-          <div class="field"><label>参考消耗 (kcal)</label><input type="text" inputmode="decimal" class="exercise-kcal-lib" /></div>
-          <div class="form-actions">
-            <button type="submit" class="btn primary exercise-submit-btn">添加</button>
-            <button type="button" class="btn secondary exercise-cancel-btn">取消</button>
+        <h2 data-page-node-id="3jbWbu6J1PdDYWesz7Kiw4">🏋️ 无氧运动 <small data-page-node-id="MuY4jty1Bst1Jr1kXTJkPn">力量 / 抗阻类</small></h2>
+        <form id="exercise-form-ana" class="form-grid" data-type="ana" data-page-node-id="YAKL2JXmRTva0T8vDnJv7n">
+          <input type="hidden" class="exercise-edit-id" data-page-node-id="sWyt57DuBFh1FkuxB2fHeq" />
+          <div class="field" data-page-node-id="wbkuI14Hn6ta6Mhht0dG5v"><label data-page-node-id="PJ3BiSMzYipEgyw8JA7Or0">名称</label><input type="text" class="exercise-name" placeholder="例如：哑铃卧推" data-page-node-id="R8J0rVwidOGkZkM2EcIUbz" /></div>
+          <div class="field" data-page-node-id="Snfp1yQwfrcq1VyBjAIp1S"><label data-page-node-id="0c3qzZj23vLBtCefk2HmVV">参考时长 (分)</label><input type="text" inputmode="decimal" class="exercise-duration-lib" data-page-node-id="vXaDQXja9dAvS1NQptmmZ4" /></div>
+          <div class="field" data-page-node-id="MOFn4zaPOavYUCcdkSuSHo"><label data-page-node-id="FDTZygHRmogxo1IfJ3Dtuh">参考消耗 (kcal)</label><input type="text" inputmode="decimal" class="exercise-kcal-lib" data-page-node-id="UcbiS4DnVcZGGYqzzaC7z0" /></div>
+          <div class="form-actions" data-page-node-id="JnH9fbBB8IM5YyyP6MPwd9">
+            <button type="submit" class="btn primary exercise-submit-btn" data-page-node-id="U7adomfhFCAde2U8ZMTnwF">添加</button>
+            <button type="button" class="btn secondary exercise-cancel-btn" data-page-node-id="qXARSb59WvAB5eikGJaDcX">取消</button>
           </div>
         </form>
-        <div class="table-wrap">
-          <table id="exercise-lib-table-ana">
-            <thead><tr><th>名称</th><th>时长</th><th>消耗</th><th>每分钟消耗</th><th></th></tr></thead>
-            <tbody></tbody>
+        <div class="table-wrap" data-page-node-id="DxKfTI9n5AjmzG2XM8dnpF">
+          <table id="exercise-lib-table-ana" data-page-node-id="NaTHw38xDYATum3RaGnkfe">
+            <thead data-page-node-id="9CuqTOMUAaIOnIdVGAEAHV"><tr data-page-node-id="c3dz497b2eUQOvQZF57t7M"><th data-page-node-id="e64olBsvLlbcV3qj28pCka">名称</th><th data-page-node-id="u2KDOfCGRZyPYYAXfkJmil">时长</th><th data-page-node-id="qfNdHwsOCmtaC7vtQJWB9h">消耗</th><th data-page-node-id="VY2HhJe5nZH1XMNSkxYfhi">每分钟消耗</th><th data-page-node-id="yGKftFUSMgBoWC8B2vWSzc"></th></tr></thead>
+            <tbody data-page-node-id="cRBdKUIjDoHrk1qZhheX9j"></tbody>
           </table>
         </div>
       </div>
 
-      <div class="panel">
-        <h2>🏃 有氧运动 <small>跑步 / 骑行 / 跳绳等</small></h2>
-        <form id="exercise-form-aer" class="form-grid" data-type="aer">
-          <input type="hidden" class="exercise-edit-id" />
-          <div class="field"><label>名称</label><input type="text" class="exercise-name" placeholder="例如：Keep 燃脂跑" /></div>
-          <div class="field"><label>参考时长 (分)</label><input type="text" inputmode="decimal" class="exercise-duration-lib" /></div>
-          <div class="field"><label>参考消耗 (kcal)</label><input type="text" inputmode="decimal" class="exercise-kcal-lib" /></div>
-          <div class="form-actions">
-            <button type="submit" class="btn primary exercise-submit-btn">添加</button>
-            <button type="button" class="btn secondary exercise-cancel-btn">取消</button>
+      <div class="panel" data-page-node-id="Hc63P9FHtsDo9ODvIlr81U">
+        <h2 data-page-node-id="8ECjgYML0EOPvpCL7GYQcs">🏃 有氧运动 <small data-page-node-id="xf7iw916tFRz9DrGpacSIR">跑步 / 骑行 / 跳绳等</small></h2>
+        <form id="exercise-form-aer" class="form-grid" data-type="aer" data-page-node-id="NJLuSGUSn316ByaGEK7stR">
+          <input type="hidden" class="exercise-edit-id" data-page-node-id="EaHBPYptczCJYdABD6Opnl" />
+          <div class="field" data-page-node-id="Aj29MFBKM9WVMo4q1AjltR"><label data-page-node-id="9gN7n0DDK2qZojoWvIrbde">名称</label><input type="text" class="exercise-name" placeholder="例如：Keep 燃脂跑" data-page-node-id="pNeWBKCivCFXDkyvuZpME1" /></div>
+          <div class="field" data-page-node-id="L6TvuhoD0PvWLiWxVXNspi"><label data-page-node-id="P6LnRX7peE3FC5xH47njVJ">参考时长 (分)</label><input type="text" inputmode="decimal" class="exercise-duration-lib" data-page-node-id="G6DkeDMJiYbyDET0mIEUbd" /></div>
+          <div class="field" data-page-node-id="CzTwnoAcgWa9t4TlJtzDcA"><label data-page-node-id="CFi7mb7r489jGFGUbrwkWW">参考消耗 (kcal)</label><input type="text" inputmode="decimal" class="exercise-kcal-lib" data-page-node-id="lSHpPCTe8kAseszCJG9OB1" /></div>
+          <div class="form-actions" data-page-node-id="ZmGotfDbeC9GO5XIEyWDie">
+            <button type="submit" class="btn primary exercise-submit-btn" data-page-node-id="9rAx5xMBIyK1wBbR2FDp9Q">添加</button>
+            <button type="button" class="btn secondary exercise-cancel-btn" data-page-node-id="n46HisepJLEGdKUQRDhZZB">取消</button>
           </div>
         </form>
-        <div class="table-wrap">
-          <table id="exercise-lib-table-aer">
-            <thead><tr><th>名称</th><th>时长</th><th>消耗</th><th>每分钟消耗</th><th></th></tr></thead>
-            <tbody></tbody>
+        <div class="table-wrap" data-page-node-id="fYcdX7yhzORwWtLvXQD5vT">
+          <table id="exercise-lib-table-aer" data-page-node-id="IP6sPfZnhDOFrWvgzihRSB">
+            <thead data-page-node-id="IwDDJ29r87seCHECAZyDQh"><tr data-page-node-id="4Om9697ryY5ksREhZugSdd"><th data-page-node-id="76S3ET6aAI1TD1hFrP2hIQ">名称</th><th data-page-node-id="cvPrXse4vnn5RdiQlop7tr">时长</th><th data-page-node-id="3BQolAf2MFAXRuRiEoLRut">消耗</th><th data-page-node-id="O3PQ3ZkjkDUJpQEMA2LBoS">每分钟消耗</th><th data-page-node-id="W1irRfFTQUBBNDTBRCIYW5"></th></tr></thead>
+            <tbody data-page-node-id="xu6SFqrQbk7rKmjKCk5JHC"></tbody>
           </table>
         </div>
       </div>
     </section>
 
     <!-- 统计 -->
-    <section id="stats" class="tab-panel">
-      <div class="panel">
-        <h2>📊 热量记录</h2>
-        <div class="row stats-datebar">
-          <div class="date-group">
-            <label for="stats-start">开始日期</label>
-            <span></span>
-            <label for="stats-end">结束日期</label>
-            <input type="date" id="stats-start" />
-            <span class="date-sep">—</span>
-            <input type="date" id="stats-end" />
+    <section id="stats" class="tab-panel" data-page-node-id="OxvJg2lHmkG3bUw1LSWwCl">
+      <div class="panel" data-page-node-id="cC4XMSdSVb6X577dQeZnc7">
+        <h2 data-page-node-id="dvgAOWwUFVIFuOc4LX8enD">📊 热量记录</h2>
+        <div class="row stats-datebar" data-page-node-id="lK1lgJINsfpuEYgfE5DFgL">
+          <div class="date-group" data-page-node-id="xyKu4Afc9Bgg5yBOyq0CPY">
+            <label for="stats-start" data-page-node-id="y3ZItodmkEOrGMXcqGQpSL">开始日期</label>
+            <span data-page-node-id="TtYCWp0mYWwLz8v2yEOA7G"></span>
+            <label for="stats-end" data-page-node-id="mngEVEvRVLN5iRHWZpP8tk">结束日期</label>
+            <input type="date" id="stats-start" data-page-node-id="ma7SlQlTH6aRfJNR3McHw0" />
+            <span class="date-sep" data-page-node-id="sbKeJxktOfvMEmn1C8Jjjs">—</span>
+            <input type="date" id="stats-end" data-page-node-id="4ETazLGoe31pvB5yrOncV3" />
           </div>
-          <button id="stats-load-btn" class="btn primary">查看</button>
-          <button id="monthly-stats-btn" class="btn secondary">📅 月热量记录</button>
+          <button id="stats-load-btn" class="btn primary" data-page-node-id="HMP6d8pxPnQpOFXU0PMyfn">查看</button>
+          <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
         </div>
-        <div class="table-wrap">
-          <table id="stats-table">
-            <thead><tr><th>日期</th><th>摄入</th><th>消耗</th><th>热量缺口</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th>操作</th></tr></thead>
-            <tbody></tbody>
+        <div class="table-wrap" data-page-node-id="VFCMdKFL5IQuum3yP8RM9H">
+          <table id="stats-table" data-page-node-id="S4MNQfYk6qjRxoarwVi1FC">
+            <thead data-page-node-id="0QLH3NJKKj8tmOifcwFDpv"><tr data-page-node-id="5QUWyU5m3Z9Y57TJ1hpVc8"><th data-page-node-id="WVE3YCCA4CA3W325o30z2a">日期</th><th data-page-node-id="sJPPuxfZVLABUvebCDwAXl">摄入</th><th data-page-node-id="9TV8NpuDhQPpRjGZwY8UC9">消耗</th><th data-page-node-id="yDl0I09uFnr6kcQaDktvic">热量缺口</th><th data-page-node-id="YtGxASWQehdBrBMyZHocO3">蛋白质</th><th data-page-node-id="D9CwDQ4fkI4EAAD9BSKtjR">脂肪</th><th data-page-node-id="BJ9g2Wuj6iPRRZTad2JpTw">碳水</th><th data-page-node-id="0UsXP5dSivmfRoXElyGHSM">糖</th><th data-page-node-id="7yTWsq2H8hWoYuU4wrExP6">钠</th><th data-page-node-id="wz7y2JNuydR7MJL8SMFGIs">操作</th></tr></thead>
+            <tbody data-page-node-id="lhd53CJNYhm6PK6zjnL178"></tbody>
           </table>
         </div>
       </div>
-      <details class="panel section-details" id="body-stats-collapse">
-        <summary>📐 身材记录 <small>点击展开 / 收起</small></summary>
-        <div class="table-wrap">
-          <table id="body-stats-table">
-            <thead><tr><th>日期</th><th>体重 (kg)</th><th>体脂率 (%)</th><th>小腿围 (cm)</th><th>大腿围 (cm)</th><th>腰围 (cm)</th><th>臀围 (cm)</th><th>操作</th></tr></thead>
-            <tbody></tbody>
+      <details class="panel section-details" id="body-stats-collapse" data-page-node-id="hLE4La2vfiVIdjxx6Hj5NH">
+        <summary data-page-node-id="TxjrhQ5WnZpjZBLDBX6pWe">📐 身材记录 <small data-page-node-id="sqmHSNy256pcKHyAbD4GiK">点击展开 / 收起</small></summary>
+        <div class="table-wrap" data-page-node-id="LczQn75vTOJshLsDEDFewh">
+          <table id="body-stats-table" data-page-node-id="oqW1BVHqxf47nQLpKCwlsY">
+            <thead data-page-node-id="Q3VE2f6GKDPXTjn3TIfpce"><tr data-page-node-id="eRjXsLjalprcHqFuvhqjpK"><th data-page-node-id="eGeHukkiBN1xRehAUTa50r">日期</th><th data-page-node-id="XIMrDVqmmbpYLl6X4zueEL">体重 (kg)</th><th data-page-node-id="60oMYj5MSXyDUJ1zlFmpyT">体脂率 (%)</th><th data-page-node-id="YKuC9vnTBsuIFzB0arRxEN">小腿围 (cm)</th><th data-page-node-id="TZmb3J4ju9iUD0bbIvuLO1">大腿围 (cm)</th><th data-page-node-id="292QVqXzHPF6JRiOYa2QYT">腰围 (cm)</th><th data-page-node-id="jpDDLv1a60WrGk95rxRTjW">臀围 (cm)</th><th data-page-node-id="bhsSd9aw6t2R58T6qlE5Fv">操作</th></tr></thead>
+            <tbody data-page-node-id="FIQUepuA86t8q7L1BiH4gm"></tbody>
           </table>
         </div>
-        <div class="row" style="margin-top:12px;gap:12px;align-items:center;flex-wrap:wrap;">
-          <button type="button" class="btn secondary" id="body-csv-import-btn">📥 导入体重/体脂 CSV</button>
-          <span class="hint" style="margin:0;flex:1;min-width:220px;">CSV 首行表头含「日期、体重、体脂率」即可（列顺序不限，也支持小腿围/大腿围/腰围/臀围）。日期支持 2026-08-01 或 8/1 格式。</span>
+        <div class="row" style="margin-top:12px;gap:12px;align-items:center;flex-wrap:wrap;" data-page-node-id="SeHsCDx3GxY5nu4zuqOORG">
+          <button type="button" class="btn secondary" id="body-csv-import-btn" data-page-node-id="6SXLqsWQvI2gH1tURaDXyh">📥 导入体重/体脂 CSV</button>
+          <span class="hint" style="margin:0;flex:1;min-width:220px;" data-page-node-id="TpYGPfoYWjIGGaECyB10wK">CSV 首行表头含「日期、体重、体脂率」即可（列顺序不限，也支持小腿围/大腿围/腰围/臀围）。日期支持 2026-08-01 或 8/1 格式。</span>
         </div>
-        <input type="file" id="body-csv-file" accept=".csv,text/csv" style="display:none" />
-        <h3 style="margin-top:24px;">📈 趋势图</h3>
-        <div class="row">
-          <div class="field small">
-            <label>指标</label>
-            <select id="body-chart-metric">
-              <option value="weight">体重 (kg)</option>
-              <option value="bodyFat">体脂率 (%)</option>
-              <option value="calf">小腿围 (cm)</option>
-              <option value="thigh">大腿围 (cm)</option>
-              <option value="waist">腰围 (cm)</option>
-              <option value="hip">臀围 (cm)</option>
+        <input type="file" id="body-csv-file" accept=".csv,text/csv" style="display:none" data-page-node-id="Zqh8a5WuigLZIfVQwgflNp" />
+        <h3 style="margin-top:24px;" data-page-node-id="h3FC0uOjKLqxeS7bCmBmYE">📈 趋势图</h3>
+        <div class="row" data-page-node-id="KZUmamr4Y5YR1Rz5UN6xms">
+          <div class="field small" data-page-node-id="alpZ5u1t8GGcubbvOlvNde">
+            <label data-page-node-id="nmmsf7br6s1Ko2kh9OwUfH">指标</label>
+            <select id="body-chart-metric" data-page-node-id="Tu7soYABAgnEzq6O5T204D">
+              <option value="weight" data-page-node-id="3nglH0XYGTsXzyJztW1mXR">体重 (kg)</option>
+              <option value="bodyFat" data-page-node-id="JRJJMNlxMSxoL5nLLx6rZu">体脂率 (%)</option>
+              <option value="calf" data-page-node-id="UiS97Ed3rt9JLlmX41P4p8">小腿围 (cm)</option>
+              <option value="thigh" data-page-node-id="8rEIk9qHayEVhgsAwCuIN7">大腿围 (cm)</option>
+              <option value="waist" data-page-node-id="SsNOIYpEDB3pcJmf1e1N52">腰围 (cm)</option>
+              <option value="hip" data-page-node-id="NudZzu7TjMy8z5SR35Oew2">臀围 (cm)</option>
             </select>
           </div>
         </div>
-        <div id="body-chart"></div>
+        <div id="body-chart" data-page-node-id="EMpElz19JEAieiPTgAcOAH"></div>
       </details>
     </section>
 
     <!-- 回收站 -->
-    <section id="trash" class="tab-panel">
-      <div class="panel">
-        <div class="row" style="justify-content:space-between;align-items:center;">
-          <h2>🗑️ 回收站</h2>
-          <button id="empty-trash-btn" class="btn danger">清空回收站</button>
+    <section id="trash" class="tab-panel" data-page-node-id="tgcaXxaJtuT7pD3rqy7spS">
+      <div class="panel" data-page-node-id="5CU5ZY1Kfe79h9sGMuaIEH">
+        <div class="row" style="justify-content:space-between;align-items:center;" data-page-node-id="pcNEOIOPjCd0lNWYJt7WBc">
+          <h2 data-page-node-id="WFAL67tUUMp2OrX89XAhvC">🗑️ 回收站</h2>
+          <button id="empty-trash-btn" class="btn danger" data-page-node-id="pGcUqbB6b5ZnLM87piMJXT">清空回收站</button>
         </div>
-        <p class="hint">该软件删除的数据全都会保留在回收站「保留7天」。可点击「恢复」还原，或点击「彻底删除」永久清除。超过7天的数据将在打开app时自动清空。</p>
-        <table id="trash-table">
-          <thead><tr><th>类型</th><th>内容</th><th>删除时间</th><th>操作</th></tr></thead>
-          <tbody></tbody>
+        <p class="hint" data-page-node-id="YH0i23YjTqoUNlD984ibJy">该软件删除的数据全都会保留在回收站「保留7天」。可点击「恢复」还原，或点击「彻底删除」永久清除。超过7天的数据将在打开app时自动清空。</p>
+        <table id="trash-table" data-page-node-id="p9gjcrDtuXs18itmXLwvVC">
+          <thead data-page-node-id="DRJqOuiSes3JH5Ouvb1owt"><tr data-page-node-id="glVBcEkHFVlDbwA3ZMEwpf"><th data-page-node-id="geB0mAcMHh8Kc4B9O0GtZE">类型</th><th data-page-node-id="9bYYQgiJXVJj13qlHUuwCl">内容</th><th data-page-node-id="fgDotZC0o4RZAP1sfvxxqM">删除时间</th><th data-page-node-id="oOlvo1DG6cB7wfHcFAWlCw">操作</th></tr></thead>
+          <tbody data-page-node-id="waCgG1Bvaaq6p4vrTM7HkS"></tbody>
         </table>
       </div>
     </section>
 
     <!-- 数据 -->
-    <section id="data" class="tab-panel">
-      <div class="panel">
-        <h2>💾 数据管理</h2>
-        <p class="hint">所有数据保存在你当前浏览器本地（localStorage），不会上传到任何服务器。可随时导出备份或导入恢复。</p>
+    <section id="data" class="tab-panel" data-page-node-id="QSCVzTDdmfxWEM1WpMBc1T">
+      <div class="panel" data-page-node-id="z1OjJp478EynyqJFmziMHw">
+        <h2 data-page-node-id="ap04ZwnCOjbPKx81Dbvhzw">💾 数据管理</h2>
+        <p class="hint" data-page-node-id="4mLUCMJ5E5Ytu8TB8Wgfe3">所有数据保存在你当前浏览器本地（localStorage），不会上传到任何服务器。可随时导出备份或导入恢复。</p>
 
-        <details class="section-details" style="margin-top:24px;">
-          <summary>🧬 代谢测试 <small>估算基础代谢与每日总消耗</small></summary>
-          <p class="hint">输入性别、年龄、体重、身高，自动按 Mifflin-St Jeor 公式计算 BMR，再结合活动量估算 TDEE。计算结果按「测试生效年月」写入对应月份的每日动态消耗（体重不同月份，动态消耗也不同）。</p>
-          <div class="form-grid metabolism-grid">
-            <div class="field month-field"><label>测试生效年月</label><input type="month" id="metabolism-month" /></div>
-            <div class="field"><label>性别</label>
-              <div class="radio-row gender-row">
-                <label class="radio-chip"><input type="radio" name="metabolism-gender" value="female" checked><span>女性</span></label>
-                <label class="radio-chip"><input type="radio" name="metabolism-gender" value="male"><span>男性</span></label>
+        <details class="section-details" style="margin-top:24px;" data-page-node-id="NErM1OM31Ak81qglvBdlj4">
+          <summary data-page-node-id="L1vSK7s5WSZKcHVp31nQNW">🧬 代谢测试 <small data-page-node-id="x77bKotMGUiS1Q9yy5YAkP">估算基础代谢与每日总消耗</small></summary>
+          <p class="hint" data-page-node-id="M4GhXhsOhLDinfQsfjBof1">输入性别、年龄、体重、身高，自动按 Mifflin-St Jeor 公式计算 BMR，再结合活动量估算 TDEE。计算结果按「测试生效年月」写入对应月份的每日动态消耗（体重不同月份，动态消耗也不同）。</p>
+          <div class="form-grid metabolism-grid" data-page-node-id="67slXbJOyckrqn8Sramhr5">
+            <div class="field month-field" data-page-node-id="gtAigRHWxpf4BQSphHA4eF"><label data-page-node-id="yFE5WwbVIYyFLn69RjYldd">测试生效年月</label><input type="month" id="metabolism-month" data-page-node-id="pccTH40TJIGvNtZpEKrK27" /></div>
+            <div class="field" data-page-node-id="1B5OfrPIeuiNpfHRm3nge3"><label data-page-node-id="TH6ylw0BlkUXFdtDVzwps6">性别</label>
+              <div class="radio-row gender-row" data-page-node-id="XQ5q4kIpEqhqoX4c49Cufd">
+                <label class="radio-chip" data-page-node-id="tiSZfGAUY8BTnRDY9Zubil"><input type="radio" name="metabolism-gender" value="female" checked data-page-node-id="JbrWRE4Rp9kyeitEFdGAJq"><span data-page-node-id="a96HqtztjRTbRbyojBsCIc">女性</span></label>
+                <label class="radio-chip" data-page-node-id="6CPMYPG0AL4Mgu7DVCFkXh"><input type="radio" name="metabolism-gender" value="male" data-page-node-id="2FF85v12z3AEsG5EMNt3FX"><span data-page-node-id="YQwxihpPaieNwgdxNUx8N2">男性</span></label>
               </div>
             </div>
-            <div class="field"><label>年龄</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" /></div>
-            <div class="field"><label>体重 (kg)</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" /></div>
-            <div class="field"><label>身高 (cm)</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" /></div>
-            <div class="field full-width"><label>日常活动量</label>
-              <div class="radio-row activity-row">
-                <label class="radio-chip"><input type="radio" name="metabolism-activity" value="1.2" checked><span>久坐不运动</span></label>
-                <label class="radio-chip"><input type="radio" name="metabolism-activity" value="1.375"><span>轻度运动</span></label>
-                <label class="radio-chip"><input type="radio" name="metabolism-activity" value="1.55"><span>中频规律训练</span></label>
+            <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">年龄</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" data-page-node-id="WfmX7oKp0nf856PsxY0dBn" /></div>
+            <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重 (kg)</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
+            <div class="field" data-page-node-id="mJSxqe1Q1tdEg84BpaYCvb"><label data-page-node-id="PXkPZIPCbx5vXWpk2SlsOm">身高 (cm)</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" data-page-node-id="u6eQVEIPEHbpcYMrRQNePc" /></div>
+            <div class="field full-width" data-page-node-id="B25iOBbVfWUUrgTzTGNUD6"><label data-page-node-id="ROPBxK1PVkAEgIDdkfDiFw">日常活动量</label>
+              <div class="radio-row activity-row" data-page-node-id="6a0v820ETCWPr6cewdtfjn">
+                <label class="radio-chip" data-page-node-id="8JoF6JDrq7Vri1a53IYLVc"><input type="radio" name="metabolism-activity" value="1.2" checked data-page-node-id="ObFsjVQsVNtCwfrKT72zGd"><span data-page-node-id="ujxOUthxEaJtgntCpU0WJ8">久坐不运动</span></label>
+                <label class="radio-chip" data-page-node-id="dg49BrzzIur0Bd6L3IYI3N"><input type="radio" name="metabolism-activity" value="1.375" data-page-node-id="FNu4WLWuejPOL1QS69Qu5T"><span data-page-node-id="WKfmXjuKHGzIkpYlbxWaAX">轻度运动</span></label>
+                <label class="radio-chip" data-page-node-id="jEPGUCXmDrkk0QnHn4PBOC"><input type="radio" name="metabolism-activity" value="1.55" data-page-node-id="sbZYDnZguj3GSfkOwENw10"><span data-page-node-id="wxjEzNMEb8BTsnJEs80qvP">中频规律训练</span></label>
               </div>
             </div>
           </div>
-          <div class="metabolism-results">
-            <div class="result-box">
-              <span class="result-label">BMR<br>「基础代谢率」</span>
-              <span class="result-value" id="metabolism-bmr">--</span>
-              <span class="result-unit">kcal / 天</span>
+          <div class="metabolism-results" data-page-node-id="gtwkqGlfNbWS2FmpXYTpBW">
+            <div class="result-box" data-page-node-id="YAq59QSVy8ZByPGdyjjcv8">
+              <span class="result-label" data-page-node-id="lDsoQSC8Iv0DjZs2Z7hFL9">BMR<br data-page-node-id="qDa03cJDgPBbVsVcjQeEiM">「基础代谢率」</span>
+              <span class="result-value" id="metabolism-bmr" data-page-node-id="PX050rMw1uhCZ8yPCmCkUG">--</span>
+              <span class="result-unit" data-page-node-id="NELrWjtGFvNNzNF4WhHUPP">kcal / 天</span>
             </div>
-            <div class="result-box">
-              <span class="result-label">TDEE<br>「总每日能量消耗」</span>
-              <span class="result-value" id="metabolism-tdee">--</span>
-              <span class="result-unit">kcal / 天</span>
+            <div class="result-box" data-page-node-id="YH6sxzWQX9X6SNHHw5jE9f">
+              <span class="result-label" data-page-node-id="xqObRFEvi3dESlQiXIIzHP">TDEE<br data-page-node-id="nnJN1Mvi4aTsMr3nFfMMLI">「总每日能量消耗」</span>
+              <span class="result-value" id="metabolism-tdee" data-page-node-id="3CKNxKRgqW0F0nsBDGmArv">--</span>
+              <span class="result-unit" data-page-node-id="FBHoeo9apuoMsFbAHHpziY">kcal / 天</span>
             </div>
           </div>
         </details>
 
-        <details class="section-details" style="margin-top:24px;">
-          <summary>🎯 每日营养目标 <small>设置目标值 · 点击展开填写</small></summary>
-          <p class="hint">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
-          <div class="form-grid">
-            <div class="field month-field"><label>目标生效年月</label><input type="month" id="goal-month" /></div>
-            <div class="field"><label>每日目标摄入热量（kcal）</label><input type="text" id="goal-kcal" inputmode="text" placeholder="如 1500 或 1400-1600" /></div>
-            <div class="field"><label>每日动态消耗 (kcal)</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" /></div>
-            <div class="field"><label>蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90 或 80-100" /></div>
-            <div class="field"><label>脂肪 (g)</label><input type="text" id="goal-fat" inputmode="text" placeholder="如 50 或 45-60" /></div>
-            <div class="field"><label>碳水 (g)</label><input type="text" id="goal-carbs" inputmode="text" placeholder="如 180 或 160-200" /></div>
-            <div class="field"><label>糖 (g)</label><input type="text" id="goal-sugar" inputmode="text" placeholder="如 50 或 25-50" /></div>
-            <div class="field"><label>钠 (mg)</label><input type="text" id="goal-sodium" inputmode="text" placeholder="如 2000 或 1500-2300" /></div>
-            <div class="form-actions">
-              <button type="button" class="btn primary" id="goal-save-btn">保存目标</button>
+        <details class="section-details" style="margin-top:24px;" data-page-node-id="eoBdIeXtzl7sbG1bmA55sj">
+          <summary data-page-node-id="ULdEkB9YmNGEDwP2Trurx2">🎯 每日营养目标 <small data-page-node-id="1pbASSnF6b8Ie7cBXURv5v">设置目标值 · 点击展开填写</small></summary>
+          <p class="hint" data-page-node-id="9cZCeeC9OMNtvitEuiYnKS">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
+          <div class="form-grid" data-page-node-id="qYELEw5Tc2rJX1gvmieXKh">
+            <div class="field month-field" data-page-node-id="6fiMz53udzQIwCpTZDsK4M"><label data-page-node-id="VCuxThHGDPTwrhMETyTlAT">目标生效年月</label><input type="month" id="goal-month" data-page-node-id="a5KaQ4SRu0ScQAf9fsPwXY" /></div>
+            <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">每日目标摄入热量（kcal）</label><input type="text" id="goal-kcal" inputmode="text" placeholder="如 1500 或 1400-1600" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
+            <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">每日动态消耗 (kcal)</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
+            <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90 或 80-100" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
+            <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)</label><input type="text" id="goal-fat" inputmode="text" placeholder="如 50 或 45-60" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
+            <div class="field" data-page-node-id="YfpwQLOcPeRlHkn6ylUmE2"><label data-page-node-id="TEGERcnV0ikDazvhffHVHd">碳水 (g)</label><input type="text" id="goal-carbs" inputmode="text" placeholder="如 180 或 160-200" data-page-node-id="E0svl6NVSik6sTB25vFe6u" /></div>
+            <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><input type="text" id="goal-sugar" inputmode="text" placeholder="如 50 或 25-50" data-page-node-id="IFMwoFjrxz1o6uueUU81C9" /></div>
+            <div class="field" data-page-node-id="FXxJIiI4rREeU7MeEiRAzY"><label data-page-node-id="r4D4YgArBro2ScbSOQA1cr">钠 (mg)</label><input type="text" id="goal-sodium" inputmode="text" placeholder="如 2000 或 1500-2300" data-page-node-id="nN6ckiYnnZpHeQcHfE2fSS" /></div>
+            <div class="form-actions" data-page-node-id="kxYkspxBfzpMAZg8rbNAqS">
+              <button type="button" class="btn primary" id="goal-save-btn" data-page-node-id="OYdGQ6Eiy8UlVwuJXHbYHs">保存目标</button>
             </div>
           </div>
-          <p class="hint" id="goals-hint"></p>
+          <p class="hint" id="goals-hint" data-page-node-id="UkgmNbANT317ja3zEAfRQo"></p>
         </details>
 
-        <div class="data-actions main-actions">
-          <button id="export-btn" class="btn primary">导出 JSON 备份</button>
-          <button id="import-btn" class="btn secondary">导入 JSON 备份</button>
-          <button id="sample-btn" class="btn success">载入示例数据</button>
-          <button id="suki-image-foods-100g-btn" class="btn primary">＋ 添加图片食物表（100g）</button>
-          <button id="suki-image-foods-btn" class="btn secondary">＋ 添加图片食物表（单份）</button>
-          <button id="suki-milktea-btn" class="btn secondary">🧋 导入品牌奶茶数据</button>
-          <button id="suki-fastfoods-btn" class="btn secondary">🍔 导入 KFC / M记 / 鸡柳大人数据</button>
-          <button id="suki-exercises-btn" class="btn primary">＋ 导入 Suki 运动表</button>
+        <div class="data-actions main-actions" data-page-node-id="byrVCUnKdCR1Nr0w6V1QmE">
+          <button id="export-btn" class="btn primary" data-page-node-id="A76MvLHsu1RonZh8LsHj8k">导出 JSON 备份</button>
+          <button id="import-btn" class="btn secondary" data-page-node-id="LYiYilz7s2znDtEVzRFolA">导入 JSON 备份</button>
+          <button id="sample-btn" class="btn success" data-page-node-id="XdgIJFWa79bHfQsHuwURVW">载入示例数据</button>
+          <button id="suki-image-foods-100g-btn" class="btn primary" data-page-node-id="W0HBjkXeyMkfO7zXNacCOC">＋ 添加图片食物表（100g）</button>
+          <button id="suki-image-foods-btn" class="btn secondary" data-page-node-id="BKzbja8iE14eFLVsbnwhjJ">＋ 添加图片食物表（单份）</button>
+          <button id="suki-milktea-btn" class="btn secondary" data-page-node-id="A0zFZT9XhAwZrdHrPA7gsS">🧋 导入品牌奶茶数据</button>
+          <button id="suki-fastfoods-btn" class="btn secondary" data-page-node-id="RxNmS2S1OVzoO9RaaD44Dz">🍔 导入 KFC / M记 / 鸡柳大人数据</button>
+          <button id="suki-exercises-btn" class="btn primary" data-page-node-id="FCgXxpySKeFoPsGaCbSdbW">＋ 导入 Suki 运动表</button>
         </div>
-        <h3 style="margin-top:24px;">🧹 精细化清空</h3>
-        <p class="hint">按需清空某一类数据，其它数据保留。</p>
-        <div class="data-actions">
-          <button id="clear-diet-btn" class="btn warning">清空饮食&amp;运动记录</button>
-          <button id="clear-body-btn" class="btn warning">清空身材数据</button>
-          <button id="reset-btn" class="btn danger">清空所有数据</button>
+        <h3 style="margin-top:24px;" data-page-node-id="CNtiXylTAzMG3EgcuzdXTD">🧹 精细化清空</h3>
+        <p class="hint" data-page-node-id="7fs7fDyJBu6WDmWKOECI4t">按需清空某一类数据，其它数据保留。</p>
+        <div class="data-actions" data-page-node-id="nNradabXBg5ITNPC4fC8ug">
+          <button id="clear-diet-btn" class="btn warning" data-page-node-id="fo6eBRGROif1Go7NNzKbw2">清空饮食&amp;运动记录</button>
+          <button id="clear-body-btn" class="btn warning" data-page-node-id="hFqBjNxfhaIeGUb2MX5vFS">清空身材数据</button>
+          <button id="reset-btn" class="btn danger" data-page-node-id="kH5Fin8AzygUShEUqtRwBD">清空所有数据</button>
         </div>
 
-        <h3 style="margin-top:24px;">📱 在手机上安装为 App</h3>
-        <div style="background:linear-gradient(135deg,rgba(233, 214, 228,0.78),rgba(245,242,234,0.42));border:1px solid rgba(214, 138, 166,0.28);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-          <p class="hint" style="margin:0 0 8px;">部署到公网后，手机浏览器打开本页面即可「添加到主屏幕」，像原生 App 一样全屏使用、可离线打开。</p>
-          <ul style="margin:0;padding-left:18px;color:var(--text);font-size:13px;line-height:1.75;">
-            <li><b>iPhone / iPad：</b>用 Safari 打开页面 → 点底部「分享」按钮 → 选「添加到主屏幕」→ 命名后「添加」。</li>
-            <li><b>安卓：</b>用 Chrome 打开页面 → 点右上「⋮」→「安装应用」/「添加到主屏幕」。</li>
-            <li>换手机或重装后，先用上方「导出 JSON 备份」导出，新设备「导入 JSON 备份」即可恢复全部数据。</li>
+        <h3 style="margin-top:24px;" data-page-node-id="49Xol4CiuIiMwssLQsDgSY">📱 在手机上安装为 App</h3>
+        <div style="background:linear-gradient(135deg,rgba(233, 214, 228,0.78),rgba(245,242,234,0.42));border:1px solid rgba(214, 138, 166,0.28);border-radius:12px;padding:14px 16px;margin-bottom:8px;" data-page-node-id="EZNLLRoLEELUQRg5DC3cOc">
+          <p class="hint" style="margin:0 0 8px;" data-page-node-id="bOKsH88DFc2iVioEjnCmBB">部署到公网后，手机浏览器打开本页面即可「添加到主屏幕」，像原生 App 一样全屏使用、可离线打开。</p>
+          <ul style="margin:0;padding-left:18px;color:var(--text);font-size:13px;line-height:1.75;" data-page-node-id="eaM0AieU0m0oB8tUUEaCFJ">
+            <li data-page-node-id="imMac8TaeVWqpA28eOMl6T"><b data-page-node-id="FFtFY93iXHXWrNQgEcvNfx">iPhone / iPad：</b>用 Safari 打开页面 → 点底部「分享」按钮 → 选「添加到主屏幕」→ 命名后「添加」。</li>
+            <li data-page-node-id="izFHFpARGyRnAWVioiIOFJ"><b data-page-node-id="ImHG5wcAuAN3CmkYmMY8sI">安卓：</b>用 Chrome 打开页面 → 点右上「⋮」→「安装应用」/「添加到主屏幕」。</li>
+            <li data-page-node-id="eAYuUboKM3r45hklsLqtiR">换手机或重装后，先用上方「导出 JSON 备份」导出，新设备「导入 JSON 备份」即可恢复全部数据。</li>
           </ul>
         </div>
 
-        <input type="file" id="import-file" accept="application/json,.json" style="display:none" />
+        <input type="file" id="import-file" accept="application/json,.json" style="display:none" data-page-node-id="3ycP7xqqsYCIS1L9YpXEFE" />
       </div>
     </section>
   </main>
 
-  <nav class="tabs bottom-nav">
-    <button class="tab-btn active" data-tab="today">今日记录</button>
-    <button class="tab-btn" data-tab="stats">热量记录</button>
-    <button class="tab-btn" data-tab="calories">热量明细表</button>
-    <button class="tab-btn" data-tab="progress">管理进度</button>
-    <button class="tab-btn" data-tab="food-review">复盘记录</button>
-    <button class="tab-btn" data-tab="foods">食物库</button>
-    <button class="tab-btn" data-tab="exercises">运动库</button>
-    <button class="tab-btn" data-tab="trash">回收站</button>
-    <button class="tab-btn" data-tab="data">数据</button>
+  <nav class="tabs bottom-nav" data-page-node-id="VE15T0jAXcTWixC7vXYmsz">
+    <button class="tab-btn active" data-tab="today" data-page-node-id="jkjVp7gbqcnmGrlqDZd1fD">今日记录</button>
+    <button class="tab-btn" data-tab="stats" data-page-node-id="Su3YIVQoyoZxGk0mzBUzRD">热量记录</button>
+    <button class="tab-btn" data-tab="calories" data-page-node-id="dSxN72OWOiN6SgxGqx6XqW">热量明细表</button>
+    <button class="tab-btn" data-tab="progress" data-page-node-id="FuO1xvDOKSI4huGHRdhUGL">管理进度</button>
+    <button class="tab-btn" data-tab="food-review" data-page-node-id="06mkWV7sIxIHFWmFAkFj4e">复盘记录</button>
+    <button class="tab-btn" data-tab="foods" data-page-node-id="iodYywkRDlOy2ELF6ahjMY">食物库</button>
+    <button class="tab-btn" data-tab="exercises" data-page-node-id="R7veMGrSNd9eT5dZHZro8S">运动库</button>
+    <button class="tab-btn" data-tab="trash" data-page-node-id="Wm6ebfPgCv4B5N0lMLV31Y">回收站</button>
+    <button class="tab-btn" data-tab="data" data-page-node-id="NQFFjGhBOaZgW9H5FTThGw">数据</button>
   </nav>
 
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" data-page-node-id="2UnCpXsdoXHKYopdWRFADe"></div>
 
   <!-- 通用确认弹窗（不依赖 window.confirm，预览面板中也可用） -->
-  <div id="confirm-overlay" class="confirm-overlay" style="display:none">
-    <div class="confirm-box">
-      <div class="confirm-msg" id="confirm-msg"></div>
-      <div class="confirm-actions">
-        <button class="btn" id="confirm-cancel">取消</button>
-        <button class="btn danger" id="confirm-ok">确认</button>
+  <div id="confirm-overlay" class="confirm-overlay" style="display:none" data-page-node-id="0N0wgNR0Qstf5gLC35pFb8">
+    <div class="confirm-box" data-page-node-id="rVwYqtYEteTAJFjoK9d6SH">
+      <div class="confirm-msg" id="confirm-msg" data-page-node-id="kNEip8pSVRS3gnFheXsEkm"></div>
+      <div class="confirm-actions" data-page-node-id="0oSx1XKEW4hqSeg8uOZSpn">
+        <button class="btn" id="confirm-cancel" data-page-node-id="MGsggveu4JDfdum5JwV90q">取消</button>
+        <button class="btn danger" id="confirm-ok" data-page-node-id="9pnmHBYYyfaBHFPTFEguIp">确认</button>
       </div>
     </div>
   </div>
 
   <!-- 自定义食物（直接登记到当天摄入） -->
-  <div id="custom-food-modal" class="modal-overlay" style="display:none">
-    <div class="modal-box">
-      <h3>➕ 自定义食物</h3>
-      <p class="hint">登记一条今日饮食，保存后会同时加入「食物库」，方便以后快速选用。热量 / 营养为这条记录的实际数值。</p>
-      <div class="modal-grid">
-        <div class="field"><label>食物名称</label><input type="text" id="cf-name" placeholder="例如：自制沙拉" autocomplete="off" /></div>
-        <div class="field"><label>份量</label><input type="text" id="cf-portion" placeholder="1碗 / 200g" autocomplete="off" /></div>
-        <div class="field"><label>热量 (kcal)</label><input type="text" inputmode="decimal" id="cf-kcal" /></div>
-        <div class="field"><label>蛋白质 (g)</label><input type="text" inputmode="decimal" id="cf-protein" /></div>
-        <div class="field"><label>脂肪 (g)</label><input type="text" inputmode="decimal" id="cf-fat" /></div>
-        <div class="field"><label>碳水 (g)</label><input type="text" inputmode="decimal" id="cf-carbs" /></div>
-        <div class="field"><label>糖 (g)</label><input type="text" inputmode="decimal" id="cf-sugar" /></div>
-        <div class="field"><label>钠 (mg)</label><input type="text" inputmode="decimal" id="cf-sodium" /></div>
+  <div id="custom-food-modal" class="modal-overlay" style="display:none" data-page-node-id="1d0BUJNtADgD1xW2kvSzKm">
+    <div class="modal-box" data-page-node-id="lXVh3GANi2w2DgtPE95Lcz">
+      <h3 data-page-node-id="7cWCe0Ooh8bDjIWrLVvNx1">➕ 自定义食物</h3>
+      <p class="hint" data-page-node-id="BGGIhJlA2ZPSV3WPlHHn6K">登记一条今日饮食，保存后会同时加入「食物库」，方便以后快速选用。热量 / 营养为这条记录的实际数值。</p>
+      <div class="modal-grid" data-page-node-id="crPhRNcK0cn4SM6k595arH">
+        <div class="field" data-page-node-id="qUxiRcEfiJXfAgEPtC0H7N"><label data-page-node-id="jeTtkHLC27FWy8ouTvuo5u">食物名称</label><input type="text" id="cf-name" placeholder="例如：自制沙拉" autocomplete="off" data-page-node-id="2K7R0qvWUwKkDqUC6PQVpR" /></div>
+        <div class="field" data-page-node-id="6B1MG1OvmFp3Q3IhAIYVm7"><label data-page-node-id="JW0JlSUqUkkx2yfOObS651">份量</label><input type="text" id="cf-portion" placeholder="1碗 / 200g" autocomplete="off" data-page-node-id="d98NzYyQPcqAJSXKbQl5fD" /></div>
+        <div class="field" data-page-node-id="g8nABBXC38M7sm0VpBeKLo"><label data-page-node-id="jhdfFWZjPUWwvSyBNRZLqg">热量 (kcal)</label><input type="text" inputmode="decimal" id="cf-kcal" data-page-node-id="uWITAvkdr2k0fbP6SS9Dj2" /></div>
+        <div class="field" data-page-node-id="2GeVdkAufKJ5Xlg8MtqRVc"><label data-page-node-id="AzgGaEsKVZHDeZVB01L3nX">蛋白质 (g)</label><input type="text" inputmode="decimal" id="cf-protein" data-page-node-id="8rtlBPdkVO54mPEjsbWlc3" /></div>
+        <div class="field" data-page-node-id="7FSXXiRiMUShozXNMhUaGm"><label data-page-node-id="goLqfDLUZXoOTi9bn0DGCV">脂肪 (g)</label><input type="text" inputmode="decimal" id="cf-fat" data-page-node-id="nCz34sqkOaOHGQP33tA44p" /></div>
+        <div class="field" data-page-node-id="L2A3ThzC6MRgtGHogIkjef"><label data-page-node-id="rX3vYahn9SD93IRjvxvMPK">碳水 (g)</label><input type="text" inputmode="decimal" id="cf-carbs" data-page-node-id="nkNXi4TQsFMrRtKCSKrSNe" /></div>
+        <div class="field" data-page-node-id="kNa5DbdwKfH9hJIIIYHaAn"><label data-page-node-id="E5vBnsKpPL7pxEf2MdSZ04">糖 (g)</label><input type="text" inputmode="decimal" id="cf-sugar" data-page-node-id="rgyKYMcg5WLsh0RscmHbZC" /></div>
+        <div class="field" data-page-node-id="1vI1tTi0ZPrMEtG3cewqHE"><label data-page-node-id="3zydh92HmID5tm7cS4EEw2">钠 (mg)</label><input type="text" inputmode="decimal" id="cf-sodium" data-page-node-id="5zj0UXwreoZqMRczktpJKI" /></div>
       </div>
-      <div class="modal-actions">
-        <button class="btn secondary" id="cf-cancel">取消</button>
-        <button class="btn primary" id="cf-save">保存</button>
+      <div class="modal-actions" data-page-node-id="HnFL2IotMV0FFZtNWG2UOj">
+        <button class="btn secondary" id="cf-cancel" data-page-node-id="YyyxkEt9DEuGHtqUecFLZ2">取消</button>
+        <button class="btn primary" id="cf-save" data-page-node-id="0nacyUojdG5TLHVo7Wyvze">保存</button>
       </div>
     </div>
   </div>
 
   <!-- 自定义运动（直接登记到当天运动） -->
-  <div id="custom-exercise-modal" class="modal-overlay" style="display:none">
-    <div class="modal-box">
-      <h3>🏃 自定义运动</h3>
-      <p class="hint">登记一条今日运动消耗，保存后会同时加入「运动库」，可选无氧 / 有氧类型。</p>
-      <div class="modal-grid">
-        <div class="field"><label>运动名称</label><input type="text" id="ce-name" placeholder="例如：散步" autocomplete="off" /></div>
-        <div class="field"><label>类型</label>
-          <select id="ce-type">
-            <option value="ana">无氧运动</option>
-            <option value="aer">有氧运动</option>
+  <div id="custom-exercise-modal" class="modal-overlay" style="display:none" data-page-node-id="QoqZoJ2rDtJPidgu7VvRwd">
+    <div class="modal-box" data-page-node-id="M5gWL38znAd4tp6fjTpf3g">
+      <h3 data-page-node-id="oD8jlzCrErAaeCFNngpjYS">🏃 自定义运动</h3>
+      <p class="hint" data-page-node-id="bCsE2aq4GsnAjNvagxCHNr">登记一条今日运动消耗，保存后会同时加入「运动库」，可选无氧 / 有氧类型。</p>
+      <div class="modal-grid" data-page-node-id="nLrCuvNUksiPCXapYpWKao">
+        <div class="field" data-page-node-id="U83u8DBzf3eS25L4331K1z"><label data-page-node-id="0vTHRkeRQt7NsVa3NiGboi">运动名称</label><input type="text" id="ce-name" placeholder="例如：散步" autocomplete="off" data-page-node-id="4jOGVVdnM5cZiZpWduRaDI" /></div>
+        <div class="field" data-page-node-id="vL8EEeXTkUSwsesaKArb3l"><label data-page-node-id="dvwj7qM5AngVxAsk7a41i6">类型</label>
+          <select id="ce-type" data-page-node-id="yueP3y6y2KmWnXvkC9qFAz">
+            <option value="ana" data-page-node-id="t1busHGF9LtK7J3tPNdh5d">无氧运动</option>
+            <option value="aer" data-page-node-id="4uasfUAUULnmWUPAeHFNWy">有氧运动</option>
           </select>
         </div>
-        <div class="field"><label>时长 (分)</label><input type="text" inputmode="decimal" id="ce-duration" /></div>
-        <div class="field"><label>消耗 (kcal)</label><input type="text" inputmode="decimal" id="ce-kcal" /></div>
+        <div class="field" data-page-node-id="7eKu8LCcoNHMlLpzdBPkaw"><label data-page-node-id="MbMOB1e8qROrxOHt9cLwRE">时长 (分)</label><input type="text" inputmode="decimal" id="ce-duration" data-page-node-id="dJ99QIoG2oEkUT584f8NDs" /></div>
+        <div class="field" data-page-node-id="LnlWSP7BmZ2BT9LCM02TpF"><label data-page-node-id="7OSgFPN29XwJ1nDig3A3xv">消耗 (kcal)</label><input type="text" inputmode="decimal" id="ce-kcal" data-page-node-id="7cHtNT6gB7fs7YJQGpaxPi" /></div>
       </div>
-      <div class="modal-actions">
-        <button class="btn secondary" id="ce-cancel">取消</button>
-        <button class="btn primary" id="ce-save">保存</button>
+      <div class="modal-actions" data-page-node-id="670l1p1ZWNmUVysS2V3Xmf">
+        <button class="btn secondary" id="ce-cancel" data-page-node-id="i5289sK0kTW2z8xa9CD3VJ">取消</button>
+        <button class="btn primary" id="ce-save" data-page-node-id="OQzcWlz6UmEokGYucJCxgJ">保存</button>
       </div>
     </div>
   </div>
 
   <!-- 月热量记录弹窗 -->
-  <div id="monthly-stats-modal" class="modal-overlay" style="display:none">
-    <div class="modal-box">
-      <h3>📅 月热量记录</h3>
-      <p class="hint">自动汇总「热量记录」里每个月的 摄入 / 消耗 / 缺口 之和。</p>
-      <div class="table-wrap">
-        <table id="monthly-stats-table">
-          <thead>
-            <tr><th>月份</th><th>月摄入热量</th><th>月消耗热量</th><th>月热量缺口</th></tr>
+  <div id="monthly-stats-modal" class="modal-overlay" style="display:none" data-page-node-id="LnQZJmvyzs9i6njmfByHuL">
+    <div class="modal-box" data-page-node-id="LHzX79JEI9gEeVrHfRxITW">
+      <h3 data-page-node-id="k6byDfjrUlmmhZXxX1tz8j">📅 月热量记录</h3>
+      <p class="hint" data-page-node-id="yIsjNDj9sCDXVhR4WuGgvC">自动汇总「热量记录」里每个月的 摄入 / 消耗 / 缺口 之和。</p>
+      <div class="table-wrap" data-page-node-id="RZ9dpnsjgcMg3HXNeQCKq7">
+        <table id="monthly-stats-table" data-page-node-id="3Y6mOPXp7Y4eCWlvYSzICC">
+          <thead data-page-node-id="Hd95E8MXsc8CnEvBC87BhI">
+            <tr data-page-node-id="zvRpDnZuEMLaa4iNy7CCLq"><th data-page-node-id="bHrSadelg3UHRoDENc0geE">月份</th><th data-page-node-id="dfgrWwp3KhMRds5UTlBVWC">月摄入热量</th><th data-page-node-id="c4ryBp7xVXgy78gWqBVwBb">月消耗热量</th><th data-page-node-id="rBjAd0gT3NFU4gc5jrRMCU">月热量缺口</th></tr>
           </thead>
-          <tbody></tbody>
+          <tbody data-page-node-id="Y9Ajqs2D1rGXbWhgNV2yhY"></tbody>
         </table>
       </div>
-      <div class="modal-actions" style="margin-top:14px;">
-        <button class="btn secondary" id="monthly-stats-close">关闭</button>
+      <div class="modal-actions" style="margin-top:14px;" data-page-node-id="E1BBG19oik4wZmOWdPX3hP">
+        <button class="btn secondary" id="monthly-stats-close" data-page-node-id="4mCPdMEPtLODbknn756VT6">关闭</button>
       </div>
     </div>
   </div>
@@ -2748,19 +2754,19 @@
       const exBody = document.querySelector('#exercise-table tbody');
       exBody.innerHTML = '';
       if (log.exercises.length === 0) {
-        exBody.innerHTML = '<tr><td colspan="5" class="empty-state">还没有运动记录</td></tr>';
+        exBody.innerHTML = '<tr><td colspan="4" class="empty-state">还没有运动记录</td></tr>';
       }
-      let runningKcal = 0;
+      let totalDur = 0, totalKcal = 0;
       log.exercises.forEach(entry => {
         const ex = entry.custom ? { name: entry.name } : (state.exercises.find(x => x.id === entry.exerciseId) || null);
         const eKcal = computeExerciseKcal(entry);
-        runningKcal += eKcal;
+        totalDur += (Number(entry.durationMin) || 0);
+        totalKcal += eKcal;
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${escapeHtml(ex ? ex.name : '（已删除运动）')}</td>
           <td class="number">${formatNum(entry.durationMin, 0)}</td>
           <td class="number">${formatNum(eKcal)}</td>
-          <td class="number">${formatNum(runningKcal)}</td>
           <td><button class="btn small danger" data-id="${entry.id}">删除</button></td>`;
         tr.querySelector('button').addEventListener('click', () => {
           log.exercises = log.exercises.filter(x => x.id !== entry.id);
@@ -2768,6 +2774,18 @@
         });
         exBody.appendChild(tr);
       });
+
+      // 汇总行：最后一项运动下方，自动计算所有运动的总时长与总消耗热量
+      if (log.exercises.length > 0) {
+        const sumTr = document.createElement('tr');
+        sumTr.className = 'exercise-total';
+        sumTr.innerHTML = `
+          <td>总消耗热量「kcal」</td>
+          <td class="number">${formatNum(totalDur, 0)}</td>
+          <td class="number">${formatNum(totalKcal)}</td>
+          <td></td>`;
+        exBody.appendChild(sumTr);
+      }
 
       const t = computeDayTotals(day);
       document.getElementById('total-intake-kcal').textContent = formatNum(t.kcal, 0);
