@@ -2394,7 +2394,10 @@
       const n = meals.length;
       const perG = food.unit === 'serving' ? 0 : portionG / n;
       const perS = food.unit === 'serving' ? servings / n : 0;
-      const perRaw = food.unit === 'serving' ? Number(perS.toFixed(2)).toString() : String(Math.round(perG));
+      // 按食物自身单位拼接平分后的份量文本（避免纯数字被误判单位），如「50g」「0.5份」
+      const perRaw = food.unit === 'serving'
+        ? (Number(perS.toFixed(2)).toString() + '份')
+        : (Math.round(perG) + 'g');
       meals.forEach(meal => {
         state.logs[day].foods.push({ id: generateId(), foodId: id, portionG: perG, servings: perS, portionRaw: perRaw, meal: meal });
       });
