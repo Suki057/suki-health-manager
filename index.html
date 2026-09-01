@@ -572,8 +572,8 @@
     #today .two-col .field input,
     #today .two-col .field select { padding: 9px 12px; font-size: 16px; }
     #today .two-col .row .btn.primary { padding: 8px 14px; font-size: 13px; }
-    #diet-table th, #exercise-table th,
-    #diet-table td, #exercise-table td { padding: 9px 11px; font-size: 13px; }
+    #diet-table th,
+    #diet-table td { padding: 9px 11px; font-size: 13px; }
     input[type="date"], input[type="text"], input[type="number"], select {
       padding: 9px 13px;
       border: 1px solid rgba(255, 255, 255, 0.70);
@@ -680,15 +680,18 @@
     #stats-table, #body-stats-table,
     #food-lib-table-100g, #food-lib-table-serving,
     #exercise-lib-table-ana, #exercise-lib-table-aer,
-    #exercise-table,
     #diet-table { min-width: 640px; }
-    #exercise-table th:first-child, #exercise-table td:first-child { min-width: 120px; }
-    /* 运动明细：时长/消耗列左对齐、数字等宽、保留间距，并整体左移一点 */
-    #exercise-table td.number { text-align: left; font-variant-numeric: tabular-nums; font-weight: 600; }
-    #exercise-table th:nth-child(2), #exercise-table th:nth-child(3) { text-align: left; }
-    /* 汇总行：最后一项运动下方，自动合计时长与总消耗 */
-    .exercise-total td { border-top: 2px solid rgba(61, 58, 54, 0.18); font-weight: 700; background: rgba(242, 234, 226, 0.55); padding-top: 12px; padding-bottom: 12px; }
-    .exercise-total td:first-child { color: var(--muted, #6b6b6b); }
+    /* 运动明细：卡片式两行排版，单屏自适应，不横向滚动 */
+    .exercise-list { display: flex; flex-direction: column; gap: 10px; }
+    .exercise-card { border: 1px solid rgba(61, 58, 54, 0.08); border-radius: 12px; padding: 10px 12px; background: #fff; }
+    .exercise-card .ex-line-1 { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .exercise-card .ex-name { font-weight: 700; font-size: 14.5px; color: #3a3a3a; }
+    .exercise-card .ex-line-2 { display: flex; gap: 18px; margin-top: 8px; flex-wrap: wrap; }
+    .exercise-card .ex-stat { color: var(--muted, #6b6b6b); font-size: 13px; }
+    .exercise-card .ex-stat b { color: #3a3a3a; font-variant-numeric: tabular-nums; margin-left: 4px; font-size: 14px; }
+    /* 汇总卡：底部，自动合计总时长与总消耗 */
+    .exercise-total-card { border-top: 2px solid rgba(61, 58, 54, 0.18); background: rgba(242, 234, 226, 0.55); }
+    .exercise-total-card .ex-total-label { font-size: 13px; color: var(--muted, #6b6b6b); margin-bottom: 6px; font-weight: 700; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
     th {
@@ -1321,14 +1324,7 @@
 
       <div class="panel" data-page-node-id="whvZKvdDOHZVm51wMoJp1G">
         <h2 data-page-node-id="JQqkZerARcUF2Z2tC5q5ak">🏃 运动明细 <small data-page-node-id="ntaPRmuNzcERNXKnsg7lb5">已记录的运动与消耗</small></h2>
-        <div class="table-wrap" data-page-node-id="6nftyqk8GTAubKNQ8zkc8n">
-          <table id="exercise-table" data-page-node-id="CgXHbLDtVu1XT4hft1QLwq">
-            <thead data-page-node-id="D0OMMa9xfoqXsu9dk5GXr2">
-              <tr data-page-node-id="g49e6R4fmnH67amvtQw25A"><th data-page-node-id="zunCFGC3IGi46A15T4AfnQ">运动</th><th data-page-node-id="ACJ7HXW3VsAwcmKa1H2Bwe">时长「分」</th><th data-page-node-id="041KKqGdBA7b7ASBMXf4l0">消耗「kcal」</th><th data-page-node-id="PtQq7LjOLln70wAPahoUGi"></th></tr>
-            </thead>
-            <tbody data-page-node-id="msvxRwkJFFIxgLPg2ZZZQO"></tbody>
-          </table>
-        </div>
+        <div class="exercise-list" id="exercise-list" data-page-node-id="CgXHbLDtVu1XT4hft1QLwq"></div>
       </div>
     </section>
 
@@ -2751,10 +2747,10 @@
         dietBody.appendChild(tr);
       });
 
-      const exBody = document.querySelector('#exercise-table tbody');
-      exBody.innerHTML = '';
+      const exList = document.getElementById('exercise-list');
+      exList.innerHTML = '';
       if (log.exercises.length === 0) {
-        exBody.innerHTML = '<tr><td colspan="4" class="empty-state">还没有运动记录</td></tr>';
+        exList.innerHTML = '<div class="empty-state">还没有运动记录</div>';
       }
       let totalDur = 0, totalKcal = 0;
       log.exercises.forEach(entry => {
@@ -2762,29 +2758,35 @@
         const eKcal = computeExerciseKcal(entry);
         totalDur += (Number(entry.durationMin) || 0);
         totalKcal += eKcal;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${escapeHtml(ex ? ex.name : '（已删除运动）')}</td>
-          <td class="number">${formatNum(entry.durationMin, 0)}</td>
-          <td class="number">${formatNum(eKcal)}</td>
-          <td><button class="btn small danger" data-id="${entry.id}">删除</button></td>`;
-        tr.querySelector('button').addEventListener('click', () => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.innerHTML = `
+          <div class="ex-line-1">
+            <span class="ex-name">${escapeHtml(ex ? ex.name : '（已删除运动）')}</span>
+            <button class="btn small danger" data-id="${entry.id}">删除</button>
+          </div>
+          <div class="ex-line-2">
+            <span class="ex-stat">时长「分」<b>${formatNum(entry.durationMin, 0)}</b></span>
+            <span class="ex-stat">消耗「kcal」<b>${formatNum(eKcal)}</b></span>
+          </div>`;
+        card.querySelector('button').addEventListener('click', () => {
           log.exercises = log.exercises.filter(x => x.id !== entry.id);
           save(); renderToday();
         });
-        exBody.appendChild(tr);
+        exList.appendChild(card);
       });
 
-      // 汇总行：最后一项运动下方，自动计算所有运动的总时长与总消耗热量
+      // 汇总卡：底部，自动计算所有运动的总时长与总消耗热量
       if (log.exercises.length > 0) {
-        const sumTr = document.createElement('tr');
-        sumTr.className = 'exercise-total';
-        sumTr.innerHTML = `
-          <td>总消耗热量「kcal」</td>
-          <td class="number">${formatNum(totalDur, 0)}</td>
-          <td class="number">${formatNum(totalKcal)}</td>
-          <td></td>`;
-        exBody.appendChild(sumTr);
+        const sumCard = document.createElement('div');
+        sumCard.className = 'exercise-card exercise-total-card';
+        sumCard.innerHTML = `
+          <div class="ex-total-label">总消耗热量「kcal」</div>
+          <div class="ex-line-2">
+            <span class="ex-stat">总时长「分」<b>${formatNum(totalDur, 0)}</b></span>
+            <span class="ex-stat">总消耗「kcal」<b>${formatNum(totalKcal)}</b></span>
+          </div>`;
+        exList.appendChild(sumCard);
       }
 
       const t = computeDayTotals(day);
