@@ -2855,8 +2855,8 @@
       }
       if (goals.carbs) {
         const gcb = goals.carbs;
-        if (t.carbs > gcb.max) push('bad', '🔴', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，超过目标区间 (' + goalText(gcb) + ' g)，摄入过量，注意精米面/甜食。');
-        else if (t.carbs < gcb.min * 0.5) push('warn', '🟡', '碳水 <b>' + formatNum(t.carbs) + ' g</b> 偏低，可能能量不足、容易饿，可适量增加主食。');
+        if (t.carbs > gcb.max) push('bad', '🔴', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，超过目标区间 (' + goalText(gcb) + ' g) 上限，摄入过量，注意精米面/甜食。');
+        else if (t.carbs < gcb.min) push('warn', '🟡', '碳水 <b>' + formatNum(t.carbs) + ' g</b> 低于目标区间 (' + goalText(gcb) + ' g) 下限，可能能量不足、容易饿，可适量增加主食。');
         else push('ok', '🟢', '碳水 <b>' + formatNum(t.carbs) + ' g</b>，在目标区间 (' + goalText(gcb) + ' g) 内，合适。');
       }
       if (goals.fat) {
