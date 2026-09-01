@@ -810,9 +810,18 @@
     .foods-head { justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .foods-head h2 { margin: 0; }
     @media (max-width: 560px) { .food-form-grid { grid-template-columns: 1fr; } }
-    /* 进餐时段选择（饮食记录录入行） */
+    /* 进餐时段选择（饮食记录录入行）：多选复选框 */
     .meal-field { min-width: 92px; }
-    .meal-field select { width: 100%; }
+    .meal-checkboxes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 360px; }
+    .meal-checkboxes .meal-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 999px; border: 1px solid rgba(214,138,166,0.4); background: rgba(255,255,255,0.6); font-size: 13px; cursor: pointer; user-select: none; white-space: nowrap; }
+    .meal-checkboxes .meal-chip input { display: none; }
+    .meal-checkboxes .meal-chip.checked { background: rgba(214,138,166,0.92); color: #fff; border-color: rgba(214,138,166,0.92); font-weight: 600; }
+    .meal-checkboxes .meal-other-btn { display: inline-flex; align-items: center; gap: 3px; padding: 5px 9px; border-radius: 999px; border: 1px dashed rgba(122,108,98,0.55); background: rgba(255,255,255,0.5); font-size: 13px; color: #6b5b4f; cursor: pointer; white-space: nowrap; }
+    .meal-checkboxes .meal-other-input { display: inline-flex; align-items: center; gap: 4px; }
+    .meal-checkboxes .meal-other-input input { width: 110px; padding: 4px 6px; border-radius: 8px; border: 1px solid rgba(122,108,98,0.5); font-size: 13px; }
+    .meal-checkboxes .meal-other-input .mini-btn { padding: 4px 8px; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
+    .meal-checkboxes .meal-other-input .mini-ok { background: #b3567d; color: #fff; }
+    .meal-checkboxes .meal-other-input .mini-cancel { background: rgba(122,108,98,0.18); color: #4a4038; }
     /* 饮食明细：进餐时段内联下拉 */
     .meal-select { max-width: 92px; font-size: 13px; padding: 3px 4px; }
     /* ===== AI 进餐分析卡片 ===== */
@@ -1216,15 +1225,9 @@
           <h2 data-page-node-id="eIJjSdqQMHP3licOxGzcMJ">🍱 饮食记录</h2>
           <div class="row autocomplete-row" data-page-node-id="yDNIDvUrrO0DHtXX8h7Bm7">
             <div class="field small meal-field" data-page-node-id="71R0azwZl2nzv9VyqHNWux">
-              <label data-page-node-id="1BDxFVVgBhKl26Len3WKiF">进餐时段</label>
-              <select id="food-meal" data-page-node-id="MiIyyfwAO9Fxj6RfV1zSMa">
-                <option value="早餐" data-page-node-id="qH5KfC8XVlvfFIxyv3osJ2">早餐</option>
-                <option value="中餐" data-page-node-id="s1bkRkUsmcch0pRTCWYEmr">中餐</option>
-                <option value="下午茶" data-page-node-id="wT2TNLbiHBXnqYZrvlL6PV">下午茶</option>
-                <option value="晚餐" data-page-node-id="ELOn9vOLobSeXFQip32NOK">晚餐</option>
-                <option value="宵夜" data-page-node-id="r4wKcG44r9a93BRvMa0rrB">宵夜</option>
-                <option value="零食" data-page-node-id="GfLTynBg3cLYQInkDurK1U">零食</option>
-              </select>
+              <label data-page-node-id="1BDxFVVgBhKl26Len3WKiF">进餐时段（可多选）</label>
+              <div class="meal-checkboxes" id="meal-checkboxes"></div>
+              <input type="hidden" id="food-meal" value="">
             </div>
             <div class="field autocomplete" data-page-node-id="YpzavyrOwkA5Bf09z70XZu">
               <label data-page-node-id="XMW18vdKTNUCbmGrltxY0H">食物</label>
@@ -1764,7 +1767,7 @@
   <script>
     // ==================== 状态 & 本地存储 ====================
     const STORAGE_KEY = 'dietTrackerData';
-    let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, metabolism: {} };
+    let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, metabolism: {}, mealPeriods: [] };
     const numericKeys = ['kcal', 'protein', 'sugar', 'fat', 'carbs', 'sodium'];
 
     function loadData() {
@@ -1840,6 +1843,7 @@
           };
         }
       }
+      if (!Array.isArray(state.mealPeriods)) state.mealPeriods = [];
     }
 
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
@@ -2370,9 +2374,10 @@
     function addFoodEntry() {
       const id = document.getElementById('food-selected-id').value;
       const raw = document.getElementById('food-portion').value.trim();
-      const meal = document.getElementById('food-meal').value;
+      const meals = getSelectedMeals();
       if (!id) return toast('请先从下拉里选择食物');
       if (!raw) return toast('请输入份量');
+      if (meals.length === 0) return toast('请至少勾选一个进餐时段');
       const food = state.foods.find(f => f.id === id);
       if (!food) return;
       const day = getCurrentDate();
@@ -2385,11 +2390,18 @@
         portionG = parseGrams(raw);
         if (!portionG || portionG <= 0) return toast('请输入有效克重（如 100）');
       }
-      state.logs[day].foods.push({ id: generateId(), foodId: id, portionG: portionG, servings: servings, portionRaw: raw, meal: meal });
+      // 多选时段：按所选数量自动平分份量，分别在热量明细表登记多条（热量/营养同比例拆分）
+      const n = meals.length;
+      const perG = food.unit === 'serving' ? 0 : portionG / n;
+      const perS = food.unit === 'serving' ? servings / n : 0;
+      const perRaw = food.unit === 'serving' ? Number(perS.toFixed(2)).toString() : String(Math.round(perG));
+      meals.forEach(meal => {
+        state.logs[day].foods.push({ id: generateId(), foodId: id, portionG: perG, servings: perS, portionRaw: perRaw, meal: meal });
+      });
       save();
       renderToday();
       clearFoodInput();
-      toast('已添加：' + food.name);
+      toast('已添加：' + food.name + (n > 1 ? '（平分到 ' + n + ' 个时段）' : ''));
     }
 
     function addExerciseEntry() {
@@ -2428,6 +2440,8 @@
     function saveCustomFood() {
       const name = document.getElementById('cf-name').value.trim();
       if (!name) return toast('请输入食物名称');
+      const meals = getSelectedMeals();
+      if (meals.length === 0) return toast('请至少勾选一个进餐时段');
       const day = getCurrentDate();
       if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
       const kcal = parseFloat(document.getElementById('cf-kcal').value) || 0;
@@ -2436,11 +2450,19 @@
       const carbs = parseFloat(document.getElementById('cf-carbs').value) || 0;
       const sugar = parseFloat(document.getElementById('cf-sugar').value) || 0;
       const sodium = parseFloat(document.getElementById('cf-sodium').value) || 0;
-      state.logs[day].foods.push({
-        id: generateId(), custom: true, name,
-        meal: document.getElementById('food-meal').value,
-        portionRaw: document.getElementById('cf-portion').value.trim(),
-        kcal, protein, fat, carbs, sugar, sodium,
+      // 多选时段：按所选数量平分营养与份量，分别登记
+      const n = meals.length;
+      const perKcal = kcal / n, perProtein = protein / n, perFat = fat / n, perCarbs = carbs / n, perSugar = sugar / n, perSodium = sodium / n;
+      const rawPortion = document.getElementById('cf-portion').value.trim();
+      const splitPortion = splitPortionText(rawPortion, n);
+      meals.forEach(meal => {
+        state.logs[day].foods.push({
+          id: generateId(), custom: true, name,
+          meal: meal,
+          portionRaw: splitPortion,
+          kcal: round1(perKcal), protein: round1(perProtein), fat: round1(perFat),
+          carbs: round1(perCarbs), sugar: round1(perSugar), sodium: round1(perSodium),
+        });
       });
       // 同步保存到食物库（按名称去重，避免重复添加）
       const portion = document.getElementById('cf-portion').value.trim();
@@ -2455,7 +2477,17 @@
       renderToday();
       closeModal('custom-food-modal');
       ['cf-name', 'cf-portion', 'cf-kcal', 'cf-protein', 'cf-fat', 'cf-carbs', 'cf-sugar', 'cf-sodium'].forEach(id => document.getElementById(id).value = '');
-      toast('已记录并同步到食物库：' + name);
+      toast('已记录并同步到食物库：' + name + (n > 1 ? '（平分到 ' + n + ' 个时段）' : ''));
+    }
+    // 把份量文本按 n 等分（克重取整数、份数保留 2 位），用于多选时段自动平分显示
+    function splitPortionText(raw, n) {
+      if (!raw) return '';
+      if (/[g克G]/.test(raw)) {
+        const g = parseGramsInText(raw) || 0;
+        return String(Math.round(g / n)) + 'g';
+      }
+      const s = parseServings(raw) || 0;
+      return Number((s / n).toFixed(2)).toString() + '份';
     }
     function saveCustomExercise() {
       const name = document.getElementById('ce-name').value.trim();
@@ -2684,10 +2716,83 @@
 
     const MEAL_ORDER = ['早餐', '中餐', '下午茶', '晚餐', '宵夜', '零食'];
 
+    // 进餐时段选项 = 默认 6 项 + 用户自定义项（持久化在 state.mealPeriods）
+    function getMealOptions() {
+      const custom = (state.mealPeriods || []).filter(p => MEAL_ORDER.indexOf(p) === -1 && p && p !== '其他');
+      return MEAL_ORDER.concat(custom);
+    }
+    // 排序索引：自定义时段统一排到默认时段之后
+    function mealSortIndex(m) {
+      const opts = getMealOptions();
+      const i = opts.indexOf(m);
+      return i === -1 ? opts.length : i;
+    }
+    // 渲染多选复选框；selected 为默认勾选的时段名数组
+    function renderMealCheckboxes(selected) {
+      const box = document.getElementById('meal-checkboxes');
+      if (!box) return;
+      const sel = new Set(selected || []);
+      const opts = getMealOptions();
+      let html = opts.map(m =>
+        '<label class="meal-chip' + (sel.has(m) ? ' checked' : '') + '"><input type="checkbox" value="' + escapeHtml(m) + '"' + (sel.has(m) ? ' checked' : '') + '>' + escapeHtml(m) + '</label>'
+      ).join('');
+      html += '<button type="button" class="meal-other-btn" id="meal-other-btn">＋ 其他</button>';
+      html += '<span class="meal-other-input" id="meal-other-input" style="display:none;">' +
+        '<input type="text" id="meal-other-text" placeholder="输入时段名" maxlength="10">' +
+        '<button type="button" class="mini-btn mini-ok" id="meal-other-ok">确认</button>' +
+        '<button type="button" class="mini-btn mini-cancel" id="meal-other-cancel">取消</button></span>';
+      box.innerHTML = html;
+      box.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          cb.parentElement.classList.toggle('checked', cb.checked);
+          syncMealHidden();
+        });
+      });
+      const otherBtn = document.getElementById('meal-other-btn');
+      const otherInput = document.getElementById('meal-other-input');
+      otherBtn.addEventListener('click', () => {
+        otherBtn.style.display = 'none';
+        otherInput.style.display = 'inline-flex';
+        document.getElementById('meal-other-text').focus();
+      });
+      document.getElementById('meal-other-cancel').addEventListener('click', () => {
+        otherInput.style.display = 'none';
+        otherBtn.style.display = 'inline-flex';
+        document.getElementById('meal-other-text').value = '';
+      });
+      document.getElementById('meal-other-ok').addEventListener('click', addCustomMealPeriod);
+      document.getElementById('meal-other-text').addEventListener('keydown', e => { if (e.key === 'Enter') addCustomMealPeriod(); });
+      syncMealHidden();
+    }
+    function syncMealHidden() {
+      const hidden = document.getElementById('food-meal');
+      if (hidden) hidden.value = getSelectedMeals().join(',');
+    }
+    // 读取当前勾选的进餐时段（不含「其他」按钮本身）
+    function getSelectedMeals() {
+      const box = document.getElementById('meal-checkboxes');
+      if (!box) return [];
+      return Array.from(box.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value).filter(v => v && v !== '其他');
+    }
+    // 新增自定义时段：写入 state.mealPeriods 并持久化，重新渲染并自动勾选
+    function addCustomMealPeriod() {
+      const txt = (document.getElementById('meal-other-text').value || '').trim();
+      if (!txt) return toast('请输入时段名称');
+      if (MEAL_ORDER.indexOf(txt) !== -1 || (state.mealPeriods || []).indexOf(txt) !== -1) {
+        toast('「' + txt + '」已存在');
+        return;
+      }
+      if (!Array.isArray(state.mealPeriods)) state.mealPeriods = [];
+      state.mealPeriods.push(txt);
+      save();
+      renderMealCheckboxes(getSelectedMeals().concat([txt]));
+      toast('已新增时段：' + txt);
+    }
+
     // 按当前时间预选进餐时段（录入时少点一下）
     function setDefaultMealByTime() {
-      const sel = document.getElementById('food-meal');
-      if (!sel) return;
+      const box = document.getElementById('meal-checkboxes');
+      if (!box) return;
       const h = new Date().getHours();
       let m = '零食';
       if (h >= 5 && h < 10) m = '早餐';
@@ -2695,7 +2800,7 @@
       else if (h >= 14 && h < 17) m = '下午茶';
       else if (h >= 17 && h < 21) m = '晚餐';
       else if (h >= 21) m = '宵夜';
-      sel.value = m;
+      renderMealCheckboxes([m]);
     }
 
     function renderToday() {
@@ -2708,7 +2813,7 @@
         dietBody.innerHTML = '<tr><td colspan="10" class="empty-state">还没有饮食记录</td></tr>';
       }
       const sortedFoods = log.foods.slice().sort((a, b) =>
-        MEAL_ORDER.indexOf(a.meal || '零食') - MEAL_ORDER.indexOf(b.meal || '零食'));
+        mealSortIndex(a.meal || '零食') - mealSortIndex(b.meal || '零食'));
       sortedFoods.forEach(entry => {
         const c = computeFoodEntry(entry);
         let portionLabel;
@@ -2722,7 +2827,7 @@
         const tr = document.createElement('tr');
         tr.dataset.entryId = entry.id;
         tr.innerHTML = `
-          <td class="c-meal"><select class="meal-select" data-id="${entry.id}">${MEAL_ORDER.map(m => `<option value="${m}"${m === (entry.meal || '零食') ? ' selected' : ''}>${m}</option>`).join('')}</select></td>
+          <td class="c-meal"><select class="meal-select" data-id="${entry.id}">${getMealOptions().map(m => `<option value="${escapeHtml(m)}"${m === (entry.meal || '零食') ? ' selected' : ''}>${escapeHtml(m)}</option>`).join('')}</select></td>
           <td class="c-name">${escapeHtml(c.name)}</td>
           <td class="c-portion number">${portionLabel}</td>
           <td class="c-kcal number">${formatNum(c.kcal)}</td>
@@ -2781,7 +2886,7 @@
         const sumCard = document.createElement('div');
         sumCard.className = 'exercise-card exercise-total-card';
         sumCard.innerHTML = `
-          <div class="ex-total-label">总消耗热量「kcal」</div>
+          <div class="ex-total-label">总合计数据</div>
           <div class="ex-line-2">
             <span class="ex-stat">总时长「分」<b>${formatNum(totalDur, 0)}</b></span>
             <span class="ex-stat">总消耗「kcal」<b>${formatNum(totalKcal)}</b></span>
@@ -2850,8 +2955,9 @@
       }
       if (goals.protein) {
         const gp = goals.protein;
-        if (t.protein >= gp.min * 0.9) push('ok', '🟢', '蛋白质 <b>' + formatNum(t.protein) + ' g</b>，已达目标区间 (' + goalText(gp) + ' g) 下限，吃足了 ✅');
-        else push('bad', '🔴', '蛋白质仅 <b>' + formatNum(t.protein) + ' g</b>，距目标下限 (' + formatNum(gp.min) + ' g) 还差 ' + formatNum(gp.min - t.protein) + ' g，建议加个蛋/鸡胸肉/牛奶。');
+        if (t.protein > gp.max) push('bad', '🔴', '蛋白质 <b>' + formatNum(t.protein) + ' g</b>，超过目标区间 (' + goalText(gp) + ' g) 上限，偏多，注意高蛋白负担。');
+        else if (t.protein < gp.min) push('warn', '🟡', '蛋白质仅 <b>' + formatNum(t.protein) + ' g</b>，低于目标区间 (' + goalText(gp) + ' g) 下限，距目标下限还差 ' + formatNum(gp.min - t.protein) + ' g，建议加个蛋/鸡胸肉/牛奶。');
+        else push('ok', '🟢', '蛋白质 <b>' + formatNum(t.protein) + ' g</b>，在目标区间 (' + goalText(gp) + ' g) 内，吃足了 ✅');
       }
       if (goals.carbs) {
         const gcb = goals.carbs;
@@ -2862,6 +2968,7 @@
       if (goals.fat) {
         const gf = goals.fat;
         if (t.fat > gf.max) push('bad', '🔴', '脂肪 <b>' + formatNum(t.fat) + ' g</b> 超过目标区间 (' + goalText(gf) + ' g) 上限，偏多，注意油炸/肥肉。');
+        else if (t.fat < gf.min) push('warn', '🟡', '脂肪 <b>' + formatNum(t.fat) + ' g</b> 低于目标区间 (' + goalText(gf) + ' g) 下限，可能脂溶性维生素吸收不足，可适量加坚果/橄榄油。');
         else push('ok', '🟢', '脂肪 <b>' + formatNum(t.fat) + ' g</b>，在目标区间 (' + goalText(gf) + ' g) 内。');
       }
       if (goals.sugar) {
@@ -2914,6 +3021,9 @@
         byMeal[m].kcal += c.kcal; byMeal[m].protein += c.protein; byMeal[m].fat += c.fat;
         byMeal[m].carbs += c.carbs; byMeal[m].sugar += c.sugar; byMeal[m].sodium += c.sodium; byMeal[m].count += 1;
       });
+      // 覆盖默认时段 + 自定义时段（如「其他」新增的），保证自定义时段也能出分析卡
+      const allMeals = getMealOptions().slice();
+      Object.keys(byMeal).forEach(m => { if (allMeals.indexOf(m) === -1) allMeals.push(m); });
 
       // 各营养素全日目标（用于推导每餐目标 = 按 DIST 比例拆分）
       const dKcal = goalMid(goals.kcal) || g.kcal;
@@ -2926,13 +3036,13 @@
       let good = 0, warn = 0, bad = 0;
       // 每餐目标（按 DIST 比例拆分全日目标）
       const mealGoal = {};
-      MEAL_ORDER.forEach(m => {
+      allMeals.forEach(m => {
         const share = DIST[m] || 0;
         mealGoal[m] = { kcal: dKcal * share, protein: dProtein * share, carbs: dCarbs * share, fat: dFat * share, sodium: dSodium * share };
       });
       // 累计摄入（用于计算当日剩余预算与后续分配）
       const cum = { kcal: 0 };
-      MEAL_ORDER.forEach(m => {
+      allMeals.forEach(m => {
         const d = byMeal[m];
         if (!d || d.count === 0) return;
         cum.kcal += d.kcal;
@@ -2947,9 +3057,11 @@
         items.push({ n: '碳水', v: Math.round(d.carbs), t: Math.round(mg.carbs), u: 'g', cls: cPct > 1.25 ? 'high' : (cPct < 0.6 ? 'low' : 'ok'), txt: cPct > 1.25 ? '偏高' : (cPct < 0.6 ? '偏低' : '适宜') });
         items.push({ n: '脂肪', v: Math.round(d.fat), t: Math.round(mg.fat), u: 'g', cls: fPct > 1.25 ? 'high' : (fPct < 0.6 ? 'low' : 'ok'), txt: fPct > 1.25 ? '偏高' : (fPct < 0.6 ? '偏低' : '适宜') });
         items.push({ n: '钠', v: Math.round(d.sodium), t: Math.round(mg.sodium), u: 'mg', cls: sPct > 1.25 ? 'high' : 'ok', txt: sPct > 1.25 ? '偏高' : '适宜' });
-        const detailHTML = '<div class="meal-detail">' + items.map(it =>
+        const share = DIST[m] || 0;
+        // 自定义时段（「其他」新增）无单餐目标占比，仅展示已记录热量、不做误导性的高低对比
+        const detailHTML = share > 0 ? ('<div class="meal-detail">' + items.map(it =>
           '<span class="md-item ' + it.cls + '">' + it.n + ' ' + it.v + it.u + ' / 目标 ' + it.t + it.u + ' · ' + it.txt + '</span>'
-        ).join('') + '</div>';
+        ).join('') + '</div>') : '';
 
         // 该餐结论（基于本餐实际摄入）
         let tag = 'ok', verdict;
@@ -2980,10 +3092,14 @@
           if (d.sugar > 25) { tag = 'bad'; verdict = '🍿 零食糖 ' + Math.round(d.sugar) + 'g 偏高，减脂期选原味坚果/无糖酸奶'; }
           else if (d.kcal > 250) { tag = 'warn'; verdict = '🍿 零食 ' + Math.round(d.kcal) + 'kcal 偏多，建议控制在 150kcal'; }
           else { tag = 'ok'; verdict = '🍿 零食适量，热量可控'; }
+        } else {
+          // 自定义时段（「其他」新增的）：无专门建议文案，按实际记录给中性结论
+          tag = 'ok';
+          verdict = '🍽️ ' + m + '：已记录 ' + Math.round(d.kcal) + ' kcal，已纳入全天营养统计。';
         }
         // 后续餐次分配建议（基于当日剩余预算，按 DIST 拆分到后续餐次）
         let suggestHTML = '';
-        const later = MEAL_ORDER.slice(MEAL_ORDER.indexOf(m) + 1).filter(x => (DIST[x] || 0) > 0);
+        const later = allMeals.slice(allMeals.indexOf(m) + 1).filter(x => (DIST[x] || 0) > 0);
         if (later.length > 0) {
           const laterShare = later.reduce((s, x) => s + (DIST[x] || 0), 0);
           const remain = dKcal - cum.kcal;
