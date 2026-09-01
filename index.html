@@ -680,7 +680,9 @@
     #stats-table, #body-stats-table,
     #food-lib-table-100g, #food-lib-table-serving,
     #exercise-lib-table-ana, #exercise-lib-table-aer,
+    #exercise-table,
     #diet-table { min-width: 640px; }
+    #exercise-table th:first-child, #exercise-table td:first-child { min-width: 160px; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
     th {
@@ -1316,7 +1318,7 @@
         <div class="table-wrap">
           <table id="exercise-table">
             <thead>
-              <tr><th>运动</th><th>时长</th><th>消耗</th><th></th></tr>
+              <tr><th>运动</th><th>时长「分」</th><th>消耗「kcal」</th><th>总消耗热量</th><th></th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -2746,15 +2748,19 @@
       const exBody = document.querySelector('#exercise-table tbody');
       exBody.innerHTML = '';
       if (log.exercises.length === 0) {
-        exBody.innerHTML = '<tr><td colspan="4" class="empty-state">还没有运动记录</td></tr>';
+        exBody.innerHTML = '<tr><td colspan="5" class="empty-state">还没有运动记录</td></tr>';
       }
+      let runningKcal = 0;
       log.exercises.forEach(entry => {
         const ex = entry.custom ? { name: entry.name } : (state.exercises.find(x => x.id === entry.exerciseId) || null);
+        const eKcal = computeExerciseKcal(entry);
+        runningKcal += eKcal;
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${escapeHtml(ex ? ex.name : '（已删除运动）')}</td>
-          <td class="number">${formatNum(entry.durationMin, 0)} 分</td>
-          <td class="number">${formatNum(computeExerciseKcal(entry))} kcal</td>
+          <td class="number">${formatNum(entry.durationMin, 0)}</td>
+          <td class="number">${formatNum(eKcal)}</td>
+          <td class="number">${formatNum(runningKcal)}</td>
           <td><button class="btn small danger" data-id="${entry.id}">删除</button></td>`;
         tr.querySelector('button').addEventListener('click', () => {
           log.exercises = log.exercises.filter(x => x.id !== entry.id);
