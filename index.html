@@ -1226,12 +1226,12 @@
             <div class="field small meal-field" data-page-node-id="71R0azwZl2nzv9VyqHNWux">
               <label data-page-node-id="1BDxFVVgBhKl26Len3WKiF">进餐时段（可多选）</label>
               <select id="food-meal" multiple class="meal-select-multi" data-page-node-id="MiIyyfwAO9Fxj6RfV1zSMa"></select>
-              <div class="meal-selected" id="meal-selected"></div>
+              <div class="meal-selected" id="food-meal-selected"></div>
               <small class="meal-hint">手机端点开可勾选多项；电脑端按住 Ctrl 多选</small>
-              <span class="meal-other-input" id="meal-other-input" style="display:none;">
-                <input type="text" id="meal-other-text" placeholder="输入时段名" maxlength="10">
-                <button type="button" class="mini-btn mini-ok" id="meal-other-ok">确认</button>
-                <button type="button" class="mini-btn mini-cancel" id="meal-other-cancel">取消</button>
+              <span class="meal-other-input" id="food-meal-other-input" style="display:none;">
+                <input type="text" id="food-meal-other-input-text" placeholder="输入时段名" maxlength="10">
+                <button type="button" class="mini-btn mini-ok" id="food-meal-other-input-ok">确认</button>
+                <button type="button" class="mini-btn mini-cancel" id="food-meal-other-input-cancel">取消</button>
               </span>
             </div>
             <div class="field autocomplete" data-page-node-id="YpzavyrOwkA5Bf09z70XZu">
@@ -1720,6 +1720,17 @@
         <div class="field" data-page-node-id="kNa5DbdwKfH9hJIIIYHaAn"><label data-page-node-id="E5vBnsKpPL7pxEf2MdSZ04">糖 (g)</label><input type="text" inputmode="decimal" id="cf-sugar" data-page-node-id="rgyKYMcg5WLsh0RscmHbZC" /></div>
         <div class="field" data-page-node-id="1vI1tTi0ZPrMEtG3cewqHE"><label data-page-node-id="3zydh92HmID5tm7cS4EEw2">钠 (mg)</label><input type="text" inputmode="decimal" id="cf-sodium" data-page-node-id="5zj0UXwreoZqMRczktpJKI" /></div>
       </div>
+      <div class="field meal-field-modal" style="margin-top:10px;">
+        <label>进餐时段（可多选）</label>
+        <select id="cf-meal" multiple class="meal-select-multi"></select>
+        <div class="meal-selected" id="cf-meal-selected"></div>
+        <small class="meal-hint">手机端点开可勾选多项；电脑端按住 Ctrl 多选</small>
+        <span class="meal-other-input" id="cf-meal-other-input" style="display:none;">
+          <input type="text" id="cf-meal-other-input-text" placeholder="输入时段名" maxlength="10">
+          <button type="button" class="mini-btn mini-ok" id="cf-meal-other-input-ok">确认</button>
+          <button type="button" class="mini-btn mini-cancel" id="cf-meal-other-input-cancel">取消</button>
+        </span>
+      </div>
       <div class="modal-actions" data-page-node-id="HnFL2IotMV0FFZtNWG2UOj">
         <button class="btn secondary" id="cf-cancel" data-page-node-id="YyyxkEt9DEuGHtqUecFLZ2">取消</button>
         <button class="btn primary" id="cf-save" data-page-node-id="0nacyUojdG5TLHVo7Wyvze">保存</button>
@@ -2041,7 +2052,11 @@
       document.getElementById('exercise-duration').addEventListener('input', recalcExerciseKcal);
 
       // 自定义录入弹窗
-      document.getElementById('custom-food-btn').addEventListener('click', () => openModal('custom-food-modal'));
+      document.getElementById('custom-food-btn').addEventListener('click', () => {
+        openModal('custom-food-modal');
+        // 弹窗内自带进餐时段多选，打开时按当前时间预选
+        if (document.getElementById('cf-meal')) renderMealSelect('cf-meal', 'cf-meal-other-input', [defaultMealByTime()]);
+      });
       document.getElementById('cf-cancel').addEventListener('click', () => closeModal('custom-food-modal'));
       document.getElementById('cf-save').addEventListener('click', saveCustomFood);
       document.getElementById('custom-exercise-btn').addEventListener('click', () => openModal('custom-exercise-modal'));
@@ -2448,7 +2463,7 @@
     function saveCustomFood() {
       const name = document.getElementById('cf-name').value.trim();
       if (!name) return toast('请输入食物名称');
-      const meals = getSelectedMeals();
+      const meals = getSelectedMeals('cf-meal');
       if (meals.length === 0) return toast('请至少勾选一个进餐时段');
       const day = getCurrentDate();
       if (!state.logs[day]) state.logs[day] = { foods: [], exercises: [] };
@@ -2735,9 +2750,9 @@
       const i = opts.indexOf(m);
       return i === -1 ? opts.length : i;
     }
-    // 渲染进餐时段多选下拉（单个选项框，支持多选）；selected 为默认选中时段数组
-    function renderMealSelect(selected) {
-      const sel = document.getElementById('food-meal');
+    // 渲染进餐时段多选下拉（单个选项框，支持多选）。selId=下拉框id，otherInputId=「其他」输入框span的id
+    function renderMealSelect(selId, otherInputId, selected) {
+      const sel = document.getElementById(selId);
       if (!sel) return;
       const selSet = new Set(selected || []);
       const opts = getMealOptions();
@@ -2746,8 +2761,8 @@
       ).join('');
       html += '<option value="__other__">＋ 其他（自定义）</option>';
       sel.innerHTML = html;
-      const otherInput = document.getElementById('meal-other-input');
-      const otherText = document.getElementById('meal-other-text');
+      const otherInput = document.getElementById(otherInputId);
+      const otherText = document.getElementById(otherInputId + '-text');
       sel.onchange = () => {
         const raw = Array.from(sel.selectedOptions).map(o => o.value);
         if (raw.includes('__other__')) {
@@ -2759,30 +2774,31 @@
         } else {
           otherInput.style.display = 'none';
         }
-        updateMealSelectedText();
+        updateMealSelectedText(selId);
       };
-      document.getElementById('meal-other-cancel').onclick = () => { otherInput.style.display = 'none'; };
-      document.getElementById('meal-other-ok').onclick = addCustomMealPeriod;
-      otherText.onkeydown = e => { if (e.key === 'Enter') addCustomMealPeriod(); };
-      updateMealSelectedText();
+      document.getElementById(otherInputId + '-cancel').onclick = () => { otherInput.style.display = 'none'; };
+      document.getElementById(otherInputId + '-ok').onclick = () => addCustomMealPeriod(selId, otherInputId);
+      otherText.onkeydown = e => { if (e.key === 'Enter') addCustomMealPeriod(selId, otherInputId); };
+      updateMealSelectedText(selId);
     }
     // 实时显示当前已选进餐时段，避免多选下拉关闭后看不出勾了哪些
-    function updateMealSelectedText() {
-      const el = document.getElementById('meal-selected');
+    function updateMealSelectedText(selId) {
+      const el = document.getElementById(selId + '-selected');
       if (!el) return;
-      const meals = getSelectedMeals();
+      const meals = getSelectedMeals(selId);
       el.textContent = meals.length ? ('已选：' + meals.join('、')) : '未选择时段';
       el.classList.toggle('empty', meals.length === 0);
     }
-    // 读取当前选中的进餐时段（排除「其他」伪选项）
-    function getSelectedMeals() {
-      const sel = document.getElementById('food-meal');
+    // 读取当前选中的进餐时段（排除「其他」伪选项），selId 缺省取主表单 #food-meal
+    function getSelectedMeals(selId) {
+      selId = selId || 'food-meal';
+      const sel = document.getElementById(selId);
       if (!sel) return [];
       return Array.from(sel.selectedOptions).map(o => o.value).filter(v => v && v !== '__other__');
     }
-    // 新增自定义时段：写入 state.mealPeriods 并持久化，重新渲染下拉并自动选中
-    function addCustomMealPeriod() {
-      const txt = (document.getElementById('meal-other-text').value || '').trim();
+    // 新增自定义时段：写入 state.mealPeriods 并持久化，重新渲染所有进餐时段下拉并自动选中
+    function addCustomMealPeriod(selId, otherInputId) {
+      const txt = (document.getElementById(otherInputId + '-text').value || '').trim();
       if (!txt) return toast('请输入时段名称');
       if (MEAL_ORDER.indexOf(txt) !== -1 || (state.mealPeriods || []).indexOf(txt) !== -1) {
         toast('「' + txt + '」已存在');
@@ -2791,21 +2807,26 @@
       if (!Array.isArray(state.mealPeriods)) state.mealPeriods = [];
       state.mealPeriods.push(txt);
       save();
-      document.getElementById('meal-other-input').style.display = 'none';
-      renderMealSelect(getSelectedMeals().concat([txt]));
+      document.getElementById(otherInputId).style.display = 'none';
+      // 重新渲染主表单与弹窗里的进餐时段下拉，并选中新时段
+      ['food-meal', 'cf-meal'].forEach(id => {
+        if (document.getElementById(id)) renderMealSelect(id, id + '-other-input', getSelectedMeals(id).concat([txt]));
+      });
       toast('已新增时段：' + txt);
     }
-
+    // 按当前时间返回默认进餐时段
+    function defaultMealByTime() {
+      const h = new Date().getHours();
+      if (h >= 5 && h < 10) return '早餐';
+      if (h >= 10 && h < 14) return '中餐';
+      if (h >= 14 && h < 17) return '下午茶';
+      if (h >= 17 && h < 21) return '晚餐';
+      if (h >= 21) return '宵夜';
+      return '零食';
+    }
     // 按当前时间预选进餐时段（录入时少点一下）
     function setDefaultMealByTime() {
-      const h = new Date().getHours();
-      let m = '零食';
-      if (h >= 5 && h < 10) m = '早餐';
-      else if (h >= 10 && h < 14) m = '中餐';
-      else if (h >= 14 && h < 17) m = '下午茶';
-      else if (h >= 17 && h < 21) m = '晚餐';
-      else if (h >= 21) m = '宵夜';
-      renderMealSelect([m]);
+      renderMealSelect('food-meal', 'food-meal-other-input', [defaultMealByTime()]);
     }
 
     function renderToday() {
