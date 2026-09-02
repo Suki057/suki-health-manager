@@ -1083,6 +1083,11 @@
     .delta-flat { color: var(--muted); }
     .no-baseline { color: #9ca3af; font-size: 13px; margin-top: 8px; }
     .cell-note { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+    .rec-detail { margin-top: 16px; }
+    .rec-detail h3 { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: var(--text); }
+    .rec-detail h3 small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 6px; }
+    #rec-table { min-width: 760px; }
+    #rec-table th:first-child, #rec-table td:first-child { position: sticky; left: 0; background: #fff; }
 
     /* ===== 目标管理（与初始基数同构，仅填目标体重/体脂） ===== */
     .target-box { margin-bottom: 16px; }
@@ -1391,50 +1396,34 @@
 
       <div class="panel" data-page-node-id="VYeCZFZvjXTeIapFySYb49">
         <h2 data-page-node-id="JBN4ydwC03GdXJUkGvD1Gq">📊 体重档案 <small data-page-node-id="D0LpB8UvE4pGutEwZEv4tk">基线 · 目标 · 记录</small></h2>
-        <div class="baseline-box" data-page-node-id="tTNz4H4Uj7g46TpUituANp">
-          <details data-page-node-id="xSn10CNNIphp8U7k5JVfD7">
-            <summary data-page-node-id="oPAdr3AeUbSMiymTd2njUD">🎯 初始基线（对比参考）· 点击设置</summary>
-            <p class="hint" data-page-node-id="tuhNGiOl8cN6ELmewgjhVF">填写你开始记录时的初始体重与各围度，之后每次录入都会显示与初始值的对比（变化量）。</p>
-            <div class="form-grid" data-page-node-id="0AL9jYBHHxlcuXuLMlahRj">
-              <div class="field" data-page-node-id="bxdate01"><label data-page-node-id="bxdate02">日期</label><input type="date" id="base-date" data-page-node-id="xCR7xeUortb9VK3QNuyRis2" /></div>
-              <div class="field" data-page-node-id="p5bcmpPDp30gCAIW4SMGBy"><label data-page-node-id="4h8kZiPmwJeAHrHDANssI3">体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" data-page-node-id="xCR7xeUortb9VK3QNuyRis" /></div>
-              <div class="field" data-page-node-id="lGWOUaktWt7MlUAYQ4P27k"><label data-page-node-id="1Ud13EHCpkqK68qHC0WBFc">体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" data-page-node-id="JF8ndqRKv0YABpJJ3cSxG9" /></div>
-              <div class="field" data-page-node-id="cNv5YYckh1qk4A8R62SwHf"><label data-page-node-id="wKdQ3por4E9WjuKujzoF9L">小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" data-page-node-id="aW4x575BTvoFxDEAqCdIuJ" /></div>
-              <div class="field" data-page-node-id="j5pg75W5PQ5A72MAC0j8Jb"><label data-page-node-id="e7F3RRLgPKrRcQ41WKtJDV">大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" data-page-node-id="hmJ68HWuOkOFauTvBLVD9B" /></div>
-              <div class="field" data-page-node-id="xoyCRWP67i1pOPyRdqqULO"><label data-page-node-id="Wx6XuhEF4D5zW4kD2vPGUW">腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" data-page-node-id="vpwZPhBiFAxsB7U6toyrVo" /></div>
-              <div class="field" data-page-node-id="0LbtCrYyO6dxGtXNqJC81i"><label data-page-node-id="7E0ZWrB3hndYk8ylJotHV6">臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" data-page-node-id="A8E15PIWdQcdtUciWVByYN" /></div>
-              <div class="form-actions" data-page-node-id="2XrXbovYCmUQ5mSwqKvXMp">
-                <button type="button" class="btn secondary" id="base-save-btn" data-page-node-id="hH1ZlEgMax27LXdqKtGdrf">保存初始基线</button>
-              </div>
-            </div>
-            <p class="hint" id="base-hint" data-page-node-id="vCVZEIHpl8CHHdxvqcQCRG"></p>
-            <details class="saved-detail" data-page-node-id="bxdet01">
-              <summary data-page-node-id="bxdet02">📋 已保存的初始基线（点击展开）</summary>
-              <div class="detail-scroll" data-page-node-id="bxdet03">
-                <table id="base-saved-table" data-page-node-id="bxdet04"><thead><tr><th>日期</th><th>体重 (kg)</th><th>体脂率 (%)</th></tr></thead><tbody></tbody></table>
-              </div>
-            </details>
-          </details>
-        </div>
         <div class="target-box" data-page-node-id="ahoGLnVHgIONYde5It3ZfC">
-          <details data-page-node-id="8wjs5pN4os33sUpWKs60w8">
-            <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 目标管理（你想达到的）· 点击设置</summary>
-            <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">填写你希望达到的目标体重与目标体脂率，开屏界面会据此显示「距目标体重」与「体脂可降」。</p>
-            <div class="form-grid" data-page-node-id="yoEjPKu395qEDmZgzIBwUm">
-              <div class="field" data-page-node-id="txdate01"><label data-page-node-id="txdate02">达到目标日期</label><input type="date" id="target-date" data-page-node-id="txdate03" /></div>
-              <div class="field" data-page-node-id="GEB6lJjFkupB4bArur2cOb"><label data-page-node-id="ictECLXnpHgTmyZDSUqIx7">目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" data-page-node-id="RL4xvs1seZhUJBLgHeoEoK" /></div>
-              <div class="field" data-page-node-id="t4doNpIZ5jDcbunDANEbmF"><label data-page-node-id="4TSEg5QtruidZ7QQSrudBz">目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" data-page-node-id="wVJikT3JofFvCcJlcpaSBB" /></div>
-              <div class="form-actions" data-page-node-id="uPv4HEBuOt2WhdYYDkcMZt">
-                <button type="button" class="btn secondary" id="target-save-btn" data-page-node-id="KRDKWcBtRK80OxHa6pNfDb">保存目标管理</button>
+          <details data-page-node-id="8wjs5pN4os33sUpWKs60w8" open>
+            <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 目标管理（初始 → 目标）· 点击展开 / 收起</summary>
+            <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">先选「开始日期」与「结束日期」（时间区间），再填初始体重 / 体脂率与要达到的目标体重 / 目标体脂率，以及围度。点击「保存数据」生成一条明细；更换日期与数据再次保存，会追加第二条明细。</p>
+            <div class="row stats-datebar" data-page-node-id="ppd01">
+              <div class="date-group" data-page-node-id="ppd02">
+                <label for="rec-start" data-page-node-id="ppd03">开始日期</label>
+                <span data-page-node-id="ppd04"></span>
+                <label for="rec-end" data-page-node-id="ppd05">结束日期</label>
+                <input type="date" id="rec-start" data-page-node-id="ppd06" />
+                <span class="date-sep" data-page-node-id="ppd07">—</span>
+                <input type="date" id="rec-end" data-page-node-id="ppd08" />
               </div>
             </div>
-            <p class="hint" id="target-hint" data-page-node-id="Q4wpZDHADsbLQ1YUiuFEtg"></p>
-            <details class="saved-detail" data-page-node-id="txdet01">
-              <summary data-page-node-id="txdet02">📋 已保存的目标（点击展开）</summary>
-              <div class="detail-scroll" data-page-node-id="txdet03">
-                <table id="target-saved-table" data-page-node-id="txdet04"><thead><tr><th>达到目标日期</th><th>目标体重 (kg)</th><th>目标体脂率 (%)</th></tr></thead><tbody></tbody></table>
+            <div class="form-grid" data-page-node-id="mgrid01">
+              <div class="field" data-page-node-id="mgrid02"><label data-page-node-id="mgrid03">初始体重 (kg)</label><input type="number" id="rec-init-weight" min="0" step="0.1" placeholder="如 58" data-page-node-id="mgrid04" /></div>
+              <div class="field" data-page-node-id="mgrid05"><label data-page-node-id="mgrid06">体脂率 (%)</label><input type="number" id="rec-init-fat" min="0" step="0.1" placeholder="如 26" data-page-node-id="mgrid07" /></div>
+              <div class="field" data-page-node-id="mgrid08"><label data-page-node-id="mgrid09">目标体重 (kg)</label><input type="number" id="rec-target-weight" min="0" step="0.1" placeholder="如 52" data-page-node-id="mgrid10" /></div>
+              <div class="field" data-page-node-id="mgrid11"><label data-page-node-id="mgrid12">目标体脂率 (%)</label><input type="number" id="rec-target-fat" min="0" step="0.1" placeholder="如 22" data-page-node-id="mgrid13" /></div>
+              <div class="field" data-page-node-id="mgrid14"><label data-page-node-id="mgrid15">小腿围 (cm)</label><input type="number" id="rec-calf" min="0" step="0.1" placeholder="如 37" data-page-node-id="mgrid16" /></div>
+              <div class="field" data-page-node-id="mgrid17"><label data-page-node-id="mgrid18">大腿围 (cm)</label><input type="number" id="rec-thigh" min="0" step="0.1" placeholder="如 53" data-page-node-id="mgrid19" /></div>
+              <div class="field" data-page-node-id="mgrid20"><label data-page-node-id="mgrid21">腰围 (cm)</label><input type="number" id="rec-waist" min="0" step="0.1" placeholder="如 70" data-page-node-id="mgrid22" /></div>
+              <div class="field" data-page-node-id="mgrid23"><label data-page-node-id="mgrid24">臀围 (cm)</label><input type="number" id="rec-hip" min="0" step="0.1" placeholder="如 94" data-page-node-id="mgrid25" /></div>
+              <div class="form-actions" data-page-node-id="mgrid26">
+                <button type="button" class="btn secondary" id="rec-save-btn" data-page-node-id="mgrid27">保存数据</button>
               </div>
-            </details>
+            </div>
+            <p class="hint" id="rec-hint" data-page-node-id="mgrid28"></p>
           </details>
         </div>
         <div class="row stats-datebar period-bar" data-page-node-id="pp01">
@@ -1446,6 +1435,15 @@
             <input type="date" id="period-start" disabled data-page-node-id="pp06" />
             <span class="date-sep" data-page-node-id="pp07">—</span>
             <input type="date" id="period-end" disabled data-page-node-id="pp08" />
+          </div>
+        </div>
+        <div id="rec-detail" class="rec-detail" data-page-node-id="recd01">
+          <h3 data-page-node-id="recd02">📋 数据明细表 <small data-page-node-id="recd05">每次保存追加一行（可左右拖动查看）</small></h3>
+          <div class="detail-scroll" data-page-node-id="recd03">
+            <table id="rec-table" data-page-node-id="recd04">
+              <thead><tr><th>开始日期</th><th>结束日期</th><th>初始体重 (kg)</th><th>体脂率 (%)</th><th>目标体重 (kg)</th><th>目标体脂率 (%)</th><th>小腿围 (cm)</th><th>大腿围 (cm)</th><th>腰围 (cm)</th><th>臀围 (cm)</th></tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
         <div id="baseline-compare" class="baseline-compare" data-page-node-id="ZeOKbCWc9ChTnDFwYmUII2"></div>
@@ -1981,7 +1979,7 @@
           if (btn.dataset.tab === 'stats') renderStats();
           if (btn.dataset.tab === 'trash') renderTrash();
           if (btn.dataset.tab === 'food-review') renderFoodReview();
-          if (btn.dataset.tab === 'progress') { renderProgress(); renderBaseline(); renderTargetManagement(); }
+          if (btn.dataset.tab === 'progress') { renderProgress(); renderBaselineCompare(); renderRecTable(); }
           if (btn.dataset.tab === 'calories') {
             const cdp = document.getElementById('cal-date-picker');
             if (cdp) cdp.value = document.getElementById('date-picker').value;
@@ -2129,8 +2127,7 @@
       });
 
       document.getElementById('body-save-btn').addEventListener('click', saveBodyEntry);
-      document.getElementById('base-save-btn').addEventListener('click', saveBaseline);
-      document.getElementById('target-save-btn').addEventListener('click', saveTargetManagement);
+      document.getElementById('rec-save-btn').addEventListener('click', saveRecord);
 
       // 身材 CSV 导入
       document.getElementById('body-csv-import-btn').addEventListener('click', () => document.getElementById('body-csv-file').click());
@@ -2164,7 +2161,7 @@
       state.logs[day].body = body;
       save();
       renderBody();
-      renderBaseline();
+      renderBaselineCompare();
       // 保存后自动清空输入框，方便录入下一天的新数据
       BODY_FIELDS.forEach(([inputId]) => { const el = document.getElementById(inputId); if (el) el.value = ''; });
       const hint = document.getElementById('body-saved-hint');
@@ -2272,91 +2269,121 @@
       reader.readAsText(file);
     }
 
-    const BASE_FIELDS = [
-      ['base-weight', 'weight'],
-      ['base-fat', 'bodyFat'],
-      ['base-calf', 'calf'],
-      ['base-thigh', 'thigh'],
-      ['base-waist', 'waist'],
-      ['base-hip', 'hip'],
+    // ==================== 目标管理（合并：初始基线 + 目标，累积明细） ====================
+    const REC_FIELDS = [
+      ['rec-init-weight', 'initWeight'],
+      ['rec-init-fat', 'initFat'],
+      ['rec-target-weight', 'targetWeight'],
+      ['rec-target-fat', 'targetFat'],
+      ['rec-calf', 'calf'],
+      ['rec-thigh', 'thigh'],
+      ['rec-waist', 'waist'],
+      ['rec-hip', 'hip'],
     ];
 
-    function saveBaseline() {
-      const b = {};
+    function saveRecord() {
+      const startDate = (document.getElementById('rec-start').value || '').trim();
+      const endDate = (document.getElementById('rec-end').value || '').trim();
+      const rec = { id: Date.now(), startDate: startDate, endDate: endDate };
       let has = false;
-      BASE_FIELDS.forEach(([inputId, key]) => {
+      REC_FIELDS.forEach(([inputId, key]) => {
         const v = parseFloat(document.getElementById(inputId).value);
-        if (!Number.isNaN(v) && v > 0) { b[key] = v; has = true; }
+        if (!Number.isNaN(v) && v > 0) { rec[key] = v; has = true; }
       });
-      const dateVal = (document.getElementById('base-date').value || '').trim();
-      if (dateVal) b.date = dateVal; else delete b.date;
-      if (!has && !dateVal) return toast('请至少填写一项初始值');
-      state.baseline = b;
+      if (!has && !startDate && !endDate) return toast('请至少填写一项数据或日期');
+      if (!Array.isArray(state.progressRecords)) state.progressRecords = [];
+      state.progressRecords.push(rec);
+      // 同步到 baseline / goals：供开屏界面、对比表、进度表、完成时间段使用（取最新一条）
+      const base = {};
+      const goals = (state.goals && typeof state.goals === 'object') ? state.goals : {};
+      if (rec.initWeight !== undefined) base.weight = rec.initWeight;
+      if (rec.initFat !== undefined) base.bodyFat = rec.initFat;
+      if (rec.calf !== undefined) base.calf = rec.calf;
+      if (rec.thigh !== undefined) base.thigh = rec.thigh;
+      if (rec.waist !== undefined) base.waist = rec.waist;
+      if (rec.hip !== undefined) base.hip = rec.hip;
+      if (startDate) base.date = startDate;
+      if (rec.targetWeight !== undefined) goals.targetWeight = rec.targetWeight;
+      if (rec.targetFat !== undefined) goals.targetBodyFat = rec.targetFat;
+      if (endDate) goals.targetDate = endDate;
+      state.baseline = base;
+      state.goals = goals;
       save();
-      renderBaseline();
-      const labels = { weight: '体重', bodyFat: '体脂率', calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围' };
-      const units = { weight: 'kg', bodyFat: '%', calf: 'cm', thigh: 'cm', waist: 'cm', hip: 'cm' };
+      renderRecordForm();
+      renderRecTable();
       const parts = [];
-      if (dateVal) parts.push('日期 ' + dateVal);
-      for (const k in b) parts.push(labels[k] + ' ' + formatNum(b[k]) + units[k]);
-      document.getElementById('base-hint').textContent = '初始基线已保存：' + parts.join('，') + '。';
-      toast('初始基线已保存');
+      if (startDate) parts.push('开始 ' + startDate);
+      if (endDate) parts.push('结束 ' + endDate);
+      if (rec.initWeight !== undefined) parts.push('初始体重 ' + formatNum(rec.initWeight) + 'kg');
+      if (rec.targetWeight !== undefined) parts.push('目标体重 ' + formatNum(rec.targetWeight) + 'kg');
+      const hint = document.getElementById('rec-hint');
+      if (hint) hint.textContent = '已保存第 ' + state.progressRecords.length + ' 条：' + parts.join('，') + '。可更换日期与数据再次保存，追加新明细。';
+      toast('已保存数据明细（共 ' + state.progressRecords.length + ' 条）');
     }
 
-    function renderBaseline() {
-      const baseDateEl = document.getElementById('base-date');
-      if (baseDateEl) baseDateEl.value = (state.baseline && state.baseline.date) ? state.baseline.date : '';
-      BASE_FIELDS.forEach(([inputId, key]) => {
+    function renderRecordForm() {
+      const recs = state.progressRecords || [];
+      const rec = recs[recs.length - 1];
+      if (!rec) return;
+      const sEl = document.getElementById('rec-start');
+      const eEl = document.getElementById('rec-end');
+      if (sEl) sEl.value = rec.startDate || '';
+      if (eEl) eEl.value = rec.endDate || '';
+      REC_FIELDS.forEach(([inputId, key]) => {
         const el = document.getElementById(inputId);
-        el.value = (state.baseline[key] !== undefined && state.baseline[key] !== null) ? state.baseline[key] : '';
+        if (el) el.value = (rec[key] !== undefined && rec[key] !== null) ? rec[key] : '';
       });
-      const labels = { weight: '体重', bodyFat: '体脂率', calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围' };
-      const units = { weight: 'kg', bodyFat: '%', calf: 'cm', thigh: 'cm', waist: 'cm', hip: 'cm' };
-      const baseParts = Object.keys(labels).filter(k => state.baseline[k] !== undefined && state.baseline[k] !== null)
-        .map(k => labels[k] + ' ' + formatNum(state.baseline[k]) + units[k]);
+    }
 
-      // 已保存明细表（默认收缩，可左右拖动）
-      const savedTbody = document.querySelector('#base-saved-table tbody');
-      if (savedTbody) {
-        const d = (state.baseline && state.baseline.date) ? state.baseline.date : '—';
-        const w = (state.baseline && state.baseline.weight !== undefined) ? formatNum(state.baseline.weight) : '—';
-        const f = (state.baseline && state.baseline.bodyFat !== undefined) ? formatNum(state.baseline.bodyFat) : '—';
-        savedTbody.innerHTML = '<tr><td>' + d + '</td><td>' + w + '</td><td>' + f + '</td></tr>';
+    function renderRecTable() {
+      const tbody = document.querySelector('#rec-table tbody');
+      if (!tbody) return;
+      const recs = state.progressRecords || [];
+      if (recs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">尚未保存任何数据明细，展开上方「目标管理」填写后点击「保存数据」。</td></tr>';
+        return;
       }
+      const fmt = v => (v === undefined || v === null || v === '') ? '—' : formatNum(v);
+      tbody.innerHTML = recs.map(r =>
+        '<tr><td>' + (r.startDate || '—') + '</td><td>' + (r.endDate || '—') + '</td><td>' + fmt(r.initWeight) + '</td><td>' + fmt(r.initFat) + '</td><td>' + fmt(r.targetWeight) + '</td><td>' + fmt(r.targetFat) + '</td><td>' + fmt(r.calf) + '</td><td>' + fmt(r.thigh) + '</td><td>' + fmt(r.waist) + '</td><td>' + fmt(r.hip) + '</td></tr>'
+      ).join('');
+    }
 
+    function renderBaselineCompare() {
       renderPeriodBar();
       const box = document.getElementById('baseline-compare');
+      if (!box) return;
+      const base = state.baseline || {};
+      const labels = { weight: '体重', bodyFat: '体脂率', calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围' };
+      const units = { weight: 'kg', bodyFat: '%', calf: 'cm', thigh: 'cm', waist: 'cm', hip: 'cm' };
+      const baseParts = Object.keys(labels).filter(k => base[k] !== undefined && base[k] !== null)
+        .map(k => labels[k] + ' ' + formatNum(base[k]) + units[k]);
       if (baseParts.length === 0) {
-        box.innerHTML = '<p class="no-baseline">尚未设置初始基线，展开上方「初始基线」填写后，这里会显示与当日数据的对比。</p>';
+        box.innerHTML = '<p class="no-baseline">尚未设置初始基线，展开上方「目标管理」填写后，这里会显示与当日数据的对比。</p>';
         return;
       }
       const day = getCurrentDate();
       const body = (state.logs[day] && state.logs[day].body) || {};
       let rows = '';
       Object.keys(labels).forEach(k => {
-        if (state.baseline[k] === undefined || state.baseline[k] === null) return;
+        if (base[k] === undefined || base[k] === null) return;
         const cur = body[k];
-        const base = state.baseline[k];
+        const bval = base[k];
         let deltaHtml = '<td class="delta-flat">—</td>';
         if (cur !== undefined && cur !== null) {
-          const d = cur - base;
+          const d = cur - bval;
           const cls = d < 0 ? 'delta-down' : (d > 0 ? 'delta-up' : 'delta-flat');
           const sign = d > 0 ? '+' : '';
           deltaHtml = '<td class="' + cls + '">' + (sign + formatNum(d)) + '</td>';
         }
         const curTxt = (cur !== undefined && cur !== null) ? formatNum(cur) : '—';
-        rows += '<tr><td>' + labels[k] + '</td><td>' + curTxt + '</td><td>' + formatNum(base) + '</td>' + deltaHtml + '</tr>';
+        rows += '<tr><td>' + labels[k] + '</td><td>' + curTxt + '</td><td>' + formatNum(bval) + '</td>' + deltaHtml + '</tr>';
       });
       box.innerHTML = '<table><thead><tr><th>指标</th><th>今日</th><th>初始</th><th>变化</th></tr></thead><tbody>' + rows + '</tbody></table>';
     }
 
     // ==================== 目标管理（开屏界面数据来源） ====================
-    const TARGET_FIELDS = [
-      ['target-weight', 'targetWeight'],
-      ['target-fat', 'targetBodyFat'],
-    ];
-
-    // 完成时间段：根据初始基线日期与达到目标日期自动填充（复刻统计页起止日期样式）
+    // 完成时间段：根据初始基线日期与达成目标日期自动填充（复刻统计页起止日期样式）
     function renderPeriodBar() {
       const s = document.getElementById('period-start');
       const e = document.getElementById('period-end');
@@ -2365,51 +2392,6 @@
       const td = (state.goals && state.goals.targetDate) ? state.goals.targetDate : '';
       s.value = bd; s.disabled = !bd;
       e.value = td; e.disabled = !td;
-    }
-
-    function saveTargetManagement() {
-      if (!state.goals || typeof state.goals !== 'object') state.goals = {};
-      let has = false;
-      TARGET_FIELDS.forEach(([inputId, key]) => {
-        const v = parseFloat(document.getElementById(inputId).value);
-        if (!Number.isNaN(v) && v > 0) { state.goals[key] = v; has = true; }
-      });
-      const dateVal = (document.getElementById('target-date').value || '').trim();
-      if (dateVal) state.goals.targetDate = dateVal; else delete state.goals.targetDate;
-      if (!has && !dateVal) return toast('请至少填写一项目标');
-      save();
-      renderTargetManagement();
-      const parts = [];
-      if (dateVal) parts.push('达到目标日期 ' + dateVal);
-      if (state.goals.targetWeight) parts.push('目标体重 ' + formatNum(state.goals.targetWeight) + 'kg');
-      if (state.goals.targetBodyFat) parts.push('目标体脂 ' + formatNum(state.goals.targetBodyFat) + '%');
-      const hint = document.getElementById('target-hint');
-      if (hint) hint.textContent = '目标管理已保存：' + parts.join('，') + '。';
-      toast('目标管理已保存');
-    }
-    function renderTargetManagement() {
-      const tgDateEl = document.getElementById('target-date');
-      if (tgDateEl) tgDateEl.value = (state.goals && state.goals.targetDate) ? state.goals.targetDate : '';
-      TARGET_FIELDS.forEach(([inputId, key]) => {
-        const el = document.getElementById(inputId);
-        const v = (state.goals && state.goals[key] !== undefined && state.goals[key] !== null) ? state.goals[key] : '';
-        el.value = v;
-      });
-      const parts = [];
-      if (state.goals && state.goals.targetWeight) parts.push('目标体重 ' + formatNum(state.goals.targetWeight) + 'kg');
-      if (state.goals && state.goals.targetBodyFat) parts.push('目标体脂 ' + formatNum(state.goals.targetBodyFat) + '%');
-      const hint = document.getElementById('target-hint');
-      if (hint) hint.textContent = parts.length ? ('当前目标：' + parts.join('，')) : '';
-
-      // 已保存明细表（默认收缩，可左右拖动）
-      const savedTbody = document.querySelector('#target-saved-table tbody');
-      if (savedTbody) {
-        const d = (state.goals && state.goals.targetDate) ? state.goals.targetDate : '—';
-        const w = (state.goals && state.goals.targetWeight !== undefined) ? formatNum(state.goals.targetWeight) : '—';
-        const f = (state.goals && state.goals.targetBodyFat !== undefined) ? formatNum(state.goals.targetBodyFat) : '—';
-        savedTbody.innerHTML = '<tr><td>' + d + '</td><td>' + w + '</td><td>' + f + '</td></tr>';
-      }
-      renderPeriodBar();
     }
 
     // 最近一次有身材记录的数据（跨所有日期取最新）
@@ -3029,7 +3011,7 @@
       renderDietAnalysis();
       renderMealAI();
       renderExerciseCalendar();
-      renderBaseline();
+      renderBaselineCompare();
     }
 
     // ==================== AI 饮食分析（本地规则引擎） ====================
@@ -5151,7 +5133,8 @@
     function renderAll() {
       renderToday();
       renderBody();
-      renderTargetManagement();
+      renderRecTable();
+      renderRecordForm();
       renderFoodLibrary();
       renderExerciseLibrary();
       renderStats();
