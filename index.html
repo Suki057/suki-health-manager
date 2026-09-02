@@ -577,11 +577,7 @@
     .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
     .stats-datebar { gap: 18px; }
     #stats-load-btn { padding: 4px 12px; font-size: 12px; }
-    /* 完成时间段板块（复刻统计页起止日期样式） */
-    .period-bar { align-items: center; margin-bottom: 14px; }
-    .period-title { font-weight: 600; font-size: 14px; color: var(--text); white-space: nowrap; }
-    #period-start, #period-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 128px; }
-    #period-end { width: 145px; margin-left: -10px; }
+    /* （完成时间段板块已移除） */
     /* 已保存明细：默认收缩 + 可左右拖动 */
     .saved-detail { margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.35); padding-top: 8px; }
     .saved-detail > summary { list-style: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); padding: 4px 0; outline: none; }
@@ -1083,9 +1079,12 @@
     .delta-flat { color: var(--muted); }
     .no-baseline { color: #9ca3af; font-size: 13px; margin-top: 8px; }
     .cell-note { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
-    .rec-detail { margin-top: 16px; }
-    .rec-detail h3 { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: var(--text); }
-    .rec-detail h3 small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 6px; }
+    .rec-detail-collapse { margin-top: 14px; }
+    .rec-detail-collapse > summary { list-style: none; cursor: pointer; font-size: 15px; font-weight: 700; color: var(--text); margin: 0 0 8px; outline: none; }
+    .rec-detail-collapse > summary::-webkit-details-marker { display: none; }
+    .rec-detail-collapse > summary::before { content: '▸ '; color: var(--muted); font-weight: 700; font-size: 13px; }
+    .rec-detail-collapse[open] > summary::before { content: '▾ '; }
+    .rec-detail-collapse > summary small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 6px; }
     #rec-table { min-width: 760px; }
     #rec-table th:first-child, #rec-table td:first-child { position: sticky; left: 0; background: #fff; }
 
@@ -1398,7 +1397,7 @@
         <h2 data-page-node-id="JBN4ydwC03GdXJUkGvD1Gq">📊 体重档案 <small data-page-node-id="D0LpB8UvE4pGutEwZEv4tk">基线 · 目标 · 记录</small></h2>
         <div class="target-box" data-page-node-id="ahoGLnVHgIONYde5It3ZfC">
           <details data-page-node-id="8wjs5pN4os33sUpWKs60w8" open>
-            <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 目标管理（初始 → 目标）· 点击展开 / 收起</summary>
+            <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 目标管理（初始 → 目标）</summary>
             <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">先选「开始日期」与「结束日期」（时间区间），再填初始体重 / 体脂率与要达到的目标体重 / 目标体脂率，以及围度。点击「保存数据」生成一条明细；更换日期与数据再次保存，会追加第二条明细。</p>
             <div class="row stats-datebar" data-page-node-id="ppd01">
               <div class="date-group" data-page-node-id="ppd02">
@@ -1424,27 +1423,16 @@
               </div>
             </div>
             <p class="hint" id="rec-hint" data-page-node-id="mgrid28"></p>
+            <details class="rec-detail-collapse" data-page-node-id="recd01">
+              <summary data-page-node-id="recd02">📋 数据明细表 <small data-page-node-id="recd05">每次保存追加一行（可左右拖动查看）</small></summary>
+              <div class="detail-scroll" data-page-node-id="recd03">
+                <table id="rec-table" data-page-node-id="recd04">
+                  <thead><tr><th>开始日期</th><th>结束日期</th><th>初始体重 (kg)</th><th>体脂率 (%)</th><th>目标体重 (kg)</th><th>目标体脂率 (%)</th><th>小腿围 (cm)</th><th>大腿围 (cm)</th><th>腰围 (cm)</th><th>臀围 (cm)</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </details>
           </details>
-        </div>
-        <div class="row stats-datebar period-bar" data-page-node-id="pp01">
-          <span class="period-title" data-page-node-id="pp02">完成时间段</span>
-          <div class="date-group">
-            <label for="period-start" data-page-node-id="pp03">开始日期</label>
-            <span data-page-node-id="pp04"></span>
-            <label for="period-end" data-page-node-id="pp05">结束日期</label>
-            <input type="date" id="period-start" disabled data-page-node-id="pp06" />
-            <span class="date-sep" data-page-node-id="pp07">—</span>
-            <input type="date" id="period-end" disabled data-page-node-id="pp08" />
-          </div>
-        </div>
-        <div id="rec-detail" class="rec-detail" data-page-node-id="recd01">
-          <h3 data-page-node-id="recd02">📋 数据明细表 <small data-page-node-id="recd05">每次保存追加一行（可左右拖动查看）</small></h3>
-          <div class="detail-scroll" data-page-node-id="recd03">
-            <table id="rec-table" data-page-node-id="recd04">
-              <thead><tr><th>开始日期</th><th>结束日期</th><th>初始体重 (kg)</th><th>体脂率 (%)</th><th>目标体重 (kg)</th><th>目标体脂率 (%)</th><th>小腿围 (cm)</th><th>大腿围 (cm)</th><th>腰围 (cm)</th><th>臀围 (cm)</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
         </div>
         <div id="baseline-compare" class="baseline-compare" data-page-node-id="ZeOKbCWc9ChTnDFwYmUII2"></div>
       </div>
@@ -2293,7 +2281,7 @@
       if (!has && !startDate && !endDate) return toast('请至少填写一项数据或日期');
       if (!Array.isArray(state.progressRecords)) state.progressRecords = [];
       state.progressRecords.push(rec);
-      // 同步到 baseline / goals：供开屏界面、对比表、进度表、完成时间段使用（取最新一条）
+      // 同步到 baseline / goals：供开屏界面、对比表、进度表使用（取最新一条）
       const base = {};
       const goals = (state.goals && typeof state.goals === 'object') ? state.goals : {};
       if (rec.initWeight !== undefined) base.weight = rec.initWeight;
@@ -2350,7 +2338,6 @@
     }
 
     function renderBaselineCompare() {
-      renderPeriodBar();
       const box = document.getElementById('baseline-compare');
       if (!box) return;
       const base = state.baseline || {};
@@ -2383,16 +2370,6 @@
     }
 
     // ==================== 目标管理（开屏界面数据来源） ====================
-    // 完成时间段：根据初始基线日期与达成目标日期自动填充（复刻统计页起止日期样式）
-    function renderPeriodBar() {
-      const s = document.getElementById('period-start');
-      const e = document.getElementById('period-end');
-      if (!s || !e) return;
-      const bd = (state.baseline && state.baseline.date) ? state.baseline.date : '';
-      const td = (state.goals && state.goals.targetDate) ? state.goals.targetDate : '';
-      s.value = bd; s.disabled = !bd;
-      e.value = td; e.disabled = !td;
-    }
 
     // 最近一次有身材记录的数据（跨所有日期取最新）
     function getLatestBody() {
