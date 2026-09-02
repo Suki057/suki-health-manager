@@ -1451,7 +1451,7 @@
         </div>
         <details class="section-details" id="food-add-collapse" data-page-node-id="rOTRhMVGAUSg0Fur7pHAeb">
           <summary data-page-node-id="ZOk7NC6jXGhWcOVGxYJHGx"><small data-page-node-id="H5TvKAaEfqLne9ir3VoGkO">点击展开 / 收起</small></summary>
-          <p class="hint" data-page-node-id="B3qe5on5OMFwb0V309JVBl">填写「份量」基准（如 100g、1个、1份），下方热量 / 营养按该份量填写。添加后系统会按热量从小到大排序，并归入「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他 / 饮品 / 零食」对应板块；也可手动选择分类。</p>
+          <p class="hint" data-page-node-id="B3qe5on5OMFwb0V309JVBl">填写「份量」基准（如 100g、250ml、1份）。自动判断优先级：① 单位是 ml → 饮品；② 单位是「单份」（如 1个/1份）→ 外卖；③ 按名称关键词（碳水 / 蛋白质 / 蔬菜 / 水果）；④ 按每 100g 营养结构兜底。添加后归入对应板块并按热量升序排列，也可手动选择分类。</p>
           <form id="food-form" class="food-form-grid form-grid" data-page-node-id="zAuyOfQ50fJQRDO19xh8vZ">
             <input type="hidden" class="food-edit-id" data-page-node-id="GHqBPIqzRqwP1bWvZINGug" />
             <div class="field" data-page-node-id="u0BVv9KBhFVsxFAUlEwKNv"><label data-page-node-id="1835ktNuKbnYlV4wxiYEMb">名称</label><input type="text" class="food-name" placeholder="例如：米饭" data-page-node-id="GIsXQ7CCb7Pa3FQPKuRKX1" /></div>
@@ -1472,6 +1472,7 @@
                 <option value="其他" data-page-node-id="SE3sfCQjfmiYx7I6xV4I9w">其他</option>
                 <option value="饮品" data-page-node-id="BfEI1pQ1CDiiU7VVnOMBfe">饮品</option>
                 <option value="零食" data-page-node-id="UoYGzBjFsse4z0VxyAY35L">零食</option>
+                <option value="外卖" data-page-node-id="waiMaiCatOp">外卖</option>
               </select>
             </div>
             <div class="form-actions" data-page-node-id="4CIAdebpB01yDFHtVAZTws">
@@ -2507,7 +2508,7 @@
       const portion = document.getElementById('cf-portion').value.trim();
       const unit = /[g克G]/.test(portion) ? '100g' : 'serving';
       const baseGrams = unit === '100g' ? (parseGramsInText(portion) || 100) : 100;
-      const category = classifyFood({ name, portion });
+      const category = classifyFood({ name, portion, unit });
       if (!state.foods.some(f => f.name && f.name.trim().toLowerCase() === name.toLowerCase())) {
         state.foods.push({ id: generateId(), name, portion, unit, baseGrams, kcal, protein, fat, carbs, sugar, sodium, category });
         renderFoodLibrary();
@@ -3272,6 +3273,7 @@
       { key: '其他', icon: '🍽️' },
       { key: '饮品', icon: '🥤' },
       { key: '零食', icon: '🍿' },
+      { key: '外卖', icon: '🥡' },
     ];
     function parseGramsInText(text) {
       const m = /(\d+(?:\.\d+)?)\s*(?:g|克|G)/.exec(String(text || ''));
@@ -3284,6 +3286,11 @@
     // 自动分类：根据名称关键词 + 每100g营养结构判断
     function classifyFood(food) {
       const name = (food.name || '').toLowerCase();
+      const portion = (food.portion || '').toLowerCase();
+      // 第一层：按录入单位判断
+      const isMl = food.unit === 'ml' || /(\d+(?:\.\d+)?)\s*(ml|毫升|mL|ML)/.test(portion + ' ' + name);
+      if (isMl) return '饮品';
+      if (food.unit === 'serving') return '外卖';
       const DRINK = ['水', '茶', '咖啡', '可乐', '雪碧', '果汁', '饮', '汤', '酒', '奶茶', '酸奶', '牛奶', '豆浆', '奶', '汁', '啤酒', '温水', '气泡', '碧泉', '奇士', '柑桔', '西柚', '果立方'];
       const CARB = ['米', '饭', '面', '粥', '饼', '粉', '薯', '麦', '谷', '糕', '包', '馒', '糖', '主食', '藜麦', '吐司', '土豆', '山药', '红薯', '紫薯', '玉米', '莲藕', '意大利面', '米线', '粉丝', '燕麦', '乌冬'];
       const PROT = ['蛋', '肉', '鸡', '鱼', '虾', '牛', '羊', '猪', '蟹', '贝', '奶', '干', '酪', '蛋白', '蛋黄', '蛋清', '瘦肉', '腿', '丸', '鱿鱼', '豆腐', '豆浆', '肠', '排', '云吞', '饺', '牛筋'];
@@ -3476,7 +3483,7 @@
           carbs: parseFloat(form.querySelector('.food-carbs').value) || 0,
           sugar: parseFloat(form.querySelector('.food-sugar').value) || 0,
           sodium: parseFloat(form.querySelector('.food-sodium').value) || 0,
-          category: categorySelect || classifyFood({ name, portion }),
+          category: categorySelect || classifyFood({ name, portion, unit }),
         };
         if (id) {
           const old = state.foods.find(f => f.id === id);
