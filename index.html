@@ -821,6 +821,13 @@
     .meal-field .meal-other-input .mini-btn { padding: 4px 8px; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
     .meal-field .meal-other-input .mini-ok { background: #b3567d; color: #fff; }
     .meal-field .meal-other-input .mini-cancel { background: rgba(122,108,98,0.18); color: #4a4038; }
+    /* 饮食记录：进餐时段 + 食物 纵向堆叠，两框同宽同左对齐 */
+    .meal-food-stack { flex-direction: column; align-items: stretch; gap: 12px; }
+    .meal-food-stack > .field { flex: none; width: 100%; min-width: 0; }
+    .meal-food-stack .meal-field { min-width: 0; }
+    .meal-food-stack .meal-select-multi { width: 100%; max-width: none; box-sizing: border-box; }
+    .portion-add-row { display: flex; gap: 12px; align-items: flex-end; }
+    .portion-add-row .field.small { flex: 0 0 110px; }
     /* 饮食明细：进餐时段内联下拉 */
     .meal-select { max-width: 92px; font-size: 13px; padding: 3px 4px; }
     /* ===== AI 进餐分析卡片 ===== */
@@ -1222,12 +1229,11 @@
       <div class="two-col" data-page-node-id="IDvqkg09aLySY8IFwbfD0I">
         <div class="panel" data-page-node-id="m9EzFl2p3XN3PDNFQpESje">
           <h2 data-page-node-id="eIJjSdqQMHP3licOxGzcMJ">🍱 饮食记录</h2>
-          <div class="row autocomplete-row" data-page-node-id="yDNIDvUrrO0DHtXX8h7Bm7">
+          <div class="row autocomplete-row meal-food-stack" data-page-node-id="yDNIDvUrrO0DHtXX8h7Bm7">
             <div class="field small meal-field" data-page-node-id="71R0azwZl2nzv9VyqHNWux">
               <label data-page-node-id="1BDxFVVgBhKl26Len3WKiF">进餐时段（可多选）</label>
               <select id="food-meal" multiple class="meal-select-multi" data-page-node-id="MiIyyfwAO9Fxj6RfV1zSMa"></select>
               <div class="meal-selected" id="food-meal-selected"></div>
-              <small class="meal-hint">手机端点开可勾选多项；电脑端按住 Ctrl 多选</small>
               <span class="meal-other-input" id="food-meal-other-input" style="display:none;">
                 <input type="text" id="food-meal-other-input-text" placeholder="输入时段名" maxlength="10">
                 <button type="button" class="mini-btn mini-ok" id="food-meal-other-input-ok">确认</button>
@@ -1240,11 +1246,13 @@
               <input type="hidden" id="food-selected-id" data-page-node-id="sMT1m5L974Ky0Cd5d0hakN" />
               <ul id="food-suggestions" class="suggestions" data-page-node-id="UsUjkNT8GNt38vRSWjYb35"></ul>
             </div>
-            <div class="field small" data-page-node-id="8rc5hiwmwxBFKEnbU0aFTL">
-              <label data-page-node-id="2SfINIQ5fscrvf5hrILTly">份量</label>
-              <input type="text" id="food-portion" placeholder="100 或 1份" autocomplete="off" data-page-node-id="Eo0lCbH6E3UQs3RxJ2ygje" />
+            <div class="portion-add-row">
+              <div class="field small" data-page-node-id="8rc5hiwmwxBFKEnbU0aFTL">
+                <label data-page-node-id="2SfINIQ5fscrvf5hrILTly">份量</label>
+                <input type="text" id="food-portion" placeholder="100 或 1份" autocomplete="off" data-page-node-id="Eo0lCbH6E3UQs3RxJ2ygje" />
+              </div>
+              <button id="add-food-btn" class="btn primary" data-page-node-id="m9Y42b3gsnX0avYvVeqdoB">添加</button>
             </div>
-            <button id="add-food-btn" class="btn primary" data-page-node-id="m9Y42b3gsnX0avYvVeqdoB">添加</button>
           </div>
           <div class="row" style="margin-bottom:14px;" data-page-node-id="Y42kYQ53Dnf4EdrsVCSHOZ">
             <button id="custom-food-btn" class="btn secondary" data-page-node-id="JxtCSyP2jB32fcGtucwqZH">＋ 另外添加（自定义食物）</button>
@@ -1724,7 +1732,6 @@
         <label>进餐时段（可多选）</label>
         <select id="cf-meal" multiple class="meal-select-multi"></select>
         <div class="meal-selected" id="cf-meal-selected"></div>
-        <small class="meal-hint">手机端点开可勾选多项；电脑端按住 Ctrl 多选</small>
         <span class="meal-other-input" id="cf-meal-other-input" style="display:none;">
           <input type="text" id="cf-meal-other-input-text" placeholder="输入时段名" maxlength="10">
           <button type="button" class="mini-btn mini-ok" id="cf-meal-other-input-ok">确认</button>
