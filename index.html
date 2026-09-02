@@ -813,6 +813,9 @@
     /* 进餐时段选择（饮食记录录入行）：单个多选下拉框 */
     .meal-field { min-width: 92px; }
     .meal-select-multi { min-width: 160px; max-width: 230px; padding: 7px 9px; border-radius: 10px; border: 1px solid rgba(214,138,166,0.45); background: rgba(255,255,255,0.7); font-size: 13px; }
+    .meal-selected { margin-top: 5px; font-size: 12px; color: #b3567d; font-weight: 600; }
+    .meal-selected.empty { color: #9a8f86; font-weight: 400; }
+    .meal-hint { display: block; margin-top: 3px; font-size: 11px; color: #8a7f76; }
     .meal-field .meal-other-input { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; }
     .meal-field .meal-other-input input { width: 110px; padding: 4px 6px; border-radius: 8px; border: 1px solid rgba(122,108,98,0.5); font-size: 13px; }
     .meal-field .meal-other-input .mini-btn { padding: 4px 8px; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
@@ -1223,6 +1226,8 @@
             <div class="field small meal-field" data-page-node-id="71R0azwZl2nzv9VyqHNWux">
               <label data-page-node-id="1BDxFVVgBhKl26Len3WKiF">进餐时段（可多选）</label>
               <select id="food-meal" multiple class="meal-select-multi" data-page-node-id="MiIyyfwAO9Fxj6RfV1zSMa"></select>
+              <div class="meal-selected" id="meal-selected"></div>
+              <small class="meal-hint">手机端点开可勾选多项；电脑端按住 Ctrl 多选</small>
               <span class="meal-other-input" id="meal-other-input" style="display:none;">
                 <input type="text" id="meal-other-text" placeholder="输入时段名" maxlength="10">
                 <button type="button" class="mini-btn mini-ok" id="meal-other-ok">确认</button>
@@ -2754,10 +2759,20 @@
         } else {
           otherInput.style.display = 'none';
         }
+        updateMealSelectedText();
       };
       document.getElementById('meal-other-cancel').onclick = () => { otherInput.style.display = 'none'; };
       document.getElementById('meal-other-ok').onclick = addCustomMealPeriod;
       otherText.onkeydown = e => { if (e.key === 'Enter') addCustomMealPeriod(); };
+      updateMealSelectedText();
+    }
+    // 实时显示当前已选进餐时段，避免多选下拉关闭后看不出勾了哪些
+    function updateMealSelectedText() {
+      const el = document.getElementById('meal-selected');
+      if (!el) return;
+      const meals = getSelectedMeals();
+      el.textContent = meals.length ? ('已选：' + meals.join('、')) : '未选择时段';
+      el.classList.toggle('empty', meals.length === 0);
     }
     // 读取当前选中的进餐时段（排除「其他」伪选项）
     function getSelectedMeals() {
