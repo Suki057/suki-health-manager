@@ -533,6 +533,7 @@
       letter-spacing: -0.01em;
       color: var(--text);
       padding: 2px 0;
+      margin-bottom: 12px;
       outline: none;
     }
     .section-details > summary::-webkit-details-marker { display: none; }
@@ -4187,8 +4188,9 @@
         el.innerHTML = '<p class="empty-state">数据不足，至少需 2 天记录才能绘制趋势图。</p>';
         return;
       }
-      const W = 700, H = 300, padL = 50, padR = 18, padT = 30, padB = 40;
-      const xs = points.map((_, i) => padL + (W - padL - padR) * (i / (points.length - 1)));
+      const W = 700, H = 300, padL = 56, padR = 18, padT = 36, padB = 48;
+      const dataX0 = padL + 12, dataX1 = W - padR - 6;
+      const xs = points.map((_, i) => dataX0 + (dataX1 - dataX0) * (i / (points.length - 1)));
       const vals = points.map(p => p.value);
       let min = Math.min(...vals), max = Math.max(...vals);
       if (min === max) { min -= 1; max += 1; }
@@ -4200,11 +4202,11 @@
       [min, (min + max) / 2, max].forEach(g => {
         const y = yOf(g);
         svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#E2DCD6" stroke-width="1" />`;
-        svg += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#8A817C">${formatNum(g)}</text>`;
+        svg += `<text x="${padL - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#8A817C">${formatNum(g)}</text>`;
       });
       // X 轴日期刻度
       [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach(i => {
-        svg += `<text x="${xs[i]}" y="${H - 14}" text-anchor="middle" font-size="11" fill="#8A817C">${points[i].date.slice(5)}</text>`;
+        svg += `<text x="${xs[i]}" y="${H - 12}" text-anchor="middle" font-size="11" fill="#8A817C">${points[i].date.slice(5)}</text>`;
       });
       // 连接曲线（虚线，作为趋势辅助）
       const ptsStr = points.map((p, i) => `${xs[i]},${ys[i]}`).join(' ');
