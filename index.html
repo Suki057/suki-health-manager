@@ -810,18 +810,14 @@
     .foods-head { justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .foods-head h2 { margin: 0; }
     @media (max-width: 560px) { .food-form-grid { grid-template-columns: 1fr; } }
-    /* 进餐时段选择（饮食记录录入行）：多选复选框 */
+    /* 进餐时段选择（饮食记录录入行）：单个多选下拉框 */
     .meal-field { min-width: 92px; }
-    .meal-checkboxes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 360px; }
-    .meal-checkboxes .meal-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 999px; border: 1px solid rgba(214,138,166,0.4); background: rgba(255,255,255,0.6); font-size: 13px; cursor: pointer; user-select: none; white-space: nowrap; }
-    .meal-checkboxes .meal-chip input { display: none; }
-    .meal-checkboxes .meal-chip.checked { background: rgba(214,138,166,0.92); color: #fff; border-color: rgba(214,138,166,0.92); font-weight: 600; }
-    .meal-checkboxes .meal-other-btn { display: inline-flex; align-items: center; gap: 3px; padding: 5px 9px; border-radius: 999px; border: 1px dashed rgba(122,108,98,0.55); background: rgba(255,255,255,0.5); font-size: 13px; color: #6b5b4f; cursor: pointer; white-space: nowrap; }
-    .meal-checkboxes .meal-other-input { display: inline-flex; align-items: center; gap: 4px; }
-    .meal-checkboxes .meal-other-input input { width: 110px; padding: 4px 6px; border-radius: 8px; border: 1px solid rgba(122,108,98,0.5); font-size: 13px; }
-    .meal-checkboxes .meal-other-input .mini-btn { padding: 4px 8px; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
-    .meal-checkboxes .meal-other-input .mini-ok { background: #b3567d; color: #fff; }
-    .meal-checkboxes .meal-other-input .mini-cancel { background: rgba(122,108,98,0.18); color: #4a4038; }
+    .meal-select-multi { min-width: 160px; max-width: 230px; padding: 7px 9px; border-radius: 10px; border: 1px solid rgba(214,138,166,0.45); background: rgba(255,255,255,0.7); font-size: 13px; }
+    .meal-field .meal-other-input { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; }
+    .meal-field .meal-other-input input { width: 110px; padding: 4px 6px; border-radius: 8px; border: 1px solid rgba(122,108,98,0.5); font-size: 13px; }
+    .meal-field .meal-other-input .mini-btn { padding: 4px 8px; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
+    .meal-field .meal-other-input .mini-ok { background: #b3567d; color: #fff; }
+    .meal-field .meal-other-input .mini-cancel { background: rgba(122,108,98,0.18); color: #4a4038; }
     /* 饮食明细：进餐时段内联下拉 */
     .meal-select { max-width: 92px; font-size: 13px; padding: 3px 4px; }
     /* ===== AI 进餐分析卡片 ===== */
@@ -1226,8 +1222,12 @@
           <div class="row autocomplete-row" data-page-node-id="yDNIDvUrrO0DHtXX8h7Bm7">
             <div class="field small meal-field" data-page-node-id="71R0azwZl2nzv9VyqHNWux">
               <label data-page-node-id="1BDxFVVgBhKl26Len3WKiF">进餐时段（可多选）</label>
-              <div class="meal-checkboxes" id="meal-checkboxes"></div>
-              <input type="hidden" id="food-meal" value="">
+              <select id="food-meal" multiple class="meal-select-multi" data-page-node-id="MiIyyfwAO9Fxj6RfV1zSMa"></select>
+              <span class="meal-other-input" id="meal-other-input" style="display:none;">
+                <input type="text" id="meal-other-text" placeholder="输入时段名" maxlength="10">
+                <button type="button" class="mini-btn mini-ok" id="meal-other-ok">确认</button>
+                <button type="button" class="mini-btn mini-cancel" id="meal-other-cancel">取消</button>
+              </span>
             </div>
             <div class="field autocomplete" data-page-node-id="YpzavyrOwkA5Bf09z70XZu">
               <label data-page-node-id="XMW18vdKTNUCbmGrltxY0H">食物</label>
@@ -2730,54 +2730,42 @@
       const i = opts.indexOf(m);
       return i === -1 ? opts.length : i;
     }
-    // 渲染多选复选框；selected 为默认勾选的时段名数组
-    function renderMealCheckboxes(selected) {
-      const box = document.getElementById('meal-checkboxes');
-      if (!box) return;
-      const sel = new Set(selected || []);
+    // 渲染进餐时段多选下拉（单个选项框，支持多选）；selected 为默认选中时段数组
+    function renderMealSelect(selected) {
+      const sel = document.getElementById('food-meal');
+      if (!sel) return;
+      const selSet = new Set(selected || []);
       const opts = getMealOptions();
       let html = opts.map(m =>
-        '<label class="meal-chip' + (sel.has(m) ? ' checked' : '') + '"><input type="checkbox" value="' + escapeHtml(m) + '"' + (sel.has(m) ? ' checked' : '') + '>' + escapeHtml(m) + '</label>'
+        '<option value="' + escapeHtml(m) + '"' + (selSet.has(m) ? ' selected' : '') + '>' + escapeHtml(m) + '</option>'
       ).join('');
-      html += '<button type="button" class="meal-other-btn" id="meal-other-btn">＋ 其他</button>';
-      html += '<span class="meal-other-input" id="meal-other-input" style="display:none;">' +
-        '<input type="text" id="meal-other-text" placeholder="输入时段名" maxlength="10">' +
-        '<button type="button" class="mini-btn mini-ok" id="meal-other-ok">确认</button>' +
-        '<button type="button" class="mini-btn mini-cancel" id="meal-other-cancel">取消</button></span>';
-      box.innerHTML = html;
-      box.querySelectorAll('input[type=checkbox]').forEach(cb => {
-        cb.addEventListener('change', () => {
-          cb.parentElement.classList.toggle('checked', cb.checked);
-          syncMealHidden();
-        });
-      });
-      const otherBtn = document.getElementById('meal-other-btn');
+      html += '<option value="__other__">＋ 其他（自定义）</option>';
+      sel.innerHTML = html;
       const otherInput = document.getElementById('meal-other-input');
-      otherBtn.addEventListener('click', () => {
-        otherBtn.style.display = 'none';
-        otherInput.style.display = 'inline-flex';
-        document.getElementById('meal-other-text').focus();
-      });
-      document.getElementById('meal-other-cancel').addEventListener('click', () => {
-        otherInput.style.display = 'none';
-        otherBtn.style.display = 'inline-flex';
-        document.getElementById('meal-other-text').value = '';
-      });
-      document.getElementById('meal-other-ok').addEventListener('click', addCustomMealPeriod);
-      document.getElementById('meal-other-text').addEventListener('keydown', e => { if (e.key === 'Enter') addCustomMealPeriod(); });
-      syncMealHidden();
+      const otherText = document.getElementById('meal-other-text');
+      sel.onchange = () => {
+        const raw = Array.from(sel.selectedOptions).map(o => o.value);
+        if (raw.includes('__other__')) {
+          // 取消「其他」本身的选中，弹出输入框让用户输入自定义时段名
+          Array.from(sel.selectedOptions).forEach(o => { if (o.value === '__other__') o.selected = false; });
+          otherInput.style.display = 'inline-flex';
+          otherText.value = '';
+          otherText.focus();
+        } else {
+          otherInput.style.display = 'none';
+        }
+      };
+      document.getElementById('meal-other-cancel').onclick = () => { otherInput.style.display = 'none'; };
+      document.getElementById('meal-other-ok').onclick = addCustomMealPeriod;
+      otherText.onkeydown = e => { if (e.key === 'Enter') addCustomMealPeriod(); };
     }
-    function syncMealHidden() {
-      const hidden = document.getElementById('food-meal');
-      if (hidden) hidden.value = getSelectedMeals().join(',');
-    }
-    // 读取当前勾选的进餐时段（不含「其他」按钮本身）
+    // 读取当前选中的进餐时段（排除「其他」伪选项）
     function getSelectedMeals() {
-      const box = document.getElementById('meal-checkboxes');
-      if (!box) return [];
-      return Array.from(box.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value).filter(v => v && v !== '其他');
+      const sel = document.getElementById('food-meal');
+      if (!sel) return [];
+      return Array.from(sel.selectedOptions).map(o => o.value).filter(v => v && v !== '__other__');
     }
-    // 新增自定义时段：写入 state.mealPeriods 并持久化，重新渲染并自动勾选
+    // 新增自定义时段：写入 state.mealPeriods 并持久化，重新渲染下拉并自动选中
     function addCustomMealPeriod() {
       const txt = (document.getElementById('meal-other-text').value || '').trim();
       if (!txt) return toast('请输入时段名称');
@@ -2788,14 +2776,13 @@
       if (!Array.isArray(state.mealPeriods)) state.mealPeriods = [];
       state.mealPeriods.push(txt);
       save();
-      renderMealCheckboxes(getSelectedMeals().concat([txt]));
+      document.getElementById('meal-other-input').style.display = 'none';
+      renderMealSelect(getSelectedMeals().concat([txt]));
       toast('已新增时段：' + txt);
     }
 
     // 按当前时间预选进餐时段（录入时少点一下）
     function setDefaultMealByTime() {
-      const box = document.getElementById('meal-checkboxes');
-      if (!box) return;
       const h = new Date().getHours();
       let m = '零食';
       if (h >= 5 && h < 10) m = '早餐';
@@ -2803,7 +2790,7 @@
       else if (h >= 14 && h < 17) m = '下午茶';
       else if (h >= 17 && h < 21) m = '晚餐';
       else if (h >= 21) m = '宵夜';
-      renderMealCheckboxes([m]);
+      renderMealSelect([m]);
     }
 
     function renderToday() {
