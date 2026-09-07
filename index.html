@@ -872,6 +872,16 @@
     .cal-day.has-exercise { background: rgba(214,138,166,0.22); border-color: rgba(214,138,166,0.4); font-weight: 600; }
     .cal-badge { font-size: 9px; color: #7a3b5b; margin-top: 1px; white-space: nowrap; }
     @media (max-width: 360px) { .cal-day { min-height: 38px; font-size: 12px; } .cal-badge { font-size: 8px; } }
+    /* 已坚持次数 */
+    .persist-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: rgba(214,138,166,0.14); border: 1px solid rgba(214,138,166,0.22); cursor: pointer; transition: background .15s; }
+    .persist-row:active { background: rgba(214,138,166,0.24); }
+    .persist-row:focus-visible { outline: 2px solid rgba(214,138,166,0.5); outline-offset: 2px; }
+    .persist-label { font-size: 14.5px; font-weight: 600; color: #5A3A42; }
+    .persist-count { font-size: 20px; font-weight: 800; color: #b3537a; font-variant-numeric: tabular-nums; }
+    .persist-total { font-size: 16px; font-weight: 700; color: #5A3A42; margin: 6px 0 14px; }
+    .persist-months { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .persist-month-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.12); font-size: 13.5px; color: #3d3a36; }
+    .persist-month-row b { color: #b3537a; font-variant-numeric: tabular-nums; }
     /* 分类板块 */
     #food-categories .panel { margin-bottom: 18px; }
     .food-cat-table { min-width: 640px; }
@@ -1347,11 +1357,26 @@
         <div id="exercise-calendar" class="exercise-calendar" data-page-node-id="UCM1XcwonZI2VGA04y6CbS">
           <p class="empty-state" data-page-node-id="VXPpVsFooiJF5ymTVbz4L6">加载中…</p>
         </div>
+        <div class="persist-row" id="persist-row" role="button" tabindex="0" data-page-node-id="persistRow1">
+          <span class="persist-label" data-page-node-id="persistLbl1">🔥 已坚持次数</span>
+          <span class="persist-count" id="persist-count" data-page-node-id="persistCnt1">0</span>
+        </div>
       </div>
 
       <div class="panel" data-page-node-id="whvZKvdDOHZVm51wMoJp1G">
         <h2 data-page-node-id="JQqkZerARcUF2Z2tC5q5ak">🏃 运动明细 <small data-page-node-id="ntaPRmuNzcERNXKnsg7lb5">已记录的运动与消耗</small></h2>
         <div class="exercise-list" id="exercise-list" data-page-node-id="CgXHbLDtVu1XT4hft1QLwq"></div>
+      </div>
+
+      <div class="modal-overlay" id="persist-modal" style="display:none" data-page-node-id="persistModal1">
+        <div class="modal-box">
+          <h3 data-page-node-id="persistMdlTitle1">🔥 已坚持次数</h3>
+          <div class="persist-total" id="persist-total" data-page-node-id="persistTotal1"></div>
+          <div class="persist-months" id="persist-months" data-page-node-id="persistMonths1"></div>
+          <div class="modal-actions">
+            <button class="btn secondary" id="persist-close" data-page-node-id="persistClose1">关闭</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2082,6 +2107,11 @@
       document.getElementById('custom-exercise-btn').addEventListener('click', () => openModal('custom-exercise-modal'));
       document.getElementById('ce-cancel').addEventListener('click', () => closeModal('custom-exercise-modal'));
       document.getElementById('ce-save').addEventListener('click', saveCustomExercise);
+      // 已坚持次数：点击/键盘打开弹窗
+      document.getElementById('persist-row').addEventListener('click', openPersistModal);
+      document.getElementById('persist-row').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPersistModal(); } });
+      document.getElementById('persist-close').addEventListener('click', () => closeModal('persist-modal'));
+      document.getElementById('persist-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('persist-modal'); });
       ['custom-food-modal', 'custom-exercise-modal'].forEach(id => {
         const ov = document.getElementById(id);
         ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
@@ -2910,11 +2940,13 @@
       if (log.exercises.length === 0) {
         exList.innerHTML = '<div class="empty-state">还没有运动记录</div>';
       }
-      let totalDur = 0, totalKcal = 0;
+      let totalDur = 0, totalKcal = 0, aerDur = 0, anaDur = 0;
       log.exercises.forEach(entry => {
         const ex = entry.custom ? { name: entry.name } : (state.exercises.find(x => x.id === entry.exerciseId) || null);
         const eKcal = computeExerciseKcal(entry);
-        totalDur += (Number(entry.durationMin) || 0);
+        const dMin = (Number(entry.durationMin) || 0);
+        totalDur += dMin;
+        if (getExerciseType(entry) === 'aer') aerDur += dMin; else anaDur += dMin;
         totalKcal += eKcal;
         const card = document.createElement('div');
         card.className = 'exercise-card';
@@ -2941,6 +2973,8 @@
         sumCard.innerHTML = `
           <div class="ex-total-label">总合计数据</div>
           <div class="ex-line-2">
+            <span class="ex-stat">有氧运动「分」<b>${formatNum(aerDur, 0)}</b></span>
+            <span class="ex-stat">无氧运动「分」<b>${formatNum(anaDur, 0)}</b></span>
             <span class="ex-stat">总时长「分」<b>${formatNum(totalDur, 0)}</b></span>
             <span class="ex-stat">总消耗「kcal」<b>${formatNum(totalKcal)}</b></span>
           </div>`;
@@ -2959,6 +2993,7 @@
       renderDietAnalysis();
       renderMealAI();
       renderExerciseCalendar();
+      renderPersistCount();
       renderBaseline();
     }
 
@@ -3229,6 +3264,55 @@
       }
       html += '</div>';
       el.innerHTML = html;
+    }
+
+    // ==================== 已坚持次数 ====================
+    // 取某条运动记录的类型（有氧 aer / 无氧 ana）
+    function getExerciseType(entry) {
+      if (entry.type) return entry.type;
+      const lib = state.exercises.find(x => x.id === entry.exerciseId);
+      return lib ? (lib.type || 'ana') : 'ana';
+    }
+    // 统计所有「有运动记录」的日期：总次数 + 每月次数
+    function computePersistStats() {
+      let total = 0;
+      const months = {};
+      Object.keys(state.logs || {}).forEach(dateStr => {
+        const log = state.logs[dateStr];
+        if (log && log.exercises && log.exercises.length > 0) {
+          total++;
+          const m = dateStr.slice(0, 7); // YYYY-MM
+          months[m] = (months[m] || 0) + 1;
+        }
+      });
+      return { total, months };
+    }
+    function renderPersistCount() {
+      const el = document.getElementById('persist-count');
+      if (!el) return;
+      el.textContent = computePersistStats().total;
+    }
+    function openPersistModal() {
+      const { total, months } = computePersistStats();
+      const totalEl = document.getElementById('persist-total');
+      const monthsEl = document.getElementById('persist-months');
+      if (totalEl) totalEl.textContent = '总共坚持 ' + total + ' 次';
+      if (monthsEl) {
+        monthsEl.innerHTML = '';
+        const keys = Object.keys(months).sort();
+        if (keys.length === 0) {
+          monthsEl.innerHTML = '<p class="empty-state">还没有运动记录</p>';
+        } else {
+          keys.forEach(k => {
+            const parts = k.split('-');
+            const row = document.createElement('div');
+            row.className = 'persist-month-row';
+            row.innerHTML = '<span>' + parts[0] + '年' + Number(parts[1]) + '月</span><b>' + months[k] + ' 次</b>';
+            monthsEl.appendChild(row);
+          });
+        }
+      }
+      openModal('persist-modal');
     }
 
     // ==================== 自动补全 ====================
