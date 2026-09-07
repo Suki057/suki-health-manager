@@ -1641,6 +1641,7 @@
             <input type="date" id="stats-end" data-page-node-id="4ETazLGoe31pvB5yrOncV3" />
           </div>
           <button id="stats-load-btn" class="btn primary" data-page-node-id="HMP6d8pxPnQpOFXU0PMyfn">查看</button>
+          <button id="stats-today-btn" class="btn secondary" data-page-node-id="AbT0dayBtnSuki057">🔙 回到今天</button>
           <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
         </div>
         <div class="table-wrap" data-page-node-id="VFCMdKFL5IQuum3yP8RM9H">
@@ -3986,6 +3987,7 @@
       document.getElementById('stats-start').value = fmtD(first);
       document.getElementById('stats-end').value = fmtD(last);
       document.getElementById('stats-load-btn').addEventListener('click', renderStats);
+      document.getElementById('stats-today-btn').addEventListener('click', backToTodayRange);
       document.getElementById('monthly-stats-btn').addEventListener('click', renderMonthlyStats);
       document.getElementById('monthly-stats-close').addEventListener('click', () => {
         document.getElementById('monthly-stats-modal').style.display = 'none';
@@ -3997,6 +3999,21 @@
       // 身材记录面板默认收起，展开时重绘趋势图（避免隐藏态 0 宽渲染）
       const bodyCollapse = document.getElementById('body-stats-collapse');
       if (bodyCollapse) bodyCollapse.addEventListener('toggle', () => { if (bodyCollapse.open) renderBodyChart(); });
+    }
+    // 回到今天：把日期范围重置为当前月 1 号 ~ 月末，并立即刷新
+    function backToTodayRange() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const first = new Date(y, m, 1);
+      const last = new Date(y, m + 1, 0);
+      const p2 = n => (n < 10 ? '0' + n : '' + n);
+      const fmtD = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+      document.getElementById('stats-start').value = fmtD(first);
+      document.getElementById('stats-end').value = fmtD(last);
+      renderStats();
+      const ym = `${y}年${m + 1}月`;
+      toast('已回到今天：' + ym + ' 1 号 ~ ' + last.getDate() + ' 号');
     }
     // 月热量记录：按月份自动汇总
     function renderMonthlyStats() {
