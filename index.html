@@ -576,7 +576,10 @@
     .date-group label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
     .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
     .stats-datebar { gap: 18px; }
-    #stats-load-btn { padding: 4px 12px; font-size: 12px; }
+    /* 查看 / 回到今天 / 月热量记录 三个按钮在手机上并排同一行、均分宽度 */
+    .stats-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+    .stats-actions .btn { flex: 1 1 0; min-width: 0; white-space: nowrap; padding: 6px 8px; font-size: 12px; }
+    #stats-load-btn { padding: 6px 8px; font-size: 12px; }
     /* 今日记录：饮食/运动录入框（小长框）整体收小，与卡片边缘协调 */
     #today .two-col .field input,
     #today .two-col .field select { padding: 9px 12px; font-size: 16px; }
@@ -1640,9 +1643,11 @@
             <span class="date-sep" data-page-node-id="sbKeJxktOfvMEmn1C8Jjjs">—</span>
             <input type="date" id="stats-end" data-page-node-id="4ETazLGoe31pvB5yrOncV3" />
           </div>
-          <button id="stats-load-btn" class="btn primary" data-page-node-id="HMP6d8pxPnQpOFXU0PMyfn">查看</button>
-          <button id="stats-today-btn" class="btn secondary" data-page-node-id="AbT0dayBtnSuki057">🔙 回到今天</button>
-          <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
+          <div class="stats-actions" data-page-node-id="StatsActionsRow">
+            <button id="stats-load-btn" class="btn primary" data-page-node-id="HMP6d8pxPnQpOFXU0PMyfn">查看</button>
+            <button id="stats-today-btn" class="btn secondary" data-page-node-id="AbT0dayBtnSuki057">🔙 回到今天</button>
+            <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
+          </div>
         </div>
         <div class="table-wrap" data-page-node-id="VFCMdKFL5IQuum3yP8RM9H">
           <table id="stats-table" data-page-node-id="S4MNQfYk6qjRxoarwVi1FC">
