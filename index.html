@@ -1192,6 +1192,13 @@
     .gdt-empty { padding: 12px 0; text-align: center; color: #7a3b5b; font-size: 13px; opacity: 0.85; }
     .gdt-actions { display: flex; gap: 10px; margin-top: 12px; }
     .gdt-actions .btn { flex: 1; }
+    /* 达成目标数据表：双击数值即可就地编辑 */
+    .gdt-val.editable { cursor: pointer; border-bottom: 1px dotted rgba(179,83,122,0.5); touch-action: manipulation; }
+    .gdt-val.editable:hover { color: #b3537a; }
+    .gdt-edit-input { width: 88px; padding: 3px 6px; border-radius: 8px; border: 1px solid rgba(214,138,166,0.6); font-size: 13px; }
+    .gdt-edit-ok, .gdt-edit-cancel { margin-left: 6px; padding: 3px 9px; font-size: 12px; border-radius: 8px; border: none; cursor: pointer; }
+    .gdt-edit-ok { background: #b3537a; color: #fff; }
+    .gdt-edit-cancel { background: rgba(122,108,98,0.16); color: #4a4038; }
 
     /* ===== 开屏界面 ===== */
     .splash {
@@ -1831,11 +1838,11 @@
     <button class="tab-btn" data-tab="stats" data-page-node-id="Su3YIVQoyoZxGk0mzBUzRD">热量记录</button>
     <button class="tab-btn" data-tab="calories" data-page-node-id="dSxN72OWOiN6SgxGqx6XqW">热量明细表</button>
     <button class="tab-btn" data-tab="progress" data-page-node-id="FuO1xvDOKSI4huGHRdhUGL">管理进度</button>
+    <button class="tab-btn" data-tab="data" data-page-node-id="NQFFjGhBOaZgW9H5FTThGw">数据</button>
     <button class="tab-btn" data-tab="food-review" data-page-node-id="06mkWV7sIxIHFWmFAkFj4e">复盘记录</button>
     <button class="tab-btn" data-tab="foods" data-page-node-id="iodYywkRDlOy2ELF6ahjMY">食物库</button>
     <button class="tab-btn" data-tab="exercises" data-page-node-id="R7veMGrSNd9eT5dZHZro8S">运动库</button>
     <button class="tab-btn" data-tab="trash" data-page-node-id="Wm6ebfPgCv4B5N0lMLV31Y">回收站</button>
-    <button class="tab-btn" data-tab="data" data-page-node-id="NQFFjGhBOaZgW9H5FTThGw">数据</button>
   </nav>
 
   <div id="toast" class="toast" data-page-node-id="2UnCpXsdoXHKYopdWRFADe"></div>
@@ -2504,15 +2511,25 @@
       let html = '';
       list.forEach((item, displayIdx) => {
         const realIdx = (state.goalHistory.length - 1) - displayIdx;
-        const date = item.targetDate ? escapeHtml(item.targetDate) : '—';
-        const weight = item.targetWeight ? formatNum(item.targetWeight) + ' kg' : '—';
-        const fat = item.targetBodyFat ? formatNum(item.targetBodyFat) + ' %' : '—';
+        const dateDisp = item.targetDate ? escapeHtml(item.targetDate) : '—';
+        const weightDisp = item.targetWeight ? formatNum(item.targetWeight) + ' kg' : '—';
+        const fatDisp = item.targetBodyFat ? formatNum(item.targetBodyFat) + ' %' : '—';
         const completed = !!item.completed;
+        const rows = [
+          { label: '达成目标日期', field: 'targetDate', type: 'date', raw: item.targetDate || '', disp: dateDisp },
+          { label: '目标体重', field: 'targetWeight', type: 'number', raw: (item.targetWeight == null ? '' : item.targetWeight), disp: weightDisp },
+          { label: '目标体脂率', field: 'targetBodyFat', type: 'number', raw: (item.targetBodyFat == null ? '' : item.targetBodyFat), disp: fatDisp }
+        ];
+        let rowsHtml = '';
+        rows.forEach(r => {
+          rowsHtml += '<div class="gdt-row">'
+            + '<span class="gdt-label">' + r.label + '</span>'
+            + '<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="' + r.field + '" data-edit-type="' + r.type + '" data-edit-value="' + encodeURIComponent(r.raw) + '">' + r.disp + '</span>'
+            + '</div>';
+        });
         html +=
           '<div class="gdt-card" data-idx="' + realIdx + '">' +
-            '<div class="gdt-row"><span class="gdt-label">达成目标日期</span><span class="gdt-val">' + date + '</span></div>' +
-            '<div class="gdt-row"><span class="gdt-label">目标体重</span><span class="gdt-val">' + weight + '</span></div>' +
-            '<div class="gdt-row"><span class="gdt-label">目标体脂率</span><span class="gdt-val">' + fat + '</span></div>' +
+            rowsHtml +
             '<div class="gdt-actions">' +
               '<button type="button" class="btn ' + (completed ? 'secondary' : 'primary') + '" data-complete-idx="' + realIdx + '">' + (completed ? '已完成' : '完成') + '</button>' +
               '<button type="button" class="btn danger" data-delete-idx="' + realIdx + '">删除</button>' +
@@ -2526,6 +2543,45 @@
       body.querySelectorAll('[data-delete-idx]').forEach(b => {
         b.addEventListener('click', () => deleteGoalData(Number(b.dataset.deleteIdx)));
       });
+      body.querySelectorAll('.gdt-val.editable').forEach(s => {
+        s.addEventListener('dblclick', () => startEditGoalVal(s));
+      });
+    }
+    function startEditGoalVal(span) {
+      if (!span || span.querySelector('input')) return;
+      const idx = Number(span.dataset.editIdx);
+      const field = span.dataset.editField;
+      const type = span.dataset.editType;
+      const raw = decodeURIComponent(span.dataset.editValue || '');
+      if (!state.goalHistory[idx]) return;
+      const input = document.createElement('input');
+      input.type = type;
+      input.value = raw;
+      input.className = 'gdt-edit-input';
+      const ok = document.createElement('button');
+      ok.type = 'button'; ok.className = 'btn primary gdt-edit-ok'; ok.textContent = '确认';
+      const cancel = document.createElement('button');
+      cancel.type = 'button'; cancel.className = 'btn secondary gdt-edit-cancel'; cancel.textContent = '取消';
+      span.textContent = '';
+      span.appendChild(input);
+      span.appendChild(ok);
+      span.appendChild(cancel);
+      input.focus();
+      if (input.select) { try { input.select(); } catch (e) {} }
+      ok.addEventListener('click', () => {
+        let v = input.value;
+        if (field === 'targetWeight' || field === 'targetBodyFat') {
+          v = (v === '' || v === null) ? null : Number(v);
+        }
+        if (state.goalHistory[idx]) {
+          state.goalHistory[idx][field] = v;
+          save();
+          const label = field === 'targetWeight' ? '目标体重' : (field === 'targetBodyFat' ? '目标体脂率' : '达成目标日期');
+          toast(label + '已修改为 ' + (v === null || v === '' ? '—' : v));
+        }
+        renderGoalDataTable();
+      });
+      cancel.addEventListener('click', () => renderGoalDataTable());
     }
     function toggleGoalCompleted(idx) {
       if (!state.goalHistory[idx]) return;
