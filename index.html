@@ -883,9 +883,6 @@
     .persist-month-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.12); font-size: 13.5px; color: #3d3a36; }
     .persist-month-row b { color: #b3537a; font-variant-numeric: tabular-nums; }
     .persist-section-title { font-size: 13px; font-weight: 700; color: #5A3A42; margin: 2px 0 8px; }
-    .persist-dates { display: flex; flex-direction: column; gap: 6px; max-height: 230px; overflow-y: auto; margin-bottom: 12px; }
-    .persist-date-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; border-radius: 9px; background: rgba(255,255,255,0.45); border: 1px solid rgba(214,138,166,0.1); font-size: 13px; color: #3d3a36; }
-    .persist-date-row b { color: #b3537a; font-variant-numeric: tabular-nums; }
     /* 分类板块 */
     #food-categories .panel { margin-bottom: 18px; }
     .food-cat-table { min-width: 640px; }
@@ -1386,7 +1383,6 @@
           <h3 data-page-node-id="persistMdlTitle1">🔥 已坚持次数</h3>
           <div class="persist-total" id="persist-total" data-page-node-id="persistTotal1"></div>
           <div class="persist-months" id="persist-months" data-page-node-id="persistMonths1"></div>
-          <div class="persist-dates" id="persist-dates" data-page-node-id="persistDates1"></div>
           <div class="modal-actions">
             <button class="btn secondary" id="persist-close" data-page-node-id="persistClose1">关闭</button>
           </div>
@@ -2529,8 +2525,28 @@
     function getCurrentDate() { return document.getElementById('date-picker').value; }
 
     // ==================== 自定义录入弹窗 ====================
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+      // iOS Safari 滚动后 position:fixed 弹窗会错位到页面顶部的标准 workaround：冻结页面滚动
+      const sy = window.scrollY || window.pageYOffset || 0;
+      document.body.dataset.scrollY = sy;
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + sy + 'px';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      // 恢复页面滚动位置
+      const sy = parseInt(document.body.dataset.scrollY || '0', 10);
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, sy);
+    }
     function saveCustomFood() {
       const name = document.getElementById('cf-name').value.trim();
       if (!name) return toast('请输入食物名称');
@@ -3310,7 +3326,6 @@
       const { total, months } = computePersistStats();
       const totalEl = document.getElementById('persist-total');
       const monthsEl = document.getElementById('persist-months');
-      const datesEl = document.getElementById('persist-dates');
       if (totalEl) totalEl.textContent = '总共坚持 ' + total + ' 次';
       // 有运动的月份 + 各月坚持次数
       if (monthsEl) {
@@ -3324,22 +3339,6 @@
             h += '<div class="persist-month-row"><span>' + parts[0] + '年' + Number(parts[1]) + '月</span><b>' + months[k] + ' 次</b></div>';
           });
           monthsEl.innerHTML = h;
-        }
-      }
-      // 日期明细：每个有运动的日期 + 坚持 1 次
-      if (datesEl) {
-        const dkeys = Object.keys(state.logs || {})
-          .filter(d => state.logs[d] && state.logs[d].exercises && state.logs[d].exercises.length > 0)
-          .sort();
-        if (dkeys.length === 0) {
-          datesEl.innerHTML = '';
-        } else {
-          let h = '<div class="persist-section-title">📅 日期明细（共 ' + dkeys.length + ' 天）</div>';
-          dkeys.forEach(k => {
-            const p = k.split('-');
-            h += '<div class="persist-date-row"><span>' + Number(p[0]) + '年' + Number(p[1]) + '月' + Number(p[2]) + '日</span><b>1 次</b></div>';
-          });
-          datesEl.innerHTML = h;
         }
       }
       openModal('persist-modal');
