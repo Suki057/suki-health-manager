@@ -897,7 +897,10 @@
       animation: fadeIn 0.2s ease;
     }
     .modal-box {
-      position: relative;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      -webkit-transform: translate(-50%, -50%);
       isolation: isolate;
       background: rgba(224, 232, 238, 0.96);
       backdrop-filter: blur(30px);
@@ -905,8 +908,11 @@
       border: 1px solid rgba(255, 255, 255, 0.80);
       border-radius: 18px;
       padding: 22px;
-      width: 440px; max-width: 92vw;
-      max-height: 90vh; overflow-y: auto;
+      width: min(440px, 92vw);
+      max-width: 92vw;
+      max-height: min(520px, 78vh);
+      overflow-y: auto;
+      margin: 0;
       box-shadow:
         inset 0 0 0 1px rgba(255, 255, 255, 0.55),
         inset 0 1px 1px rgba(255, 255, 255, 0.95),
@@ -1122,16 +1128,18 @@
     .goal-data-table > summary::-webkit-details-marker { display: none; }
     .goal-data-table > summary::before { content: "▸ "; color: #b3537a; }
     .goal-data-table[open] > summary::before { content: "▾ "; }
-    .goal-data-table .gdt-body { padding: 4px 14px 14px; }
-    .gdt-row {
+    .goal-data-table .gdt-body { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .gdt-card { padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(214, 138, 166, 0.18); }
+    .gdt-card .gdt-row {
       display: flex; align-items: center; justify-content: space-between;
       gap: 12px; padding: 9px 0;
       border-bottom: 1px dashed rgba(214, 138, 166, 0.22);
       font-size: 14px;
     }
-    .gdt-row:last-of-type { border-bottom: none; }
+    .gdt-card .gdt-row:last-of-type { border-bottom: none; }
     .gdt-label { color: #5A3A42; font-weight: 600; }
     .gdt-val { color: #3d3a36; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .gdt-empty { padding: 12px 0; text-align: center; color: #7a3b5b; font-size: 13px; opacity: 0.85; }
     .gdt-actions { display: flex; gap: 10px; margin-top: 12px; }
     .gdt-actions .btn { flex: 1; }
 
@@ -1874,7 +1882,7 @@
   <script>
     // ==================== 状态 & 本地存储 ====================
     const STORAGE_KEY = 'dietTrackerData';
-    let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, metabolism: {}, mealPeriods: [] };
+    let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, goalHistory: [], metabolism: {}, mealPeriods: [] };
     const numericKeys = ['kcal', 'protein', 'sugar', 'fat', 'carbs', 'sodium'];
 
     function loadData() {
@@ -1885,7 +1893,7 @@
           if (parsed && typeof parsed === 'object') return parsed;
         }
       } catch (e) { console.error('读取本地数据失败', e); }
-      return { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, foodReviews: [], metabolism: {} };
+      return { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, goalHistory: [], foodReviews: [], metabolism: {} };
     }
     function save() {
       try {
@@ -1922,6 +1930,16 @@
       if (!Array.isArray(state.trash)) state.trash = [];
       if (!state.baseline || typeof state.baseline !== 'object') state.baseline = {};
       if (!state.goals || typeof state.goals !== 'object') state.goals = {};
+      if (!Array.isArray(state.goalHistory)) state.goalHistory = [];
+      // 迁移：旧版只有单条 goals，把旧目标数据导入为第一条历史记录
+      if (state.goalHistory.length === 0 && (state.goals.targetDate || state.goals.targetWeight || state.goals.targetBodyFat)) {
+        state.goalHistory.push({
+          targetDate: state.goals.targetDate || '',
+          targetWeight: state.goals.targetWeight,
+          targetBodyFat: state.goals.targetBodyFat,
+          completed: !!state.goalCompleted
+        });
+      }
       if (!Array.isArray(state.foodReviews)) state.foodReviews = [];
       if (!state.metabolism || typeof state.metabolism !== 'object') state.metabolism = {};
 
@@ -2383,15 +2401,25 @@
     ];
     function saveTargetManagement() {
       if (!state.goals || typeof state.goals !== 'object') state.goals = {};
-      // 达到目标日期（字符串，单独处理）
+      if (!Array.isArray(state.goalHistory)) state.goalHistory = [];
       const dv = document.getElementById('target-date').value;
+      const wv = parseFloat(document.getElementById('target-weight').value);
+      const fv = parseFloat(document.getElementById('target-fat').value);
+      if (!dv && (Number.isNaN(wv) || wv <= 0) && (Number.isNaN(fv) || fv <= 0)) {
+        return toast('请至少填写一项目标');
+      }
       if (dv) state.goals.targetDate = dv;
-      let has = false;
-      TARGET_FIELDS.forEach(([inputId, key]) => {
-        const v = parseFloat(document.getElementById(inputId).value);
-        if (!Number.isNaN(v) && v > 0) { state.goals[key] = v; has = true; }
+      if (!Number.isNaN(wv) && wv > 0) state.goals.targetWeight = wv;
+      else delete state.goals.targetWeight;
+      if (!Number.isNaN(fv) && fv > 0) state.goals.targetBodyFat = fv;
+      else delete state.goals.targetBodyFat;
+      // 每次保存都在历史记录里新增一条，不替换旧的
+      state.goalHistory.push({
+        targetDate: dv || '',
+        targetWeight: (!Number.isNaN(wv) && wv > 0) ? wv : null,
+        targetBodyFat: (!Number.isNaN(fv) && fv > 0) ? fv : null,
+        completed: false
       });
-      if (!has && !dv) return toast('请至少填写一项目标');
       save();
       renderTargetManagement(); renderGoalDataTable();
       const parts = [];
@@ -2400,7 +2428,7 @@
       if (state.goals.targetBodyFat) parts.push('目标体脂 ' + formatNum(state.goals.targetBodyFat) + '%');
       const hint = document.getElementById('target-hint');
       if (hint) hint.textContent = '目标管理已保存：' + parts.join('，') + '。';
-      toast('目标管理已保存');
+      toast('目标管理已保存，已新增一条数据表记录');
     }
     function renderTargetManagement() {
       const dateEl = document.getElementById('target-date');
@@ -2418,47 +2446,69 @@
       if (hint) hint.textContent = parts.length ? ('当前目标：' + parts.join('，')) : '';
     }
 
-    // ==================== 达成目标数据表 ====================
+    // ==================== 达成目标数据表（支持多条历史记录） ====================
     function renderGoalDataTable() {
       const body = document.getElementById('gdt-body');
       if (!body) return;
-      const g = state.goals || {};
-      const date = g.targetDate ? g.targetDate : '—';
-      const weight = g.targetWeight ? formatNum(g.targetWeight) + ' kg' : '—';
-      const fat = g.targetBodyFat ? formatNum(g.targetBodyFat) + ' %' : '—';
-      const completed = !!state.goalCompleted;
-      body.innerHTML =
-        '<div class="gdt-row"><span class="gdt-label">达成目标日期</span><span class="gdt-val">' + escapeHtml(date) + '</span></div>' +
-        '<div class="gdt-row"><span class="gdt-label">目标体重</span><span class="gdt-val">' + escapeHtml(weight) + '</span></div>' +
-        '<div class="gdt-row"><span class="gdt-label">目标体脂率</span><span class="gdt-val">' + escapeHtml(fat) + '</span></div>' +
-        '<div class="gdt-actions">' +
-          '<button type="button" class="btn ' + (completed ? 'secondary' : 'primary') + '" id="gdt-complete-btn">' + (completed ? '已完成' : '完成') + '</button>' +
-          '<button type="button" class="btn danger" id="gdt-delete-btn">删除</button>' +
-        '</div>';
-      const cb = document.getElementById('gdt-complete-btn');
-      if (cb) cb.addEventListener('click', toggleGoalCompleted);
-      const db = document.getElementById('gdt-delete-btn');
-      if (db) db.addEventListener('click', deleteGoalData);
+      const list = Array.isArray(state.goalHistory) ? state.goalHistory.slice() : [];
+      // 最新记录显示在最上面
+      list.reverse();
+      if (list.length === 0) {
+        body.innerHTML = '<div class="gdt-empty">暂无目标数据，填写上方身体目标数值并保存后即可新增记录。</div>';
+        return;
+      }
+      let html = '';
+      list.forEach((item, displayIdx) => {
+        const realIdx = (state.goalHistory.length - 1) - displayIdx;
+        const date = item.targetDate ? escapeHtml(item.targetDate) : '—';
+        const weight = item.targetWeight ? formatNum(item.targetWeight) + ' kg' : '—';
+        const fat = item.targetBodyFat ? formatNum(item.targetBodyFat) + ' %' : '—';
+        const completed = !!item.completed;
+        html +=
+          '<div class="gdt-card" data-idx="' + realIdx + '">' +
+            '<div class="gdt-row"><span class="gdt-label">达成目标日期</span><span class="gdt-val">' + date + '</span></div>' +
+            '<div class="gdt-row"><span class="gdt-label">目标体重</span><span class="gdt-val">' + weight + '</span></div>' +
+            '<div class="gdt-row"><span class="gdt-label">目标体脂率</span><span class="gdt-val">' + fat + '</span></div>' +
+            '<div class="gdt-actions">' +
+              '<button type="button" class="btn ' + (completed ? 'secondary' : 'primary') + '" data-complete-idx="' + realIdx + '">' + (completed ? '已完成' : '完成') + '</button>' +
+              '<button type="button" class="btn danger" data-delete-idx="' + realIdx + '">删除</button>' +
+            '</div>' +
+          '</div>';
+      });
+      body.innerHTML = html;
+      body.querySelectorAll('[data-complete-idx]').forEach(b => {
+        b.addEventListener('click', () => toggleGoalCompleted(Number(b.dataset.completeIdx)));
+      });
+      body.querySelectorAll('[data-delete-idx]').forEach(b => {
+        b.addEventListener('click', () => deleteGoalData(Number(b.dataset.deleteIdx)));
+      });
     }
-    function toggleGoalCompleted() {
-      state.goalCompleted = !state.goalCompleted;
+    function toggleGoalCompleted(idx) {
+      if (!state.goalHistory[idx]) return;
+      state.goalHistory[idx].completed = !state.goalHistory[idx].completed;
       save();
       renderGoalDataTable();
-      toast(state.goalCompleted ? '已标记为完成 🎉' : '已恢复为未完成');
+      toast(state.goalHistory[idx].completed ? '已标记为完成 🎉' : '已恢复为未完成');
     }
-    async function deleteGoalData() {
-      if (!await confirmDialog('确定删除「达成目标数据表」中的目标数据吗？将移入回收站，7 天内可恢复。')) return;
-      const snapshot = {
-        targetDate: state.goals.targetDate,
-        targetWeight: state.goals.targetWeight,
-        targetBodyFat: state.goals.targetBodyFat,
-        completed: !!state.goalCompleted
-      };
+    async function deleteGoalData(idx) {
+      if (!state.goalHistory[idx]) return;
+      if (!await confirmDialog('确定删除这条目标数据吗？将移入回收站，7 天内可恢复。')) return;
+      const snapshot = JSON.parse(JSON.stringify(state.goalHistory[idx]));
       pushToTrash({ type: 'goal', label: '目标数据', goals: snapshot });
-      delete state.goals.targetDate;
-      delete state.goals.targetWeight;
-      delete state.goals.targetBodyFat;
-      state.goalCompleted = false;
+      state.goalHistory.splice(idx, 1);
+      // 以最新一条历史记录作为当前目标，没有则清空当前目标
+      const latest = state.goalHistory.length ? state.goalHistory[state.goalHistory.length - 1] : null;
+      if (latest) {
+        state.goals.targetDate = latest.targetDate || '';
+        if (latest.targetWeight !== undefined && latest.targetWeight !== null) state.goals.targetWeight = latest.targetWeight;
+        else delete state.goals.targetWeight;
+        if (latest.targetBodyFat !== undefined && latest.targetBodyFat !== null) state.goals.targetBodyFat = latest.targetBodyFat;
+        else delete state.goals.targetBodyFat;
+      } else {
+        delete state.goals.targetDate;
+        delete state.goals.targetWeight;
+        delete state.goals.targetBodyFat;
+      }
       save();
       renderTargetManagement(); renderGoalDataTable();
       toast('目标数据已移入回收站');
@@ -4283,12 +4333,13 @@
           typeLabel = '运动库';
           summary = (item.exercises || []).length + ' 种运动（整库）';
         } else if (type === 'goal') {
-          typeLabel = '目标数据';
+          typeLabel = '身体目标数据';
           const g = item.goals || {};
           const parts = [];
           if (g.targetDate) parts.push('日期 ' + g.targetDate);
           if (g.targetWeight) parts.push('体重 ' + formatNum(g.targetWeight) + 'kg');
           if (g.targetBodyFat) parts.push('体脂 ' + formatNum(g.targetBodyFat) + '%');
+          if (g.completed) parts.push('已完成');
           summary = parts.join(' / ') || '（空）';
         }
         const tr = document.createElement('tr');
@@ -4325,16 +4376,25 @@
       }
       if (type === 'goal') {
         const g = item.goals || {};
-        if (g.targetDate !== undefined) state.goals.targetDate = g.targetDate;
-        if (g.targetWeight !== undefined) state.goals.targetWeight = g.targetWeight;
-        if (g.targetBodyFat !== undefined) state.goals.targetBodyFat = g.targetBodyFat;
-        state.goalCompleted = !!g.completed;
+        if (!Array.isArray(state.goalHistory)) state.goalHistory = [];
+        state.goalHistory.push({
+          targetDate: g.targetDate || '',
+          targetWeight: g.targetWeight,
+          targetBodyFat: g.targetBodyFat,
+          completed: !!g.completed
+        });
+        const latest = state.goalHistory[state.goalHistory.length - 1];
+        state.goals.targetDate = latest.targetDate || '';
+        if (latest.targetWeight !== undefined && latest.targetWeight !== null) state.goals.targetWeight = latest.targetWeight;
+        else delete state.goals.targetWeight;
+        if (latest.targetBodyFat !== undefined && latest.targetBodyFat !== null) state.goals.targetBodyFat = latest.targetBodyFat;
+        else delete state.goals.targetBodyFat;
         state.trash.splice(index, 1);
         save();
         renderTrash();
         renderTargetManagement();
         renderGoalDataTable();
-        toast('已恢复目标数据');
+        toast('已恢复身体目标数据');
         return;
       }
       if (type === 'food') {
@@ -4369,7 +4429,7 @@
         : type === 'food' ? ('食物「' + item.food.name + '」')
         : type === 'exercise' ? ('运动「' + item.exercise.name + '」')
         : type === 'exercise-all' ? '运动库整库数据'
-        : type === 'goal' ? '目标数据'
+        : type === 'goal' ? '身体目标数据'
         : '食物库整库数据';
       if (!await confirmDialog('彻底删除 ' + label + '？此操作不可恢复。')) return;
       state.trash.splice(index, 1);
