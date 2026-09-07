@@ -918,6 +918,10 @@
     .persist-month-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.12); font-size: 13.5px; color: #3d3a36; }
     .persist-month-row b { color: #b3537a; font-variant-numeric: tabular-nums; }
     .persist-section-title { font-size: 13px; font-weight: 700; color: #5A3A42; margin: 2px 0 8px; }
+    /* 内联展开面板：直接显示在运动日历「已坚持次数」下方，不弹窗、不滚动 */
+    .persist-caret { display: inline-block; margin-left: 4px; font-size: 12px; color: #b3537a; transition: transform .2s; }
+    .persist-row.open .persist-caret { transform: rotate(180deg); }
+    .persist-panel { margin-top: 10px; padding: 14px; border-radius: 14px; background: rgba(255,255,255,0.62); border: 1px solid rgba(214,138,166,0.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5); }
     /* 分类板块 */
     #food-categories .panel { margin-bottom: 18px; }
     .food-cat-table { min-width: 640px; }
@@ -1443,8 +1447,12 @@
           <p class="empty-state" data-page-node-id="VXPpVsFooiJF5ymTVbz4L6">加载中…</p>
         </div>
         <div class="persist-row" id="persist-row" role="button" tabindex="0" data-page-node-id="persistRow1">
-          <span class="persist-label" data-page-node-id="persistLbl1">🔥 已坚持次数</span>
+          <span class="persist-label" data-page-node-id="persistLbl1">🔥 已坚持次数 <span class="persist-caret" id="persist-caret">▾</span></span>
           <span class="persist-count" id="persist-count" data-page-node-id="persistCnt1">0</span>
+        </div>
+        <div class="persist-panel" id="persist-panel" style="display:none" data-page-node-id="persistPanel1">
+          <div class="persist-total" id="persist-total" data-page-node-id="persistTotal1"></div>
+          <div class="persist-months" id="persist-months" data-page-node-id="persistMonths1"></div>
         </div>
       </div>
 
@@ -1453,16 +1461,6 @@
         <div class="exercise-list" id="exercise-list" data-page-node-id="CgXHbLDtVu1XT4hft1QLwq"></div>
       </div>
 
-      <div class="modal-overlay" id="persist-modal" style="display:none" data-page-node-id="persistModal1">
-        <div class="modal-box">
-          <h3 data-page-node-id="persistMdlTitle1">🔥 已坚持次数</h3>
-          <div class="persist-total" id="persist-total" data-page-node-id="persistTotal1"></div>
-          <div class="persist-months" id="persist-months" data-page-node-id="persistMonths1"></div>
-          <div class="modal-actions">
-            <button class="btn secondary" id="persist-close" data-page-node-id="persistClose1">关闭</button>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- 管理进度 -->
@@ -2210,10 +2208,8 @@
       document.getElementById('ce-cancel').addEventListener('click', () => closeModal('custom-exercise-modal'));
       document.getElementById('ce-save').addEventListener('click', saveCustomExercise);
       // 已坚持次数：点击/键盘打开弹窗
-      document.getElementById('persist-row').addEventListener('click', openPersistModal);
-      document.getElementById('persist-row').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPersistModal(); } });
-      document.getElementById('persist-close').addEventListener('click', () => closeModal('persist-modal'));
-      document.getElementById('persist-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('persist-modal'); });
+      document.getElementById('persist-row').addEventListener('click', togglePersistPanel);
+      document.getElementById('persist-row').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePersistPanel(); } });
       ['custom-food-modal', 'custom-exercise-modal'].forEach(id => {
         const ov = document.getElementById(id);
         ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
@@ -3492,26 +3488,35 @@
       if (!el) return;
       el.textContent = computePersistStats().total;
     }
-    function openPersistModal() {
-      const { total, months } = computePersistStats();
-      const totalEl = document.getElementById('persist-total');
-      const monthsEl = document.getElementById('persist-months');
-      if (totalEl) totalEl.textContent = '总共坚持 ' + total + ' 次';
-      // 有运动的月份 + 各月坚持次数
-      if (monthsEl) {
-        const keys = Object.keys(months).sort();
-        if (keys.length === 0) {
-          monthsEl.innerHTML = '<p class="empty-state">还没有运动记录</p>';
-        } else {
-          let h = '<div class="persist-section-title">📆 有运动的月份</div>';
-          keys.forEach(k => {
-            const parts = k.split('-');
-            h += '<div class="persist-month-row"><span>' + parts[0] + '年' + Number(parts[1]) + '月</span><b>' + months[k] + ' 次</b></div>';
-          });
-          monthsEl.innerHTML = h;
+    function togglePersistPanel() {
+      const panel = document.getElementById('persist-panel');
+      const row = document.getElementById('persist-row');
+      if (!panel) return;
+      if (panel.style.display === 'none' || !panel.style.display) {
+        const { total, months } = computePersistStats();
+        const totalEl = document.getElementById('persist-total');
+        const monthsEl = document.getElementById('persist-months');
+        if (totalEl) totalEl.textContent = '总共坚持 ' + total + ' 次';
+        // 有运动的月份 + 各月坚持次数
+        if (monthsEl) {
+          const keys = Object.keys(months).sort();
+          if (keys.length === 0) {
+            monthsEl.innerHTML = '<p class="empty-state">还没有运动记录</p>';
+          } else {
+            let h = '<div class="persist-section-title">📆 有运动的月份</div>';
+            keys.forEach(k => {
+              const parts = k.split('-');
+              h += '<div class="persist-month-row"><span>' + parts[0] + '年' + Number(parts[1]) + '月</span><b>' + months[k] + ' 次</b></div>';
+            });
+            monthsEl.innerHTML = h;
+          }
         }
+        panel.style.display = 'block';
+        if (row) row.classList.add('open');
+      } else {
+        panel.style.display = 'none';
+        if (row) row.classList.remove('open');
       }
-      openModal('persist-modal');
     }
 
     // ==================== 自动补全 ====================
