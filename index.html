@@ -646,6 +646,16 @@
     .btn.tiny { padding: 5px 11px; font-size: 12.5px; border-radius: 10px; }
     .actions-col { white-space: nowrap; }
     .actions-col .btn { margin-right: 6px; }
+    /* 回收站表格：固定列宽，内容不撑破面板；操作按钮纵向堆叠占满整列宽，不再超右边框 */
+    #trash-table { table-layout: fixed; width: 100%; }
+    #trash-table th:nth-child(1) { width: 16%; }   /* 类型 */
+    #trash-table th:nth-child(2) { width: 38%; }   /* 内容 */
+    #trash-table th:nth-child(3) { width: 24%; }   /* 删除时间 */
+    #trash-table th:nth-child(4) { width: 22%; }   /* 操作 */
+    #trash-table td { word-break: break-word; overflow-wrap: anywhere; vertical-align: top; }
+    #trash-table .actions-col { white-space: normal; }
+    #trash-table .actions-col .btn { display: block; width: 100%; box-sizing: border-box; margin: 0 0 6px; padding-left: 4px; padding-right: 4px; }
+    #trash-table .actions-col .btn:last-child { margin-bottom: 0; }
     .trash-remain { font-size: 11px; color: var(--muted); }
     .btn.small { padding: 5px 10px; font-size: 12.5px; border-radius: 10px; }
     .row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
