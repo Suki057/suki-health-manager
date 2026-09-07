@@ -1102,6 +1102,38 @@
       -webkit-appearance: none;
       appearance: none;
     }
+    /* 达成目标数据表：默认收缩的折叠面板 */
+    .goal-data-table {
+      margin-top: 14px;
+      border: 1px solid rgba(214, 138, 166, 0.28);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.42);
+      overflow: hidden;
+    }
+    .goal-data-table > summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 11px 14px;
+      color: #5A3A42;
+      outline: none;
+      list-style: none;
+    }
+    .goal-data-table > summary::-webkit-details-marker { display: none; }
+    .goal-data-table > summary::before { content: "▸ "; color: #b3537a; }
+    .goal-data-table[open] > summary::before { content: "▾ "; }
+    .goal-data-table .gdt-body { padding: 4px 14px 14px; }
+    .gdt-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 9px 0;
+      border-bottom: 1px dashed rgba(214, 138, 166, 0.22);
+      font-size: 14px;
+    }
+    .gdt-row:last-of-type { border-bottom: none; }
+    .gdt-label { color: #5A3A42; font-weight: 600; }
+    .gdt-val { color: #3d3a36; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .gdt-actions { display: flex; gap: 10px; margin-top: 12px; }
+    .gdt-actions .btn { flex: 1; }
 
     /* ===== 开屏界面 ===== */
     .splash {
@@ -1434,7 +1466,7 @@
         </div>
         <div class="target-box" data-page-node-id="ahoGLnVHgIONYde5It3ZfC">
           <details data-page-node-id="8wjs5pN4os33sUpWKs60w8">
-            <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 目标管理（你想达到的）· 点击设置</summary>
+            <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 身体目标数值</summary>
             <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">填写你希望达到的目标体重与目标体脂率，开屏界面会据此显示「距目标体重」与「体脂可降」。</p>
             <div class="form-grid" data-page-node-id="yoEjPKu395qEDmZgzIBwUm">
               <div class="field" data-page-node-id="tgtDateF"><label data-page-node-id="tgtDateL">达到目标日期</label><input type="date" id="target-date" data-page-node-id="tgtDateI" /></div>
@@ -1443,6 +1475,10 @@
               <div class="form-actions" data-page-node-id="uPv4HEBuOt2WhdYYDkcMZt">
                 <button type="button" class="btn secondary" id="target-save-btn" data-page-node-id="KRDKWcBtRK80OxHa6pNfDb">保存目标管理</button>
               </div>
+              <details class="goal-data-table" id="goal-data-table" data-page-node-id="gdt1">
+                <summary data-page-node-id="gdtSum1">📋 达成目标数据表</summary>
+                <div class="gdt-body" id="gdt-body" data-page-node-id="gdtBody1"></div>
+              </details>
             </div>
             <p class="hint" id="target-hint" data-page-node-id="Q4wpZDHADsbLQ1YUiuFEtg"></p>
           </details>
@@ -1981,7 +2017,7 @@
           if (btn.dataset.tab === 'stats') renderStats();
           if (btn.dataset.tab === 'trash') renderTrash();
           if (btn.dataset.tab === 'food-review') renderFoodReview();
-          if (btn.dataset.tab === 'progress') { renderProgress(); renderBaseline(); renderTargetManagement(); }
+          if (btn.dataset.tab === 'progress') { renderProgress(); renderBaseline(); renderTargetManagement(); renderGoalDataTable(); }
           if (btn.dataset.tab === 'calories') {
             const cdp = document.getElementById('cal-date-picker');
             if (cdp) cdp.value = document.getElementById('date-picker').value;
@@ -2357,7 +2393,7 @@
       });
       if (!has && !dv) return toast('请至少填写一项目标');
       save();
-      renderTargetManagement();
+      renderTargetManagement(); renderGoalDataTable();
       const parts = [];
       if (state.goals.targetDate) parts.push('达到目标日期 ' + state.goals.targetDate);
       if (state.goals.targetWeight) parts.push('目标体重 ' + formatNum(state.goals.targetWeight) + 'kg');
@@ -2380,6 +2416,52 @@
       if (state.goals && state.goals.targetBodyFat) parts.push('目标体脂 ' + formatNum(state.goals.targetBodyFat) + '%');
       const hint = document.getElementById('target-hint');
       if (hint) hint.textContent = parts.length ? ('当前目标：' + parts.join('，')) : '';
+    }
+
+    // ==================== 达成目标数据表 ====================
+    function renderGoalDataTable() {
+      const body = document.getElementById('gdt-body');
+      if (!body) return;
+      const g = state.goals || {};
+      const date = g.targetDate ? g.targetDate : '—';
+      const weight = g.targetWeight ? formatNum(g.targetWeight) + ' kg' : '—';
+      const fat = g.targetBodyFat ? formatNum(g.targetBodyFat) + ' %' : '—';
+      const completed = !!state.goalCompleted;
+      body.innerHTML =
+        '<div class="gdt-row"><span class="gdt-label">达成目标日期</span><span class="gdt-val">' + escapeHtml(date) + '</span></div>' +
+        '<div class="gdt-row"><span class="gdt-label">目标体重</span><span class="gdt-val">' + escapeHtml(weight) + '</span></div>' +
+        '<div class="gdt-row"><span class="gdt-label">目标体脂率</span><span class="gdt-val">' + escapeHtml(fat) + '</span></div>' +
+        '<div class="gdt-actions">' +
+          '<button type="button" class="btn ' + (completed ? 'secondary' : 'primary') + '" id="gdt-complete-btn">' + (completed ? '已完成' : '完成') + '</button>' +
+          '<button type="button" class="btn danger" id="gdt-delete-btn">删除</button>' +
+        '</div>';
+      const cb = document.getElementById('gdt-complete-btn');
+      if (cb) cb.addEventListener('click', toggleGoalCompleted);
+      const db = document.getElementById('gdt-delete-btn');
+      if (db) db.addEventListener('click', deleteGoalData);
+    }
+    function toggleGoalCompleted() {
+      state.goalCompleted = !state.goalCompleted;
+      save();
+      renderGoalDataTable();
+      toast(state.goalCompleted ? '已标记为完成 🎉' : '已恢复为未完成');
+    }
+    async function deleteGoalData() {
+      if (!await confirmDialog('确定删除「达成目标数据表」中的目标数据吗？将移入回收站，7 天内可恢复。')) return;
+      const snapshot = {
+        targetDate: state.goals.targetDate,
+        targetWeight: state.goals.targetWeight,
+        targetBodyFat: state.goals.targetBodyFat,
+        completed: !!state.goalCompleted
+      };
+      pushToTrash({ type: 'goal', label: '目标数据', goals: snapshot });
+      delete state.goals.targetDate;
+      delete state.goals.targetWeight;
+      delete state.goals.targetBodyFat;
+      state.goalCompleted = false;
+      save();
+      renderTargetManagement(); renderGoalDataTable();
+      toast('目标数据已移入回收站');
     }
 
     // 最近一次有身材记录的数据（跨所有日期取最新）
@@ -4200,6 +4282,14 @@
         } else if (type === 'exercise-all') {
           typeLabel = '运动库';
           summary = (item.exercises || []).length + ' 种运动（整库）';
+        } else if (type === 'goal') {
+          typeLabel = '目标数据';
+          const g = item.goals || {};
+          const parts = [];
+          if (g.targetDate) parts.push('日期 ' + g.targetDate);
+          if (g.targetWeight) parts.push('体重 ' + formatNum(g.targetWeight) + 'kg');
+          if (g.targetBodyFat) parts.push('体脂 ' + formatNum(g.targetBodyFat) + '%');
+          summary = parts.join(' / ') || '（空）';
         }
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -4231,6 +4321,20 @@
         renderStats();
         renderToday();
         toast(day + ' 的记录已恢复');
+        return;
+      }
+      if (type === 'goal') {
+        const g = item.goals || {};
+        if (g.targetDate !== undefined) state.goals.targetDate = g.targetDate;
+        if (g.targetWeight !== undefined) state.goals.targetWeight = g.targetWeight;
+        if (g.targetBodyFat !== undefined) state.goals.targetBodyFat = g.targetBodyFat;
+        state.goalCompleted = !!g.completed;
+        state.trash.splice(index, 1);
+        save();
+        renderTrash();
+        renderTargetManagement();
+        renderGoalDataTable();
+        toast('已恢复目标数据');
         return;
       }
       if (type === 'food') {
@@ -4265,6 +4369,7 @@
         : type === 'food' ? ('食物「' + item.food.name + '」')
         : type === 'exercise' ? ('运动「' + item.exercise.name + '」')
         : type === 'exercise-all' ? '运动库整库数据'
+        : type === 'goal' ? '目标数据'
         : '食物库整库数据';
       if (!await confirmDialog('彻底删除 ' + label + '？此操作不可恢复。')) return;
       state.trash.splice(index, 1);
@@ -5177,7 +5282,7 @@
     function renderAll() {
       renderToday();
       renderBody();
-      renderTargetManagement();
+      renderTargetManagement(); renderGoalDataTable();
       renderFoodLibrary();
       renderExerciseLibrary();
       renderStats();
