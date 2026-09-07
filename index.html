@@ -1097,7 +1097,14 @@
     /* 目标管理输入控件统一内边距/字号，日期框与数字框同宽、不超出边框 */
     .target-box .field input { width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 16px; }
     /* 日期框原生最小宽度会撑破网格/超出边框，强制可收缩并与数字框等长等宽 */
-    .target-box .field input[type="date"] { min-width: 0; height: 42px; }
+    .target-box .field input[type="date"] {
+      min-width: 0;
+      height: 42px;
+      width: 100%;
+      display: block;
+      -webkit-appearance: none;
+      appearance: none;
+    }
 
     /* ===== 开屏界面 ===== */
     .splash {
