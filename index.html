@@ -875,6 +875,12 @@
     /* 饮食明细：进餐时段内联下拉 */
     .meal-select { max-width: 92px; font-size: 13px; padding: 3px 4px; }
     /* ===== AI 进餐分析卡片 ===== */
+    /* 默认收缩，点击标题（summary）展开 */
+    .meal-ai-panel > summary { display: block; cursor: pointer; list-style: none; }
+    .meal-ai-panel > summary::-webkit-details-marker { display: none; }
+    .meal-ai-panel > summary h2 { margin: 0; display: flex; align-items: center; gap: 8px; }
+    .meal-ai-caret { display: inline-block; font-size: 12px; color: #b3567d; transition: transform .2s; }
+    .meal-ai-panel[open] > summary .meal-ai-caret { transform: rotate(180deg); }
     .meal-ai-body .empty-state { padding: 14px 2px; }
     .meal-ai-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 12px; margin: 6px 0 14px; }
     .meal-card { border: 1px solid rgba(214,138,166,0.28); border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,0.5); }
@@ -1439,13 +1445,12 @@
           </table>
         </div>
       </div>
-      <div class="panel" data-page-node-id="WoGFLxC56O5nPs0meX36MR">
-        <h2 data-page-node-id="uGFXeZurP2huERNWoFkFwJ">🤖 AI 进餐分析 <small data-page-node-id="1nZ5ZgzQwZqL3E2SXq7PDN">每日时段摄入与运动合理性</small></h2>
-        <p class="hint" data-page-node-id="TdUkzIwghI1Af4ZLMgOXXo">基于你的体重、体脂率与每日目标，逐时段评估摄入是否利于减脂瘦身，并判断当日运动是否合理。</p>
+      <details class="panel meal-ai-panel" id="meal-ai-panel" data-page-node-id="WoGFLxC56O5nPs0meX36MR">
+        <summary data-page-node-id="uGFXeZurP2huERNWoFkFwJ"><h2>🤖 AI 进餐分析 <span class="meal-ai-caret" id="meal-ai-caret">▾</span></h2></summary>
         <div id="meal-ai" class="meal-ai-body" data-page-node-id="WPpVet2VAJAt1JeC5Hj7hV">
           <p class="empty-state" data-page-node-id="Bx1iVo1WxxByQfEuScGhDD">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>
         </div>
-      </div>
+      </details>
       <div class="panel" data-page-node-id="opZy3ON8FFjM9wHPaUHexk">
         <h2 data-page-node-id="t3nBfMgkXds6mmikJlz4Jg">📅 运动日历 <small data-page-node-id="J4Q5nyHaSotabWSIGjYmRL">当月运动打卡</small></h2>
         <div id="exercise-calendar" class="exercise-calendar" data-page-node-id="UCM1XcwonZI2VGA04y6CbS">
