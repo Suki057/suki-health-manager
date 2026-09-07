@@ -914,9 +914,14 @@
     .persist-label { font-size: 14.5px; font-weight: 600; color: #5A3A42; }
     .persist-count { font-size: 20px; font-weight: 800; color: #b3537a; font-variant-numeric: tabular-nums; }
     .persist-total { font-size: 16px; font-weight: 700; color: #5A3A42; margin: 6px 0 14px; }
-    .persist-months { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-    .persist-month-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.12); font-size: 13.5px; color: #3d3a36; }
-    .persist-month-row b { color: #b3537a; font-variant-numeric: tabular-nums; }
+    .persist-months { margin-bottom: 16px; }
+    .persist-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; color: #3d3a36; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.18); border-radius: 10px; overflow: hidden; }
+    .persist-table col.c-month { width: 62%; }
+    .persist-table col.c-count { width: 38%; }
+    .persist-table th { text-align: left; padding: 8px 12px; font-size: 12.5px; font-weight: 700; color: #5A3A42; background: rgba(214,138,166,0.18); border-bottom: 1px solid rgba(214,138,166,0.22); }
+    .persist-table td { padding: 9px 12px; border-bottom: 1px solid rgba(214,138,166,0.12); word-break: break-word; }
+    .persist-table tr:last-child td { border-bottom: none; }
+    .persist-table .c-count { text-align: right; font-weight: 700; color: #b3537a; font-variant-numeric: tabular-nums; }
     .persist-section-title { font-size: 13px; font-weight: 700; color: #5A3A42; margin: 2px 0 8px; }
     /* 内联展开面板：直接显示在运动日历「已坚持次数」下方，不弹窗、不滚动 */
     .persist-caret { display: inline-block; margin-left: 4px; font-size: 12px; color: #b3537a; transition: transform .2s; }
@@ -3503,11 +3508,14 @@
           if (keys.length === 0) {
             monthsEl.innerHTML = '<p class="empty-state">还没有运动记录</p>';
           } else {
-            let h = '<div class="persist-section-title">📆 有运动的月份</div>';
+            let h = '<table class="persist-table">'
+                  + '<colgroup><col class="c-month"><col class="c-count"></colgroup>'
+                  + '<thead><tr><th>运动月份</th><th class="c-count">已坚持次数</th></tr></thead><tbody>';
             keys.forEach(k => {
               const parts = k.split('-');
-              h += '<div class="persist-month-row"><span>' + parts[0] + '年' + Number(parts[1]) + '月</span><b>' + months[k] + ' 次</b></div>';
+              h += '<tr><td>' + parts[0] + '年' + Number(parts[1]) + '月</td><td class="c-count">' + months[k] + ' 次</td></tr>';
             });
+            h += '</tbody></table>';
             monthsEl.innerHTML = h;
           }
         }
