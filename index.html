@@ -577,9 +577,19 @@
     .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
     .stats-datebar { gap: 18px; }
     /* 查看 / 回到今天 / 月热量记录 三个按钮在手机上并排同一行、均分宽度 */
-    .stats-actions { display: flex; gap: 8px; flex: 0 0 auto; }
-    .stats-actions .btn { flex: 1 1 0; min-width: 0; white-space: nowrap; padding: 6px 8px; font-size: 12px; }
-    #stats-load-btn { padding: 6px 8px; font-size: 12px; }
+    .stats-actions { display: flex; gap: 10px; width: 100%; }
+    .stats-actions .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      white-space: nowrap;
+      padding: 11px 8px;
+      font-size: 13px;
+      line-height: 1.25;
+      border-radius: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-sizing: border-box;
+    }
     /* 今日记录：饮食/运动录入框（小长框）整体收小，与卡片边缘协调 */
     #today .two-col .field input,
     #today .two-col .field select { padding: 9px 12px; font-size: 16px; }
