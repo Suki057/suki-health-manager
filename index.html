@@ -874,6 +874,11 @@
     .portion-add-row .field.small { flex: 0 0 110px; }
     /* 饮食明细：进餐时段内联下拉 */
     .meal-select { max-width: 92px; font-size: 13px; padding: 3px 4px; }
+    /* 饮食明细：进餐时段多选 chip（点击切换所属时段，自动平分营养/份量） */
+    .meal-chips { display: flex; flex-wrap: wrap; gap: 4px; max-width: 210px; }
+    .meal-chip { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12.5px; line-height: 1.5; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; border: 1px solid rgba(214,138,166,0.5); background: rgba(255,255,255,0.6); color: #7a3b5b; transition: background .15s, color .15s, border-color .15s, transform .1s; }
+    .meal-chip.on { background: #b3567d; color: #fff; border-color: #b3567d; }
+    .meal-chip:active { transform: scale(0.93); }
     /* ===== AI 进餐分析卡片 ===== */
     /* 默认收缩，点击标题（summary）展开 */
     .meal-ai-panel > summary { display: block; cursor: pointer; list-style: none; }
@@ -3069,6 +3074,49 @@
       const i = opts.indexOf(m);
       return i === -1 ? opts.length : i;
     }
+    // 返回某条饮食记录归属的进餐时段数组（兼容旧数据单值字符串）
+    function getEntryMeals(entry) {
+      if (Array.isArray(entry.meal)) return entry.meal.filter(Boolean);
+      if (entry.meal) return [entry.meal];
+      return ['零食'];
+    }
+    // 把一条饮食记录按 newMeals（数组）重新拆分为多条，营养/份量按数量平分；
+    // 与录入 / 自定义录入的多选拆分语义完全一致。原记录被删除，新增 N 条（每条 meal 单值）。
+    function splitEntryMeals(entry, newMeals) {
+      if (!Array.isArray(newMeals) || newMeals.length === 0) return;
+      const n = newMeals.length;
+      const day = getCurrentDate();
+      const log = state.logs[day];
+      if (!log) return;
+      let perG = 0, perS = 0, perRaw = '';
+      if (entry.custom) {
+        perRaw = splitPortionText(entry.portionRaw || '', n);
+      } else {
+        perG = (entry.portionG || 0) / n;
+        perS = (entry.servings || 0) / n;
+        perRaw = splitPortionText(entry.portionRaw || '', n);
+      }
+      log.foods = log.foods.filter(f => f.id !== entry.id);
+      newMeals.forEach(meal => {
+        const ne = Object.assign({}, entry);
+        ne.id = generateId();
+        ne.meal = meal;
+        if (!entry.custom) {
+          ne.portionG = perG;
+          ne.servings = perS;
+          ne.portionRaw = perRaw;
+        } else {
+          ne.kcal = round1((entry.kcal || 0) / n);
+          ne.protein = round1((entry.protein || 0) / n);
+          ne.fat = round1((entry.fat || 0) / n);
+          ne.carbs = round1((entry.carbs || 0) / n);
+          ne.sugar = round1((entry.sugar || 0) / n);
+          ne.sodium = round1((entry.sodium || 0) / n);
+          ne.portionRaw = perRaw;
+        }
+        log.foods.push(ne);
+      });
+    }
     // 渲染进餐时段多选下拉（单个选项框，支持多选）。selId=下拉框id，otherInputId=「其他」输入框span的id
     function renderMealSelect(selId, otherInputId, selected) {
       const sel = document.getElementById(selId);
@@ -3158,7 +3206,7 @@
         dietBody.innerHTML = '<tr><td colspan="10" class="empty-state">还没有饮食记录</td></tr>';
       }
       const sortedFoods = log.foods.slice().sort((a, b) =>
-        mealSortIndex(a.meal || '零食') - mealSortIndex(b.meal || '零食'));
+        mealSortIndex(getEntryMeals(a)[0] || '零食') - mealSortIndex(getEntryMeals(b)[0] || '零食'));
       sortedFoods.forEach(entry => {
         const c = computeFoodEntry(entry);
         let portionLabel;
@@ -3169,10 +3217,13 @@
             ? (entry.portionRaw || (formatNum(entry.servings) + ' 份'))
             : (formatNum(entry.portionG, 0) + ' g');
         }
+        const meals = getEntryMeals(entry);
+        const chips = getMealOptions().map(m =>
+          '<span class="meal-chip ' + (meals.indexOf(m) !== -1 ? 'on' : '') + '" data-meal="' + escapeHtml(m) + '">' + escapeHtml(m) + '</span>').join('');
         const tr = document.createElement('tr');
         tr.dataset.entryId = entry.id;
         tr.innerHTML = `
-          <td class="c-meal"><select class="meal-select" data-id="${entry.id}">${getMealOptions().map(m => `<option value="${escapeHtml(m)}"${m === (entry.meal || '零食') ? ' selected' : ''}>${escapeHtml(m)}</option>`).join('')}</select></td>
+          <td class="c-meal"><div class="meal-chips">${chips}</div></td>
           <td class="c-name">${escapeHtml(c.name)}</td>
           <td class="c-portion number">${portionLabel}</td>
           <td class="c-kcal number">${formatNum(c.kcal)}</td>
@@ -3186,9 +3237,14 @@
             <button class="btn small danger act-del">删除</button>
           </td>`;
         tr.querySelector('.act-edit').addEventListener('click', () => enterDietEdit(tr, entry));
-        tr.querySelector('.meal-select').addEventListener('change', e => {
-          entry.meal = e.target.value;
-          save(); renderToday();
+        tr.querySelectorAll('.meal-chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            chip.classList.toggle('on');
+            const sel = Array.from(tr.querySelectorAll('.meal-chip.on')).map(c => c.dataset.meal);
+            if (sel.length === 0) { chip.classList.add('on'); return toast('至少保留一个进餐时段'); }
+            splitEntryMeals(entry, sel);
+            save(); renderToday();
+          });
         });
         tr.querySelector('.act-del').addEventListener('click', () => {
           log.foods = log.foods.filter(f => f.id !== entry.id);
