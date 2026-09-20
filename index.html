@@ -872,13 +872,18 @@
     .meal-food-stack .meal-select-multi { width: 100%; max-width: none; box-sizing: border-box; }
     .portion-add-row { display: flex; gap: 12px; align-items: flex-end; }
     .portion-add-row .field.small { flex: 0 0 110px; }
-    /* 饮食明细：进餐时段内联下拉 */
-    .meal-select { max-width: 92px; font-size: 13px; padding: 3px 4px; }
-    /* 饮食明细：进餐时段多选 chip（点击切换所属时段，自动平分营养/份量） */
-    .meal-chips { display: flex; flex-wrap: wrap; gap: 4px; max-width: 210px; }
-    .meal-chip { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12.5px; line-height: 1.5; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; border: 1px solid rgba(214,138,166,0.5); background: rgba(255,255,255,0.6); color: #7a3b5b; transition: background .15s, color .15s, border-color .15s, transform .1s; }
-    .meal-chip.on { background: #b3567d; color: #fff; border-color: #b3567d; }
-    .meal-chip:active { transform: scale(0.93); }
+    /* 饮食明细：进餐时段多选下拉（选项框），选中项左侧打 ✅ */
+    .meal-drop { position: relative; }
+    .meal-drop-trigger { display: inline-flex; align-items: center; gap: 6px; min-width: 96px; max-width: 200px; padding: 4px 8px; font-size: 12.5px; line-height: 1.4; cursor: pointer; border: 1px solid rgba(214,138,166,0.5); border-radius: 8px; background: rgba(255,255,255,0.7); color: #7a3b5b; text-align: left; font-family: inherit; }
+    .meal-drop-trigger .trig-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .meal-drop-trigger.empty { color: #b3567d; opacity: .75; }
+    .meal-drop-trigger .caret { margin-left: auto; font-size: 10px; opacity: .55; flex: none; }
+    .meal-drop-panel { display: none; position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 150px; background: #fff; border: 1px solid rgba(214,138,166,0.35); border-radius: 10px; box-shadow: 0 10px 28px rgba(150,80,110,0.20); padding: 6px; }
+    .meal-drop.open .meal-drop-panel { display: block; }
+    .meal-opt { display: flex; align-items: center; gap: 8px; padding: 8px 9px; border-radius: 8px; font-size: 13px; color: #3d3a36; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+    .meal-opt:hover { background: rgba(179,86,125,0.08); }
+    .meal-opt .chk { width: 18px; flex: none; text-align: center; font-size: 13px; color: #b3567d; }
+    .meal-opt .chk.off { color: #ccc; }
     /* ===== AI 进餐分析卡片 ===== */
     /* 默认收缩，点击标题（summary）展开 */
     .meal-ai-panel > summary { display: block; cursor: pointer; list-style: none; }
@@ -3117,6 +3122,27 @@
         log.foods.push(ne);
       });
     }
+    // 进餐时段多选下拉：关闭某个下拉框时，若选择有变动则提交拆分并刷新
+    function closeMealDrop(box) {
+      if (!box || !box.classList.contains('open')) return;
+      box.classList.remove('open');
+      if (!box._dirty) return;
+      const entry = (state.logs[getCurrentDate()] || { foods: [] }).foods.find(f => f.id === box.dataset.entryId);
+      const sel = (box._sel || []).filter(Boolean);
+      if (entry && sel.length > 0) {
+        splitEntryMeals(entry, sel);
+        save(); renderToday();
+      }
+    }
+    // 全局仅绑定一次：点击页面其它位置关闭已展开的下拉框
+    let __mealDropOutsideBound = false;
+    function bindMealDropOutside() {
+      if (__mealDropOutsideBound) return;
+      __mealDropOutsideBound = true;
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.meal-drop.open').forEach(box => closeMealDrop(box));
+      });
+    }
     // 渲染进餐时段多选下拉（单个选项框，支持多选）。selId=下拉框id，otherInputId=「其他」输入框span的id
     function renderMealSelect(selId, otherInputId, selected) {
       const sel = document.getElementById(selId);
@@ -3199,6 +3225,7 @@
     function renderToday() {
       const day = getCurrentDate();
       const log = state.logs[day] || { foods: [], exercises: [] };
+      bindMealDropOutside();
 
       const dietBody = document.querySelector('#diet-table tbody');
       dietBody.innerHTML = '';
@@ -3218,12 +3245,20 @@
             : (formatNum(entry.portionG, 0) + ' g');
         }
         const meals = getEntryMeals(entry);
-        const chips = getMealOptions().map(m =>
-          '<span class="meal-chip ' + (meals.indexOf(m) !== -1 ? 'on' : '') + '" data-meal="' + escapeHtml(m) + '">' + escapeHtml(m) + '</span>').join('');
+        const selText = meals.length ? meals.join(' · ') : '选择时段';
+        const opts = getMealOptions().map(m => {
+          const on = meals.indexOf(m) !== -1;
+          return '<div class="meal-opt" data-meal="' + escapeHtml(m) + '"><span class="chk ' + (on ? '' : 'off') + '">' + (on ? '✅' : '□') + '</span><span class="opt-label">' + escapeHtml(m) + '</span></div>';
+        }).join('');
         const tr = document.createElement('tr');
         tr.dataset.entryId = entry.id;
         tr.innerHTML = `
-          <td class="c-meal"><div class="meal-chips">${chips}</div></td>
+          <td class="c-meal">
+            <div class="meal-drop" data-entry-id="${entry.id}">
+              <button type="button" class="meal-drop-trigger ${meals.length ? '' : 'empty'}"><span class="trig-label">${escapeHtml(selText)}</span><span class="caret">▾</span></button>
+              <div class="meal-drop-panel">${opts}</div>
+            </div>
+          </td>
           <td class="c-name">${escapeHtml(c.name)}</td>
           <td class="c-portion number">${portionLabel}</td>
           <td class="c-kcal number">${formatNum(c.kcal)}</td>
@@ -3237,13 +3272,33 @@
             <button class="btn small danger act-del">删除</button>
           </td>`;
         tr.querySelector('.act-edit').addEventListener('click', () => enterDietEdit(tr, entry));
-        tr.querySelectorAll('.meal-chip').forEach(chip => {
-          chip.addEventListener('click', () => {
-            chip.classList.toggle('on');
-            const sel = Array.from(tr.querySelectorAll('.meal-chip.on')).map(c => c.dataset.meal);
-            if (sel.length === 0) { chip.classList.add('on'); return toast('至少保留一个进餐时段'); }
-            splitEntryMeals(entry, sel);
-            save(); renderToday();
+        // 进餐时段多选下拉（选项框）：点触发开/关，点选项切换选中（左侧 ✅），关闭时提交拆分
+        const box = tr.querySelector('.meal-drop');
+        const trigger = tr.querySelector('.meal-drop-trigger');
+        const panel = tr.querySelector('.meal-drop-panel');
+        trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const wasOpen = box.classList.contains('open');
+          document.querySelectorAll('.meal-drop.open').forEach(o => { if (o !== box) closeMealDrop(o); });
+          if (wasOpen) { closeMealDrop(box); }
+          else { box._sel = getEntryMeals(entry).slice(); box._dirty = false; box.classList.add('open'); }
+        });
+        panel.querySelectorAll('.meal-opt').forEach(opt => {
+          opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const m = opt.dataset.meal;
+            const set = box._sel;
+            const idx = set.indexOf(m);
+            if (idx !== -1) {
+              if (set.length === 1) { toast('至少保留一个进餐时段'); return; }
+              set.splice(idx, 1);
+            } else { set.push(m); }
+            box._dirty = true;
+            const on = set.indexOf(m) !== -1;
+            opt.querySelector('.chk').textContent = on ? '✅' : '□';
+            opt.querySelector('.chk').classList.toggle('off', !on);
+            trigger.querySelector('.trig-label').textContent = set.length ? set.join(' · ') : '选择时段';
+            trigger.classList.toggle('empty', set.length === 0);
           });
         });
         tr.querySelector('.act-del').addEventListener('click', () => {
