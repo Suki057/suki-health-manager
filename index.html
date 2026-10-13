@@ -978,6 +978,43 @@
         inset 0 1px 1px rgba(255, 255, 255, 0.95),
         0 20px 60px rgba(61, 58, 54, 0.22);
     }
+    /* 管理进度：日期表头可点击 + 当月日期选择弹窗 */
+    #progress-thead th.col-date { cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
+    #progress-thead th.col-date:hover, #progress-thead th.col-date:active { color: #b3537a; }
+    #progress-thead th.col-date::after { content: "▾"; font-size: 9px; margin-left: 3px; opacity: 0.5; }
+    .modal-panel {
+      background: rgba(224, 232, 238, 0.96);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.80);
+      border-radius: 18px;
+      padding: 18px 16px 14px;
+      width: min(320px, 90vw);
+      max-height: min(580px, 84vh);
+      overflow-y: auto;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+        0 20px 60px rgba(61, 58, 54, 0.22);
+      animation: fadeIn 0.2s ease;
+    }
+    .dp-head { display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 700; color: #5A3A42; margin-bottom: 10px; }
+    .dp-close { cursor: pointer; padding: 2px 8px; border-radius: 8px; color: #9a6f90; font-size: 13px; }
+    .dp-close:hover { background: rgba(179, 83, 122, 0.12); color: #b3537a; }
+    .dp-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
+    .dp-week span { text-align: center; font-size: 11px; color: #9a6f90; font-weight: 600; }
+    .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .dp-empty { min-height: 32px; }
+    .dp-day {
+      min-height: 32px; padding: 0; border: 1px solid rgba(61, 58, 54, 0.14); border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7); color: #3d3a36; font-size: 13px; cursor: pointer;
+    }
+    .dp-day:hover { border-color: rgba(179, 83, 122, 0.45); color: #b3537a; }
+    .dp-day.has-data { font-weight: 700; color: #1f8a4c; }
+    .dp-day.has-data::after { content: ""; display: block; width: 4px; height: 4px; border-radius: 50%; background: #1f8a4c; margin: 1px auto 0; }
+    .dp-day.selected { background: linear-gradient(180deg, #2faa63, #1f8a4c); color: #fff; border-color: #1f8a4c; font-weight: 700; }
+    .dp-day.selected.has-data { color: #fff; }
+    .dp-day.selected.has-data::after { background: #fff; }
+    .dp-foot { margin-top: 12px; display: flex; justify-content: center; }
     /* 顶部白色反光带 */
     .modal-box::before {
       content: "";
@@ -1168,25 +1205,24 @@
       -webkit-appearance: none;
       appearance: none;
     }
-    /* 达成目标数据表：每条目标（体重/体脂率）上下分组，数值左对齐，右侧状态+空白选项框 */
-    .gdt-group { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 6px; }
+    /* 达成目标数据表：每条目标（体重/体脂率）分组，标签行含「状态」标题，数值左对齐，右侧虚线状态框（自动判定完成/未完成） */
+    .gdt-metric { margin: 10px 0 4px; }
+    .gdt-metric-head { display: flex; align-items: center; justify-content: space-between; }
     .gdt-group-label { font-size: 13px; font-weight: 700; color: #5A3A42; }
-    .gdt-group-body { display: flex; align-items: center; gap: 12px; }
-    .gdt-group-value { flex: 0 0 auto; min-width: 96px; font-size: 15px; font-weight: 700; color: #3d3a36; font-variant-numeric: tabular-nums; padding: 2px 0; }
-    .gdt-group-status { display: flex; align-items: center; gap: 6px; }
     .gdt-status-text { font-size: 13px; font-weight: 600; color: #5A3A42; }
-    .gdt-status {
-      width: 86px; box-sizing: border-box; padding: 7px 2px; font-size: 13px; text-align: center;
-      border: 1px solid rgba(61, 58, 54, 0.2); border-radius: 8px; background: #fff; color: #3d3a36;
-      -webkit-appearance: none; appearance: none;
+    .gdt-metric-body { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; }
+    .gdt-group-value { flex: 0 0 auto; min-width: 96px; font-size: 15px; font-weight: 700; color: #3d3a36; font-variant-numeric: tabular-nums; padding: 2px 0; }
+    .gdt-status-auto {
+      min-width: 84px; box-sizing: border-box; padding: 7px 10px; font-size: 13px; text-align: center;
+      border: 1px solid rgba(61, 58, 54, 0.2); border-left: 3px dashed #b3537a; border-radius: 8px; background: #fff; color: #3d3a36;
     }
-    .gdt-status.done { color: #1f8a4c; border-color: rgba(31, 138, 76, 0.5); font-weight: 700; }
-    .gdt-status.undone { color: #b3537a; border-color: rgba(179, 83, 122, 0.5); font-weight: 700; }
+    .gdt-status-auto.done { color: #1f8a4c; border-color: rgba(31, 138, 76, 0.5); border-left-color: #1f8a4c; font-weight: 700; }
+    .gdt-status-auto.undone { color: #b3537a; border-color: rgba(179, 83, 122, 0.5); border-left-color: #b3537a; font-weight: 700; }
     .gdt-date { font-size: 12px; color: #5A3A42; margin-bottom: 2px; }
-    /* 达成状态按钮（空白/已达成/未达成） */
-    .goal-achieve-btn { min-width: 92px; font-weight: 700; }
-    .goal-achieve-btn.achieved { background: linear-gradient(180deg, #2faa63, #1f8a4c); color: #fff; border-color: #1f8a4c; }
-    .goal-achieve-btn.not-achieved { background: rgba(179, 83, 122, 0.12); color: #b3537a; border-color: rgba(179, 83, 122, 0.4); }
+    /* 达成状态按钮（虚线框；空白/已达成/未达成） */
+    .goal-achieve-btn { min-width: 92px; font-weight: 700; border-style: dashed; }
+    .goal-achieve-btn.achieved { background: linear-gradient(180deg, #2faa63, #1f8a4c); color: #fff; border-color: #1f8a4c; border-style: solid; }
+    .goal-achieve-btn.not-achieved { background: rgba(179, 83, 122, 0.12); color: #b3537a; border-color: rgba(179, 83, 122, 0.4); border-style: solid; }
     /* 达成目标数据表：默认收缩的折叠面板 */
     .goal-data-table {
       margin-top: 14px;
@@ -1300,6 +1336,8 @@
     <div class="splash-sub" data-page-node-id="OdWVxUiXt5SRwmxOetZhtd"><span class="splash-rose" data-page-node-id="g4ac9Q1vBErGUx8Tj61K0i">🌹</span> 规矩就是规矩，我不能随意停下</div>
     <p class="splash-quote" data-page-node-id="zQh6LSYa5CoevqHGnsQlbF">「也许世界上也有五千朵和你一模一样的花，但只有你浇灌的那朵，才属于你。」</p>
     <div class="splash-cards" id="splash-cards" data-page-node-id="E3qRi2x8cRJ7D7O0oC0jBB">
+      <div class="splash-card" data-page-node-id="spCurWCard"><div class="num" id="sp-cur-weight" data-page-node-id="spCurWN">—</div><div class="lbl" data-page-node-id="spCurWL">现体重 (kg)</div></div>
+      <div class="splash-card" data-page-node-id="spLostCard"><div class="num" id="sp-lost" data-page-node-id="spLostN">—</div><div class="lbl" data-page-node-id="spLostL">已瘦 (kg)</div></div>
       <div class="splash-card" data-page-node-id="fuGESDW1kkJxjis2qB2Dq8"><div class="num" id="sp-kg" data-page-node-id="L9ySnXiEQc2Yaf44tDUhr0">—</div><div class="lbl" data-page-node-id="o7dhDZY6YfrgaNYQ6YGQs0">距目标体重 (kg)</div></div>
       <div class="splash-card" data-page-node-id="HjXgc1qpKlpVQtQYsviDhx"><div class="num" id="sp-fat" data-page-node-id="HIeAHrSA54G6RKysv2ilZt">—</div><div class="lbl" data-page-node-id="QAGOhUrSvSUxsf0Oo7i3P0">体脂可降 (%)</div></div>
       <div class="splash-card" data-page-node-id="kWdVfGZbiif6vGTguAQSlG"><div class="num" id="sp-kcal" data-page-node-id="S7dE55DPnf95AmLYbdXbnZ">—</div><div class="lbl" data-page-node-id="ilICgGsa2yEflAbo2Hzvr6">今日还需摄入 (kcal)</div></div>
@@ -2567,6 +2605,33 @@
     }
 
     // ==================== 达成目标数据表（支持多条历史记录） ====================
+    function getLatestBodyInMonth(monthPrefix) {
+      // 取该月最后一条有身材记录的数据
+      const days = Object.keys(state.logs)
+        .filter(d => d.startsWith(monthPrefix))
+        .sort((a, b) => b.localeCompare(a));
+      for (const d of days) {
+        const body = state.logs[d].body;
+        if (body && (body.weight !== undefined || body.bodyFat !== undefined)) return body;
+      }
+      return null;
+    }
+    function computeGoalStatus(item) {
+      // 自动判定：读取目标日期所在月份的最后身材记录，实际值 <= 目标 → 完成，否则未完成
+      const td = item.targetDate || '';
+      const m = td.slice(0, 7); // 'YYYY-MM'
+      const body = m ? getLatestBodyInMonth(m) : null;
+      let wS = '', fS = '';
+      if (body) {
+        if (item.targetWeight && body.weight !== undefined && body.weight !== null) {
+          wS = (body.weight <= item.targetWeight) ? 'done' : 'undone';
+        }
+        if (item.targetBodyFat && body.bodyFat !== undefined && body.bodyFat !== null) {
+          fS = (body.bodyFat <= item.targetBodyFat) ? 'done' : 'undone';
+        }
+      }
+      return { wS, fS };
+    }
     function renderGoalDataTable() {
       const body = document.getElementById('gdt-body');
       if (!body) return;
@@ -2583,30 +2648,29 @@
         const dateDisp = item.targetDate ? escapeHtml(item.targetDate) : '—';
         const weightDisp = item.targetWeight ? formatNum(item.targetWeight) + ' kg' : '—';
         const fatDisp = item.targetBodyFat ? formatNum(item.targetBodyFat) + ' %' : '—';
-        const wS = item.weightStatus || '';
-        const fS = item.fatStatus || '';
+        const st = computeGoalStatus(item);
+        const wS = st.wS, fS = st.fS;
         let aText = '', aCls = '';
         if (wS === 'done' && fS === 'done') { aText = '已达成'; aCls = 'achieved'; }
         else if (wS || fS) { aText = '未达成'; aCls = 'not-achieved'; }
-        const statusOpts = (cur) =>
-          '<option value=""></option>' +
-          '<option value="done"' + (cur === 'done' ? ' selected' : '') + '>完成</option>' +
-          '<option value="undone"' + (cur === 'undone' ? ' selected' : '') + '>未完成</option>';
+        const statusBox = (s) =>
+          '<span class="gdt-status-auto ' + (s === 'done' ? 'done' : (s === 'undone' ? 'undone' : '')) + '">' +
+          (s === 'done' ? '完成' : (s === 'undone' ? '未完成' : '')) + '</span>';
         html +=
           '<div class="gdt-card" data-idx="' + realIdx + '">' +
             '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span></div>' +
-            '<div class="gdt-group">' +
-              '<div class="gdt-group-label">目标体重</div>' +
-              '<div class="gdt-group-body">' +
-                '<div class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetWeight" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetWeight == null ? '' : item.targetWeight) + '">' + weightDisp + '</div>' +
-                '<div class="gdt-group-status"><span class="gdt-status-text">状态</span><select class="gdt-status" data-status-idx="' + realIdx + '" data-status-field="weightStatus">' + statusOpts(wS) + '</select></div>' +
+            '<div class="gdt-metric">' +
+              '<div class="gdt-metric-head"><span class="gdt-group-label">目标体重</span><span class="gdt-status-text">状态</span></div>' +
+              '<div class="gdt-metric-body">' +
+                '<span class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetWeight" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetWeight == null ? '' : item.targetWeight) + '">' + weightDisp + '</span>' +
+                statusBox(wS) +
               '</div>' +
             '</div>' +
-            '<div class="gdt-group">' +
-              '<div class="gdt-group-label">目标体脂率</div>' +
-              '<div class="gdt-group-body">' +
-                '<div class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetBodyFat" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetBodyFat == null ? '' : item.targetBodyFat) + '">' + fatDisp + '</div>' +
-                '<div class="gdt-group-status"><span class="gdt-status-text">状态</span><select class="gdt-status" data-status-idx="' + realIdx + '" data-status-field="fatStatus">' + statusOpts(fS) + '</select></div>' +
+            '<div class="gdt-metric">' +
+              '<div class="gdt-metric-head"><span class="gdt-group-label">目标体脂率</span><span class="gdt-status-text">状态</span></div>' +
+              '<div class="gdt-metric-body">' +
+                '<span class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetBodyFat" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetBodyFat == null ? '' : item.targetBodyFat) + '">' + fatDisp + '</span>' +
+                statusBox(fS) +
               '</div>' +
             '</div>' +
             '<div class="gdt-actions">' +
@@ -2616,21 +2680,6 @@
           '</div>';
       });
       body.innerHTML = html;
-      body.querySelectorAll('.gdt-status').forEach(sel => {
-        sel.classList.toggle('done', sel.value === 'done');
-        sel.classList.toggle('undone', sel.value === 'undone');
-        sel.addEventListener('change', () => {
-          const idx = Number(sel.dataset.statusIdx);
-          const field = sel.dataset.statusField;
-          const v = sel.value;
-          if (!state.goalHistory[idx]) return;
-          state.goalHistory[idx][field] = v;
-          sel.classList.toggle('done', v === 'done');
-          sel.classList.toggle('undone', v === 'undone');
-          save();
-          renderGoalDataTable();
-        });
-      });
       body.querySelectorAll('[data-delete-idx]').forEach(b => {
         b.addEventListener('click', () => deleteGoalData(Number(b.dataset.deleteIdx)));
       });
@@ -2727,6 +2776,8 @@
       const fatEl = document.getElementById('sp-fat');
       const kcalEl = document.getElementById('sp-kcal');
       const proEl = document.getElementById('sp-protein');
+      const curWEl = document.getElementById('sp-cur-weight');
+      const lostEl = document.getElementById('sp-lost');
 
       if (tg.targetWeight && curWeight) {
         const d = curWeight - tg.targetWeight;
@@ -2737,6 +2788,23 @@
         const d = curFat - tg.targetBodyFat;
         fatEl.innerHTML = formatNum(Math.abs(d)) + '<small> ' + (d >= 0 ? '可降' : '已低') + '</small>';
       } else { fatEl.textContent = '—'; }
+
+      // 现体重：取最近一次身材记录（没每天称重时也显示上次记录）
+      if (curWEl) curWEl.textContent = (curWeight !== null && curWeight !== undefined) ? formatNum(curWeight, 1) : '—';
+      // 已瘦 = 初始基线体重 - 现体重；无基线时取最早一次体重记录作起点
+      let startWeight = (base.weight !== undefined && base.weight !== null) ? base.weight : null;
+      if (startWeight === null) {
+        const wDays = Object.keys(state.logs)
+          .filter(d => state.logs[d] && state.logs[d].body && state.logs[d].body.weight !== undefined && state.logs[d].body.weight !== null)
+          .sort();
+        if (wDays.length) startWeight = state.logs[wDays[0]].body.weight;
+      }
+      if (lostEl) {
+        if (startWeight !== null && curWeight !== null && curWeight !== undefined) {
+          const d = startWeight - curWeight;
+          lostEl.innerHTML = formatNum(Math.abs(d), 1) + '<small> ' + (d >= 0 ? '已瘦' : '已增') + '</small>';
+        } else { lostEl.textContent = '—'; }
+      }
 
       const totals = computeDayTotals(today);
       const gk = parseGoal(g.kcal);
@@ -4336,6 +4404,7 @@
 
     // ==================== 管理进度 ====================
     let progressYear = new Date().getFullYear();
+    let progressColDay = {}; // 某列(月末日期串) -> 选中的当日日期串；无则取月末数据
     function getProgressDates(year) {
       if (year === 2026) {
         return ['2026-07-31', '2026-08-31', '2026-09-30', '2026-10-31', '2026-11-30', '2026-12-31'];
@@ -4406,7 +4475,11 @@
               }).join('')}
             </select>
           </th>
-          ${dates.map(d => `<th>${formatMonthHeader(d)}</th>`).join('')}
+          ${dates.map(d => {
+            const eff = progressColDay[d];
+            const label = eff ? formatMonthHeader(eff) : formatMonthHeader(d);
+            return `<th class="col-date" data-col-date="${d}" title="点击选择当月日期">${label}</th>`;
+          }).join('')}
         </tr>
       `;
       // 重新绑定年份选择事件
@@ -4414,13 +4487,19 @@
       if (newYearSelect) {
         newYearSelect.addEventListener('change', e => {
           progressYear = parseInt(e.target.value, 10);
+          progressColDay = {};
           renderProgress();
         });
       }
+      // 日期列点击 -> 弹出当月日期选择
+      thead.querySelectorAll('th.col-date').forEach(th => {
+        th.addEventListener('click', () => openDatePicker(th.dataset.colDate));
+      });
 
       // 准备每列数据
       const cols = dates.map(date => {
-        const body = getBodyAtEndOfMonth(date);
+        const effDay = progressColDay[date] || null;
+        const body = effDay ? ((state.logs[effDay] && state.logs[effDay].body) || null) : getBodyAtEndOfMonth(date);
         const weight = body && body.weight !== undefined ? body.weight : null;
         const fat = body && body.bodyFat !== undefined ? body.bodyFat : null;
         const fatMass = (weight !== null && fat !== null) ? weight * fat / 100 : null;
@@ -4470,6 +4549,50 @@
           ${r.values.map(v => `<td class="${v.cls}">${v.text}</td>`).join('')}
         </tr>
       `).join('');
+    }
+    function openDatePicker(monthDateStr) {
+      const [y, m] = monthDateStr.split('-').map(Number);
+      const lastDay = new Date(y, m, 0).getDate();
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      const panel = document.createElement('div');
+      panel.className = 'modal-panel';
+      const firstDow = new Date(y, m - 1, 1).getDay();
+      let cells = '';
+      for (let i = 0; i < firstDow; i++) cells += '<span class="dp-empty"></span>';
+      for (let d = 1; d <= lastDay; d++) {
+        const dayStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const cur = progressColDay[monthDateStr];
+        const sel = cur === dayStr ? ' selected' : '';
+        const rec = state.logs[dayStr] && state.logs[dayStr].body;
+        const has = (rec && (rec.weight !== undefined || rec.bodyFat !== undefined)) ? ' has-data' : '';
+        cells += `<button type="button" class="dp-day${sel}${has}" data-day="${dayStr}">${d}</button>`;
+      }
+      panel.innerHTML =
+        '<div class="dp-head">' + y + '年' + m + '月 <span class="dp-close" data-close="1">✕</span></div>' +
+        '<div class="dp-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>' +
+        '<div class="dp-grid">' + cells + '</div>' +
+        '<div class="dp-foot"><button type="button" class="btn secondary dp-reset" data-reset="1">用月末数据</button></div>';
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.dataset.close) closeDatePicker(overlay);
+      });
+      panel.querySelector('.dp-reset').addEventListener('click', () => {
+        delete progressColDay[monthDateStr];
+        closeDatePicker(overlay);
+        renderProgress();
+      });
+      panel.querySelectorAll('.dp-day').forEach(b => {
+        b.addEventListener('click', () => {
+          progressColDay[monthDateStr] = b.dataset.day;
+          closeDatePicker(overlay);
+          renderProgress();
+        });
+      });
+    }
+    function closeDatePicker(overlay) {
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
     }
     function setupProgressTab() {
       renderProgress();
