@@ -1897,8 +1897,6 @@
           <button id="export-btn" class="btn primary" data-page-node-id="A76MvLHsu1RonZh8LsHj8k">导出 JSON 备份</button>
           <button id="import-btn" class="btn secondary" data-page-node-id="LYiYilz7s2znDtEVzRFolA">导入 JSON 备份</button>
           <button id="sample-btn" class="btn success" data-page-node-id="XdgIJFWa79bHfQsHuwURVW">载入示例数据</button>
-          <button id="suki-image-foods-100g-btn" class="btn primary" data-page-node-id="W0HBjkXeyMkfO7zXNacCOC">＋ 添加图片食物表（100g）</button>
-          <button id="suki-image-foods-btn" class="btn secondary" data-page-node-id="BKzbja8iE14eFLVsbnwhjJ">＋ 添加图片食物表（单份）</button>
         </div>
         <h3 style="margin-top:24px;" data-page-node-id="CNtiXylTAzMG3EgcuzdXTD">🧹 精细化清空</h3>
         <p class="hint" data-page-node-id="7fs7fDyJBu6WDmWKOECI4t">按需清空某一类数据，其它数据保留。</p>
@@ -5066,18 +5064,6 @@
         toast('已载入示例数据，去“今日记录”试试吧');
       });
 
-      document.getElementById('suki-image-foods-btn').addEventListener('click', () => {
-        const added = addSukiImageFoods();
-        if (added === 0) toast('单份图片中的食物都已在食物库中，无需重复添加');
-        else toast(`已添加 ${added} 种单份图片食物，已按「其他 / 饮品 / 零食」归类，去「食物库」看看吧`);
-      });
-
-      document.getElementById('suki-image-foods-100g-btn').addEventListener('click', () => {
-        const added = addSukiImageFoods100g();
-        if (added === 0) toast('100g 图片食物都已在食物库中，无需重复添加');
-        else toast(`已添加 ${added} 种 100g 图片食物，已按「碳水 / 蛋白质 / 蔬菜 / 水果 / 其他」归类，去「食物库」看看吧`);
-      });
-
       document.getElementById('clear-diet-btn').addEventListener('click', async () => {
         const has = Object.keys(state.logs).some(d => (state.logs[d].foods && state.logs[d].foods.length) || (state.logs[d].exercises && state.logs[d].exercises.length));
         if (!has) return toast('没有可清空饮食/运动记录');
@@ -5828,6 +5814,13 @@
         if (exAdded > 0) toast(`已导入 ${exAdded} 条 Suki 运动记录（无氧+有氧），去「运动库」看看吧`);
       } catch (err) {
         console.warn('自动导入运动数据失败', err);
+      }
+      // 自动导入“图片食物表（单份）”，已存在则去重
+      try {
+        const imgAdded = addSukiImageFoods();
+        if (imgAdded > 0) toast(`已导入 ${imgAdded} 种单份图片食物（其他/饮品/零食），去「食物库」看看吧`);
+      } catch (err) {
+        console.warn('自动导入单份图片食物失败', err);
       }
       // 自动导入外卖 / restaurant 品牌菜品（越南菜 / 费大厨 / 喜姐炸串 / 中式糖水 / 街边粉面店 / 烤肉店），已存在则去重
       try {
