@@ -1244,7 +1244,14 @@
     .goal-data-table > summary::before { content: "▸ "; color: #b3537a; }
     .goal-data-table[open] > summary::before { content: "▾ "; }
     .goal-data-table .gdt-body { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
-    .gdt-card { padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(214, 138, 166, 0.18); }
+    .gdt-card { padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(214, 138, 166, 0.18); transition: background .25s, border-color .25s, opacity .25s; }
+    /* 已过去的月份：达成→绿色，未达成→灰色；当前/未来月保持中性 */
+    .gdt-card.gdt-done { background: rgba(31, 138, 76, 0.10); border-color: rgba(31, 138, 76, 0.5); }
+    .gdt-card.gdt-missed { background: rgba(122, 122, 122, 0.10); border-color: rgba(122, 122, 122, 0.42); opacity: 0.8; }
+    .gdt-card.gdt-missed .gdt-date, .gdt-card.gdt-missed .gdt-group-label { color: #6b6b6b; }
+    /* 开屏对标（当前/最近目标）月份高亮 */
+    .gdt-card.gdt-current { border-color: #b3537a; box-shadow: 0 0 0 2px rgba(179, 83, 122, 0.18); }
+    .gdt-current-badge { display: inline-block; margin-left: 8px; padding: 1px 8px; font-size: 11px; font-weight: 700; color: #fff; background: #b3537a; border-radius: 999px; vertical-align: middle; }
     .gdt-card .gdt-row {
       display: flex; align-items: center; justify-content: space-between;
       gap: 12px; padding: 9px 0;
@@ -2380,6 +2387,7 @@
       save();
       renderBody();
       renderBaseline();
+      renderSplash();
       // 保存后自动清空输入框，方便录入下一天的新数据
       BODY_FIELDS.forEach(([inputId]) => { const el = document.getElementById(inputId); if (el) el.value = ''; });
       const hint = document.getElementById('body-saved-hint');
@@ -2579,7 +2587,7 @@
         completed: false
       });
       save();
-      renderTargetManagement(); renderGoalDataTable();
+      renderTargetManagement(); renderGoalDataTable(); renderSplash();
       const parts = [];
       if (state.goals.targetDate) parts.push('达到目标日期 ' + state.goals.targetDate);
       if (state.goals.targetWeight) parts.push('目标体重 ' + formatNum(state.goals.targetWeight) + 'kg');
@@ -2632,19 +2640,38 @@
       }
       return { wS, fS };
     }
+    // 开屏“距离目标”所对标的目标：优先取与今天同月的那条；没有则取最早的未来月；都没有则取最近一条过去目标
+    function getActiveGoalIdx(today) {
+      const hist = Array.isArray(state.goalHistory) ? state.goalHistory : [];
+      const valid = hist.map((it, i) => ({ it, i })).filter(o => o.it && o.it.targetDate);
+      if (!valid.length) return -1;
+      const ym = String(today).slice(0, 7);
+      const cur = valid.filter(o => String(o.it.targetDate).slice(0, 7) === ym)
+        .sort((a, b) => String(b.it.targetDate).localeCompare(String(a.it.targetDate)));
+      if (cur.length) return cur[0].i;
+      const future = valid.filter(o => String(o.it.targetDate).slice(0, 7) > ym)
+        .sort((a, b) => String(a.it.targetDate).localeCompare(String(b.it.targetDate)));
+      if (future.length) return future[0].i;
+      return valid.slice().sort((a, b) => String(b.it.targetDate).localeCompare(String(a.it.targetDate)))[0].i;
+    }
     function renderGoalDataTable() {
       const body = document.getElementById('gdt-body');
       if (!body) return;
-      const list = Array.isArray(state.goalHistory) ? state.goalHistory.slice() : [];
-      // 最新记录显示在最上面
-      list.reverse();
-      if (list.length === 0) {
+      const hist = Array.isArray(state.goalHistory) ? state.goalHistory : [];
+      // 按达成日期（年-月）升序排列：9月在前、10月其次…；后填的更早月份会自动排到前面；无日期的排最后
+      const withIdx = hist.map((it, i) => ({ it, i }));
+      const dated = withIdx.filter(o => o.it && o.it.targetDate)
+        .sort((a, b) => String(a.it.targetDate).localeCompare(String(b.it.targetDate)));
+      const undated = withIdx.filter(o => !(o.it && o.it.targetDate));
+      const ordered = dated.concat(undated);
+      if (ordered.length === 0) {
         body.innerHTML = '<div class="gdt-empty">暂无目标数据，填写上方身体目标数值并保存后即可新增记录。</div>';
         return;
       }
+      const todayYm = getTodayStr().slice(0, 7);
+      const activeIdx = getActiveGoalIdx(getTodayStr());
       let html = '';
-      list.forEach((item, displayIdx) => {
-        const realIdx = (state.goalHistory.length - 1) - displayIdx;
+      ordered.forEach(({ it: item, i: realIdx }) => {
         const dateDisp = item.targetDate ? escapeHtml(item.targetDate) : '—';
         const weightDisp = item.targetWeight ? formatNum(item.targetWeight) + ' kg' : '—';
         const fatDisp = item.targetBodyFat ? formatNum(item.targetBodyFat) + ' %' : '—';
@@ -2653,12 +2680,21 @@
         let aText = '', aCls = '';
         if (wS === 'done' && fS === 'done') { aText = '已达成'; aCls = 'achieved'; }
         else if (wS || fS) { aText = '未达成'; aCls = 'not-achieved'; }
+        // 板块配色：已过去的月份按达成/未达成显示绿/灰；当前与未来月保持中性，并对“开屏对标”月份加高亮
+        const m = item.targetDate ? String(item.targetDate).slice(0, 7) : '';
+        let cardCls = '';
+        if (m && m < todayYm) {
+          cardCls = (wS === 'done' && fS === 'done') ? 'gdt-done' : 'gdt-missed';
+        } else if (realIdx === activeIdx) {
+          cardCls = 'gdt-current';
+        }
+        const curBadge = (realIdx === activeIdx) ? '<span class="gdt-current-badge">开屏对标</span>' : '';
         const statusBox = (s) =>
           '<span class="gdt-status-auto ' + (s === 'done' ? 'done' : (s === 'undone' ? 'undone' : '')) + '">' +
           (s === 'done' ? '完成' : (s === 'undone' ? '未完成' : '')) + '</span>';
         html +=
-          '<div class="gdt-card" data-idx="' + realIdx + '">' +
-            '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span></div>' +
+          '<div class="gdt-card ' + cardCls + '" data-idx="' + realIdx + '">' +
+            '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span>' + curBadge + '</div>' +
             '<div class="gdt-metric">' +
               '<div class="gdt-metric-head"><span class="gdt-group-label">目标体重</span><span class="gdt-status-text">状态</span></div>' +
               '<div class="gdt-metric-body">' +
@@ -2743,7 +2779,7 @@
         delete state.goals.targetBodyFat;
       }
       save();
-      renderTargetManagement(); renderGoalDataTable();
+      renderTargetManagement(); renderGoalDataTable(); renderSplash();
       toast('目标数据已移入回收站');
     }
 
@@ -2766,7 +2802,11 @@
       // 取最近一次有身材记录的数据（不止当天），没每天称重时也显示上次记录
       const body = getLatestBody() || {};
       const g = getGoalsForDay(today); // 营养目标按今天生效月
-      const tg = state.goals || {};    // 目标体重/体脂（单一当前，不随年月版本化）
+      // 目标体重/体脂：优先取“开屏对标”的那条（与今天同月或最近的未来/过去目标），否则退回旧版单一目标
+      const activeGoalIdx = getActiveGoalIdx(today);
+      const tg = (activeGoalIdx >= 0 && state.goalHistory[activeGoalIdx])
+        ? state.goalHistory[activeGoalIdx]
+        : (state.goals || {});
       const base = state.baseline || {};
       const curWeight = (body.weight !== undefined && body.weight !== null) ? body.weight
         : (base.weight !== undefined ? base.weight : null);
