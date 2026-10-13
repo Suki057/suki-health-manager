@@ -1257,8 +1257,7 @@
     .lock-link.danger { color: #c0564b; }
     .lock-shake { animation: lockShake .35s; }
     @keyframes lockShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
-    .pass-status-on { color: #5a9e7a; }
-    .pass-status-off { color: #b08; opacity: .8; }
+    .code-box { display:inline-block; padding:6px 12px; font-size:15px; letter-spacing:2px; background:#fff; border:1px dashed rgba(179,86,125,0.5); border-radius:10px; color:#b3567d; font-family:ui-monospace,Menlo,Consolas,monospace; }
   </style>
 </head>
 <body data-page-node-id="Ld1VyMmi0nClFmge4e7LeO">
@@ -1831,13 +1830,13 @@
 
         <div class="panel-sub" style="margin-top:20px;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <strong style="font-size:14px;color:var(--text);">🔒 访问授权码</strong>
-            <span id="pass-status" class="hint" style="margin:0;"></span>
+            <strong style="font-size:14px;color:var(--text);">🔒 当前分享授权码</strong>
           </div>
-          <p class="hint" style="margin:6px 0 10px;">开启后，每次打开本页面都需输入授权码才能查看数据，防止他人通过公网链接看到你的饮食 / 身材记录。轻量防护：数据仍存于本地浏览器，懂技术者可绕过，仅挡“随手翻看”。</p>
+          <p class="hint" style="margin:6px 0 10px;">把这个码连同网站链接一起发给对方：对方首次打开输入此码即可激活，之后免码进入；此码在换新前对所有人有效，换码后旧码作废。需要换码请告诉我（或改源码里的 ACTIVATION_CODE）。</p>
           <div class="data-actions">
-            <button id="change-pass-btn" class="btn primary">设置 / 修改授权码</button>
-            <button id="remove-pass-btn" class="btn danger" style="display:none;">关闭授权码</button>
+            <code id="current-code-display" class="code-box">jiankang</code>
+            <button id="copy-code-btn" class="btn secondary">复制授权码</button>
+            <button id="deactivate-btn" class="btn danger">退出本机激活（清空数据）</button>
           </div>
         </div>
 
@@ -1973,28 +1972,28 @@
     </div>
   </div>
 
-  <!-- ===== 访问授权码锁屏（放在脚本之前，确保 init 时 DOM 已就绪） ===== -->
+  <!-- ===== 一次性激活授权码锁屏（放在脚本之前，确保 init 时 DOM 已就绪） ===== -->
   <div id="lock-screen" class="lock-screen">
     <div class="lock-card">
       <div class="lock-rose">🌹</div>
-      <div class="lock-title" id="lock-title">🔒 小星球已上锁</div>
-      <div class="lock-sub" id="lock-sub">输入授权码进入</div>
-      <input id="lock-input" class="lock-input" type="password" inputmode="text" autocomplete="off" placeholder="授权码" />
-      <input id="lock-input2" class="lock-input" type="password" inputmode="text" autocomplete="off" placeholder="再次输入授权码" style="display:none" />
+      <div class="lock-title" id="lock-title">🔒 输入授权码以激活</div>
+      <div class="lock-sub" id="lock-sub">请输入分享给你的授权码，激活后可添加到主屏幕，之后免码进入</div>
+      <input id="lock-input" class="lock-input" type="text" inputmode="text" autocomplete="off" placeholder="授权码" />
       <div class="lock-err" id="lock-err"></div>
-      <button id="lock-submit" class="lock-btn">进入</button>
+      <button id="lock-submit" class="lock-btn">激活并进入</button>
       <div class="lock-actions">
-        <button id="lock-change" class="lock-link" style="display:none">修改授权码</button>
-        <button id="lock-cancel" class="lock-link" style="display:none">取消</button>
-        <button id="lock-reset" class="lock-link danger">忘记授权码？重置（清空数据）</button>
+        <button id="lock-reset" class="lock-link danger">退出激活 / 重置本机（清空数据）</button>
       </div>
     </div>
   </div>
 
   <script>
     // ==================== 状态 & 本地存储 ====================
-    var LOCK_KEY = 'sukiAppPassHash_v1';   // 授权码哈希（声明提前，确保 init 时可用，避免返回用户被误判未设置）
-    var lockMode;
+    // ===== 一次性激活授权码（分享模型） =====
+    // 当前分享授权码：Suki 每次分享给新人前，把下面这个字符串改成新码（联系我改，或自行改这一行）。
+    // 收件人首次打开输入此码即可激活本机，之后免码进入；换码后旧码作废，无法再激活新设备。
+    var ACTIVATION_CODE = 'jiankang';
+    var ACTIVATED_KEY = 'sukiAppActivated_v1';
     const STORAGE_KEY = 'dietTrackerData';
     let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, goalHistory: [], metabolism: {}, mealPeriods: [] };
     const numericKeys = ['kcal', 'protein', 'sugar', 'fat', 'carbs', 'sodium'];
@@ -5804,58 +5803,10 @@
       }, { passive: false });
     })();
 
-    // ===== 访问授权码（轻量锁屏） =====
-    // LOCK_KEY / lockMode 已在脚本顶部声明（提前于 init，避免返回用户被误判为未设置授权码）
-    function hashPass(code) {
-      // 轻量防护：优先用 Web Crypto SHA-256；非安全上下文（如 file://）回退到确定性哈希
-      if (window.crypto && crypto.subtle && crypto.subtle.digest) {
-        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(code)).then(buf =>
-          Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join(''));
-      }
-      let h = 5381;
-      for (let i = 0; i < code.length; i++) h = (((h << 5) + h) + code.charCodeAt(i)) >>> 0;
-      return Promise.resolve('fb_' + h);
-    }
-    function lockGetHash() { return localStorage.getItem(LOCK_KEY); }
-    function lockSetHash(h) { localStorage.setItem(LOCK_KEY, h); }
-    function lockClear() { localStorage.removeItem(LOCK_KEY); }
-
-    function lockShowSet() {
-      lockMode = 'set';
-      document.getElementById('lock-title').textContent = '🔒 设置访问授权码';
-      document.getElementById('lock-sub').textContent = '为防止他人通过链接看到数据，先设一个授权码（至少 4 位）';
-      const i1 = document.getElementById('lock-input'); const i2 = document.getElementById('lock-input2');
-      i1.value = ''; i2.value = ''; i1.placeholder = '设置授权码'; i1.style.display = ''; i2.style.display = ''; i2.placeholder = '再次输入授权码';
-      document.getElementById('lock-submit').textContent = '确认设置';
-      document.getElementById('lock-change').style.display = 'none';
-      document.getElementById('lock-cancel').style.display = 'none';
-      document.getElementById('lock-reset').style.display = 'none';
-      lockErr(''); lockOpen(true);
-    }
-    function lockShowEnter() {
-      lockMode = 'enter';
-      document.getElementById('lock-title').textContent = '🔒 小星球已上锁';
-      document.getElementById('lock-sub').textContent = '输入授权码进入';
-      const i1 = document.getElementById('lock-input'); const i2 = document.getElementById('lock-input2');
-      i1.value = ''; i2.value = ''; i1.placeholder = '授权码'; i1.style.display = ''; i2.style.display = 'none';
-      document.getElementById('lock-submit').textContent = '进入';
-      document.getElementById('lock-change').style.display = 'none';
-      document.getElementById('lock-cancel').style.display = 'none';
-      document.getElementById('lock-reset').style.display = '';
-      lockErr(''); lockOpen(true);
-    }
-    function lockShowChange() {
-      lockMode = 'change';
-      document.getElementById('lock-title').textContent = '🔒 修改授权码';
-      document.getElementById('lock-sub').textContent = '输入当前授权码，再设置新的（至少 4 位）';
-      const i1 = document.getElementById('lock-input'); const i2 = document.getElementById('lock-input2');
-      i1.value = ''; i2.value = ''; i1.placeholder = '当前授权码'; i1.style.display = ''; i2.style.display = ''; i2.placeholder = '新的授权码';
-      document.getElementById('lock-submit').textContent = '确认修改';
-      document.getElementById('lock-change').style.display = 'none';
-      document.getElementById('lock-cancel').style.display = '';
-      document.getElementById('lock-reset').style.display = 'none';
-      lockErr(''); lockOpen(true);
-    }
+    // ===== 一次性激活授权码（分享模型） =====
+    // 行为：收件人首次打开需输入“当前分享授权码”激活本机；激活后不再需要码。
+    // 换新码（改 ACTIVATION_CODE）后，旧码作废，无法再激活新设备；已激活设备不受影响。
+    function isActivated() { return localStorage.getItem(ACTIVATED_KEY) === '1'; }
     function lockOpen(show) {
       document.getElementById('lock-screen').style.display = show ? 'flex' : 'none';
     }
@@ -5867,59 +5818,56 @@
         card.classList.remove('lock-shake'); void card.offsetWidth; card.classList.add('lock-shake');
       }
     }
-    var lockMode;
-    async function lockSubmit() {
-      const i1 = document.getElementById('lock-input').value;
-      const i2 = document.getElementById('lock-input2').value;
-      if (lockMode === 'set') {
-        if (i1.length < 4) { lockErr('授权码至少 4 位'); return; }
-        if (i1 !== i2) { lockErr('两次输入的授权码不一致'); return; }
-        lockSetHash(await hashPass(i1));
-        lockErr(''); lockOpen(false); refreshPassStatus();
-      } else if (lockMode === 'enter') {
-        const h = await hashPass(i1);
-        if (h === lockGetHash()) { lockErr(''); lockOpen(false); }
-        else { lockErr('授权码错误'); }
-      } else if (lockMode === 'change') {
-        const cur = await hashPass(i1);
-        if (cur !== lockGetHash()) { lockErr('当前授权码错误'); return; }
-        if (i2.length < 4) { lockErr('新授权码至少 4 位'); return; }
-        lockSetHash(await hashPass(i2));
-        lockErr(''); lockOpen(false); toast('授权码已更新'); refreshPassStatus();
+    function lockSubmit() {
+      const code = (document.getElementById('lock-input').value || '').trim();
+      if (code === '') { lockErr('请输入授权码'); return; }
+      if (code === ACTIVATION_CODE) {
+        localStorage.setItem(ACTIVATED_KEY, '1');   // 本机激活：之后免码进入
+        lockErr(''); lockOpen(false);
+        toast('激活成功，可添加到主屏幕 🌹');
+      } else {
+        lockErr('授权码错误，或已失效');
       }
     }
     function lockReset() {
-      if (!confirm('确定重置？这会清空全部本地数据并关闭授权码，且无法恢复！')) return;
+      if (!confirm('确定重置本机？这会清空全部本地数据并退出激活（之后打开需重新输入授权码）。')) return;
       localStorage.removeItem(STORAGE_KEY);
-      lockClear();
+      localStorage.removeItem(ACTIVATED_KEY);
       location.reload();
     }
-    function refreshPassStatus() {
-      const on = !!lockGetHash();
-      const el = document.getElementById('pass-status');
-      if (el) {
-        el.textContent = on ? '已开启' : '未开启';
-        el.className = 'hint ' + (on ? 'pass-status-on' : 'pass-status-off');
-      }
-      const rm = document.getElementById('remove-pass-btn');
-      if (rm) rm.style.display = on ? '' : 'none';
-    }
     function setupLock() {
+      // —— 数据面板：展示当前分享码 / 复制 / 退出本机激活 ——
+      const cd = document.getElementById('current-code-display');
+      if (cd) cd.textContent = ACTIVATION_CODE;
+      const copyBtn = document.getElementById('copy-code-btn');
+      if (copyBtn) copyBtn.addEventListener('click', () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ACTIVATION_CODE).then(() => toast('已复制当前分享授权码'), () => toast('复制失败，请手动选择'));
+        } else { toast('当前环境不支持复制，请手动记录'); }
+      });
+      const deact = document.getElementById('deactivate-btn');
+      if (deact) deact.addEventListener('click', () => {
+        if (!confirm('确定退出本机激活？这会清空本机全部数据，且之后打开需重新输入授权码。')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(ACTIVATED_KEY);
+        location.reload();
+      });
+
+      // —— 锁屏事件 ——
       document.getElementById('lock-submit').addEventListener('click', lockSubmit);
       document.getElementById('lock-input').addEventListener('keydown', e => { if (e.key === 'Enter') lockSubmit(); });
-      document.getElementById('lock-input2').addEventListener('keydown', e => { if (e.key === 'Enter') lockSubmit(); });
       document.getElementById('lock-reset').addEventListener('click', lockReset);
-      document.getElementById('lock-change').addEventListener('click', lockShowChange);
-      document.getElementById('lock-cancel').addEventListener('click', () => lockOpen(false));
-      const cp = document.getElementById('change-pass-btn');
-      if (cp) cp.addEventListener('click', lockShowChange);
-      const rp = document.getElementById('remove-pass-btn');
-      if (rp) rp.addEventListener('click', () => {
-        if (!confirm('确定关闭授权码？之后打开页面不再需要输入。')) return;
-        lockClear(); refreshPassStatus(); toast('已关闭授权码');
-      });
-      refreshPassStatus();
-      if (!lockGetHash()) lockShowSet(); else lockShowEnter();
+
+      // —— 已激活：直接放行，不显示锁屏 ——
+      if (isActivated()) { lockOpen(false); return; }
+
+      // —— 未激活：显示激活锁屏 ——
+      document.getElementById('lock-title').textContent = '🔒 输入授权码以激活';
+      document.getElementById('lock-sub').textContent = '请输入分享给你的授权码，激活后可添加到主屏幕，之后免码进入';
+      const i1 = document.getElementById('lock-input');
+      i1.value = ''; i1.placeholder = '授权码'; i1.style.display = '';
+      document.getElementById('lock-submit').textContent = '激活并进入';
+      lockErr(''); lockOpen(true);
     }
   </script>
 </body>
