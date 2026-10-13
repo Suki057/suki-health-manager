@@ -1209,7 +1209,8 @@
     .gdt-metric { margin: 10px 0 4px; }
     .gdt-metric-head { display: flex; align-items: center; justify-content: space-between; }
     .gdt-group-label { font-size: 13px; font-weight: 700; color: #5A3A42; }
-    .gdt-status-text { font-size: 13px; font-weight: 600; color: #5A3A42; display: inline-block; width: 96px; min-width: 96px; text-align: left; }
+    .gdt-status-text { font-size: 13px; font-weight: 700; color: #b3537a; display: inline-block; width: 104px; min-width: 104px; text-align: right; }
+    .gdt-day-value { flex: 0 0 auto; min-width: 104px; font-size: 15px; font-weight: 700; color: #b3537a; font-variant-numeric: tabular-nums; padding: 2px 0; text-align: right; }
     .gdt-metric-body { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; }
     .gdt-group-value { flex: 0 0 auto; min-width: 96px; font-size: 15px; font-weight: 700; color: #3d3a36; font-variant-numeric: tabular-nums; padding: 2px 0; }
     .gdt-status-auto {
@@ -2675,38 +2676,47 @@
         const dateDisp = item.targetDate ? escapeHtml(item.targetDate) : '—';
         const weightDisp = item.targetWeight ? formatNum(item.targetWeight) + ' kg' : '—';
         const fatDisp = item.targetBodyFat ? formatNum(item.targetBodyFat) + ' %' : '—';
-        const st = computeGoalStatus(item);
-        const wS = st.wS, fS = st.fS;
+        // 当日体重/体脂率：自动读取目标月份“最后一天”有身材记录的数据
+        const mPrefix = item.targetDate ? String(item.targetDate).slice(0, 7) : '';
+        const lastBody = mPrefix ? getLatestBodyInMonth(mPrefix) : null;
+        const wA = (lastBody && lastBody.weight !== undefined && lastBody.weight !== null) ? lastBody.weight : null;
+        const fA = (lastBody && lastBody.bodyFat !== undefined && lastBody.bodyFat !== null) ? lastBody.bodyFat : null;
+        const wT = (item.targetWeight != null) ? item.targetWeight : null;
+        const fT = (item.targetBodyFat != null) ? item.targetBodyFat : null;
+        const wDisp = (wA != null) ? formatNum(wA) + ' kg' : '—';
+        const fDisp = (fA != null) ? formatNum(fA) + ' %' : '—';
+        // 达成判定：当日数值 ≤ 目标数值（仅当该目标存在时才比较）；全部满足→已达成，否则未达成；无任何当日数据则留空
+        const wMet = (wT == null) || (wA != null && wA <= wT);
+        const fMet = (fT == null) || (fA != null && fA <= fT);
+        const hasTarget = (wT != null) || (fT != null);
+        const hasData = (wA != null) || (fA != null);
+        const achieved = hasTarget && hasData && wMet && fMet;
         let aText = '', aCls = '';
-        if (wS === 'done' && fS === 'done') { aText = '已达成'; aCls = 'achieved'; }
-        else if (wS || fS) { aText = '未达成'; aCls = 'not-achieved'; }
+        if (hasTarget && hasData) { aText = achieved ? '已达成' : '未达成'; aCls = achieved ? 'achieved' : 'not-achieved'; }
         // 板块配色：已过去的月份按达成/未达成显示绿/灰；当前与未来月保持中性，并对“开屏对标”月份加高亮
-        const m = item.targetDate ? String(item.targetDate).slice(0, 7) : '';
+        const m = mPrefix;
         let cardCls = '';
         if (m && m < todayYm) {
-          cardCls = (wS === 'done' && fS === 'done') ? 'gdt-done' : 'gdt-missed';
+          cardCls = achieved ? 'gdt-done' : 'gdt-missed';
         } else if (realIdx === activeIdx) {
           cardCls = 'gdt-current';
         }
         const curBadge = (realIdx === activeIdx) ? '<span class="gdt-current-badge">开屏对标</span>' : '';
-        const statusBox = (s) =>
-          '<span class="gdt-status-auto ' + (s === 'done' ? 'done' : (s === 'undone' ? 'undone' : '')) + '">' +
-          (s === 'done' ? '完成' : (s === 'undone' ? '未完成' : '')) + '</span>';
         html +=
           '<div class="gdt-card ' + cardCls + '" data-idx="' + realIdx + '">' +
             '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span>' + curBadge + '</div>' +
             '<div class="gdt-metric">' +
-              '<div class="gdt-metric-head"><span class="gdt-group-label">目标体重</span><span class="gdt-status-text">状态</span></div>' +
+              '<div class="gdt-metric-head"><span class="gdt-group-label">目标体重</span><span class="gdt-status-text">当日体重</span></div>' +
               '<div class="gdt-metric-body">' +
                 '<span class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetWeight" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetWeight == null ? '' : item.targetWeight) + '">' + weightDisp + '</span>' +
-                statusBox(wS) +
+                '<span class="gdt-day-value">' + wDisp + '</span>' +
               '</div>' +
             '</div>' +
             '<div class="gdt-metric">' +
-              '<div class="gdt-metric-head"><span class="gdt-group-label">目标体脂率</span><span class="gdt-status-text">状态</span></div>' +
+              '<div class="gdt-metric-head"><span class="gdt-group-label">目标体脂率</span><span class="gdt-status-text">当日体脂率</span></div>' +
               '<div class="gdt-metric-body">' +
                 '<span class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetBodyFat" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetBodyFat == null ? '' : item.targetBodyFat) + '">' + fatDisp + '</span>' +
-                statusBox(fS) +
+                '<span class="gdt-day-value">' + fDisp + '</span>' +
               '</div>' +
             '</div>' +
             '<div class="gdt-actions">' +
