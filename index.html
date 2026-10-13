@@ -1168,15 +1168,15 @@
       -webkit-appearance: none;
       appearance: none;
     }
-    /* 达成目标数据表：三列（目标体重 / 目标体脂率 / 状态）并排 */
-    .gdt-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0 6px; }
-    .gdt-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .gdt-col-head { font-size: 12px; color: #5A3A42; font-weight: 700; text-align: center; }
-    .gdt-col-val { font-size: 15px; font-weight: 700; color: #3d3a36; text-align: center; font-variant-numeric: tabular-nums; padding: 2px 0; border-radius: 8px; }
-    .gdt-status-cell { display: flex; flex-direction: column; gap: 5px; }
-    .gdt-status-label { font-size: 10px; color: #9a6f90; text-align: center; line-height: 1; }
+    /* 达成目标数据表：每条目标（体重/体脂率）上下分组，数值左对齐，右侧状态+空白选项框 */
+    .gdt-group { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 6px; }
+    .gdt-group-label { font-size: 13px; font-weight: 700; color: #5A3A42; }
+    .gdt-group-body { display: flex; align-items: center; gap: 12px; }
+    .gdt-group-value { flex: 0 0 auto; min-width: 96px; font-size: 15px; font-weight: 700; color: #3d3a36; font-variant-numeric: tabular-nums; padding: 2px 0; }
+    .gdt-group-status { display: flex; align-items: center; gap: 6px; }
+    .gdt-status-text { font-size: 13px; font-weight: 600; color: #5A3A42; }
     .gdt-status {
-      width: 100%; box-sizing: border-box; padding: 7px 2px; font-size: 13px; text-align: center;
+      width: 86px; box-sizing: border-box; padding: 7px 2px; font-size: 13px; text-align: center;
       border: 1px solid rgba(61, 58, 54, 0.2); border-radius: 8px; background: #fff; color: #3d3a36;
       -webkit-appearance: none; appearance: none;
     }
@@ -1184,9 +1184,9 @@
     .gdt-status.undone { color: #b3537a; border-color: rgba(179, 83, 122, 0.5); font-weight: 700; }
     .gdt-date { font-size: 12px; color: #5A3A42; margin-bottom: 2px; }
     /* 达成状态按钮（空白/已达成/未达成） */
-    #goal-achieve-btn { min-width: 92px; font-weight: 700; }
-    #goal-achieve-btn.achieved { background: linear-gradient(180deg, #2faa63, #1f8a4c); color: #fff; border-color: #1f8a4c; }
-    #goal-achieve-btn.not-achieved { background: rgba(179, 83, 122, 0.12); color: #b3537a; border-color: rgba(179, 83, 122, 0.4); }
+    .goal-achieve-btn { min-width: 92px; font-weight: 700; }
+    .goal-achieve-btn.achieved { background: linear-gradient(180deg, #2faa63, #1f8a4c); color: #fff; border-color: #1f8a4c; }
+    .goal-achieve-btn.not-achieved { background: rgba(179, 83, 122, 0.12); color: #b3537a; border-color: rgba(179, 83, 122, 0.4); }
     /* 达成目标数据表：默认收缩的折叠面板 */
     .goal-data-table {
       margin-top: 14px;
@@ -2595,10 +2595,19 @@
         html +=
           '<div class="gdt-card" data-idx="' + realIdx + '">' +
             '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span></div>' +
-            '<div class="gdt-cols">' +
-              '<div class="gdt-col"><div class="gdt-col-head">目标体重</div><div class="gdt-col-val gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetWeight" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetWeight == null ? '' : item.targetWeight) + '">' + weightDisp + '</div></div>' +
-              '<div class="gdt-col"><div class="gdt-col-head">目标体脂率</div><div class="gdt-col-val gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetBodyFat" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetBodyFat == null ? '' : item.targetBodyFat) + '">' + fatDisp + '</div></div>' +
-              '<div class="gdt-col"><div class="gdt-col-head">状态</div><div class="gdt-status-cell"><span class="gdt-status-label">体重</span><select class="gdt-status" data-status-idx="' + realIdx + '" data-status-field="weightStatus">' + statusOpts(wS) + '</select><span class="gdt-status-label">体脂</span><select class="gdt-status" data-status-idx="' + realIdx + '" data-status-field="fatStatus">' + statusOpts(fS) + '</select></div></div>' +
+            '<div class="gdt-group">' +
+              '<div class="gdt-group-label">目标体重</div>' +
+              '<div class="gdt-group-body">' +
+                '<div class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetWeight" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetWeight == null ? '' : item.targetWeight) + '">' + weightDisp + '</div>' +
+                '<div class="gdt-group-status"><span class="gdt-status-text">状态</span><select class="gdt-status" data-status-idx="' + realIdx + '" data-status-field="weightStatus">' + statusOpts(wS) + '</select></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="gdt-group">' +
+              '<div class="gdt-group-label">目标体脂率</div>' +
+              '<div class="gdt-group-body">' +
+                '<div class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetBodyFat" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetBodyFat == null ? '' : item.targetBodyFat) + '">' + fatDisp + '</div>' +
+                '<div class="gdt-group-status"><span class="gdt-status-text">状态</span><select class="gdt-status" data-status-idx="' + realIdx + '" data-status-field="fatStatus">' + statusOpts(fS) + '</select></div>' +
+              '</div>' +
             '</div>' +
             '<div class="gdt-actions">' +
               '<button type="button" class="btn goal-achieve-btn ' + aCls + '" data-achieve-idx="' + realIdx + '">' + aText + '</button>' +
