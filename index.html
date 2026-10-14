@@ -1305,7 +1305,8 @@
     h3 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
 
     /* ===== 访问授权码锁屏 ===== */
-    .lock-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 28%, #34427e 0%, #1c2350 58%, #141a3a 100%); padding: 20px; }
+    .lock-screen { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 28%, #34427e 0%, #1c2350 58%, #141a3a 100%); padding: 20px; }
+    html.needs-lock .lock-screen { display: flex; }
     .lock-card { width: min(360px, 92vw); background: #fffaf2; border: 1px solid rgba(214,138,166,0.40); border-radius: 20px; box-shadow: 0 24px 70px rgba(8,12,35,0.5); padding: 30px 24px 24px; text-align: center; }
     .lock-rose { font-size: 30px; line-height: 1; margin-bottom: 6px; }
     .lock-title { font-size: 18px; font-weight: 700; color: #2b2350; margin: 4px 0 6px; }
@@ -1322,6 +1323,17 @@
     @keyframes lockShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
     .code-box { display:inline-block; padding:6px 12px; font-size:15px; letter-spacing:2px; background:#fff; border:1px dashed rgba(179,86,125,0.5); border-radius:10px; color:#b3567d; font-family:ui-monospace,Menlo,Consolas,monospace; }
   </style>
+  <script>
+    // 提前判定激活状态：已激活则不挂 needs-lock，锁屏从第一帧起就不绘制，消除“先闪授权码页再进 app”的现象
+    (function () {
+      try {
+        var ACT = 'sukiAppActivated_v1';
+        var ok = false;
+        try { ok = localStorage.getItem(ACT) === '1'; } catch (e) {}
+        if (!ok) document.documentElement.classList.add('needs-lock');
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body data-page-node-id="Ld1VyMmi0nClFmge4e7LeO">
   <!-- ===== 开屏界面 ===== -->
@@ -5969,6 +5981,7 @@
     function isActivated() { return localStorage.getItem(ACTIVATED_KEY) === '1'; }
     function lockOpen(show) {
       document.getElementById('lock-screen').style.display = show ? 'flex' : 'none';
+      if (!show) document.documentElement.classList.remove('needs-lock');
     }
     function lockErr(msg) {
       const el = document.getElementById('lock-err');
