@@ -1360,8 +1360,8 @@
       <div class="splash-card" data-page-node-id="spLostCard"><div class="num" id="sp-lost" data-page-node-id="spLostN">—</div><div class="lbl" data-page-node-id="spLostL">体重已降 (kg)</div></div>
       <div class="splash-card" data-page-node-id="fuGESDW1kkJxjis2qB2Dq8"><div class="num" id="sp-kg" data-page-node-id="L9ySnXiEQc2Yaf44tDUhr0">—</div><div class="lbl" data-page-node-id="o7dhDZY6YfrgaNYQ6YGQs0">距目标体重</div></div>
       <div class="splash-card" data-page-node-id="HjXgc1qpKlpVQtQYsviDhx"><div class="num" id="sp-fat" data-page-node-id="HIeAHrSA54G6RKysv2ilZt">—</div><div class="lbl" data-page-node-id="QAGOhUrSvSUxsf0Oo7i3P0">体脂可降</div></div>
-      <div class="splash-card" data-page-node-id="kWdVfGZbiif6vGTguAQSlG"><div class="num" id="sp-kcal" data-page-node-id="S7dE55DPnf95AmLYbdXbnZ">—</div><div class="lbl" data-page-node-id="ilICgGsa2yEflAbo2Hzvr6">今日还需摄入</div></div>
-      <div class="splash-card" data-page-node-id="urvPACEBnWXJFvrrfxsnhv"><div class="num" id="sp-protein" data-page-node-id="8gyhDgkOEP9DIPjHT4mUVQ">—</div><div class="lbl" data-page-node-id="t00HplljKXwjMcAiXDyJoZ">今日还需蛋白</div></div>
+      <div class="splash-card" data-page-node-id="kWdVfGZbiif6vGTguAQSlG"><div class="num" id="sp-kcal" data-page-node-id="S7dE55DPnf95AmLYbdXbnZ">—</div><div class="lbl" id="sp-kcal-lbl" data-page-node-id="ilICgGsa2yEflAbo2Hzvr6">今日还需摄入</div></div>
+      <div class="splash-card" data-page-node-id="urvPACEBnWXJFvrrfxsnhv"><div class="num" id="sp-protein" data-page-node-id="8gyhDgkOEP9DIPjHT4mUVQ">—</div><div class="lbl" id="sp-protein-lbl" data-page-node-id="t00HplljKXwjMcAiXDyJoZ">今日已摄入蛋白</div></div>
     </div>
     <button class="splash-enter" id="splash-enter" data-page-node-id="EtYedJnKbnZl2x1XRcCap9">🌟 开始管理</button>
   </div>
@@ -2865,17 +2865,36 @@
 
       const totals = computeDayTotals(today);
       const gk = parseGoal(g.kcal);
+      const kcalLblEl = document.getElementById('sp-kcal-lbl');
+      const proLblEl = document.getElementById('sp-protein-lbl');
+      const todaysLog = state.logs[today];
+      const hasInput = !!(todaysLog && todaysLog.foods && todaysLog.foods.length > 0);
       if (gk) {
-        // 今日还需摄入 = 目标热量(取区间中点) - 摄入热量（仅当日，不含之前结余）
+        // 今日还需摄入 = 目标热量(取区间中点) - 当日摄入热量；超出目标则为负数
         const net = gk.mid - totals.kcal;
-        kcalEl.innerHTML = formatNum(Math.abs(net)) + '<small>kcal</small>';
+        kcalEl.innerHTML = formatNum(net) + '<small>kcal</small>';
       } else { kcalEl.textContent = '—'; }
 
       const gp = parseGoal(g.protein);
       if (gp) {
-        const need = gp.mid - totals.protein;
-        proEl.innerHTML = formatNum(Math.abs(need)) + '<small>g</small>';
-      } else { proEl.textContent = '—'; }
+        const consumed = totals.protein;
+        if (!hasInput) {
+          // 0点默认：今日已摄入蛋白，未记录时显示 0
+          if (proLblEl) proLblEl.textContent = '今日已摄入蛋白';
+          proEl.innerHTML = formatNum(0) + '<small>g</small>';
+        } else if (consumed < gp.min) {
+          // 低于目标下限：今日还需蛋白 = 目标下限 - 已摄入
+          if (proLblEl) proLblEl.textContent = '今日还需蛋白';
+          proEl.innerHTML = formatNum(gp.min - consumed) + '<small>g</small>';
+        } else {
+          // 已落在目标区间内（或超出上限）：今日还可吃蛋白 = 目标上限 - 已摄入
+          if (proLblEl) proLblEl.textContent = '今日还可吃蛋白';
+          proEl.innerHTML = formatNum(gp.max - consumed) + '<small>g</small>';
+        }
+      } else {
+        if (proLblEl) proLblEl.textContent = '今日已摄入蛋白';
+        proEl.textContent = '—';
+      }
     }
     function setupSplash() {
       const enter = document.getElementById('splash-enter');
