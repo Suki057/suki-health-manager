@@ -1162,6 +1162,19 @@
     .met-anthropo .field { min-width: 0; }
     .met-anthropo .field label { white-space: nowrap; }
     .met-anthropo .field input { width: 72px; max-width: 100%; }
+    .met-anthropo .field select { width: 78px; max-width: 100%; padding: 9px 2px 9px 8px; }
+    /* 出生年份标题右侧的实时年龄小标签 */
+    .age-badge { display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 7px; background: rgba(214, 138, 166, 0.16); color: #B3567D; font-size: 10px; font-weight: 700; line-height: 1.5; vertical-align: 1px; letter-spacing: 0; }
+    .age-badge:empty { display: none; }
+    /* 窄屏（≤360）：三列间距收紧，保证「1996」+ 下拉箭头完整显示，标签不互相压 */
+    @media (max-width: 360px) {
+      .metabolism-grid .met-anthropo { gap: 10px 8px; }
+      .met-anthropo .field label { white-space: normal; line-height: 1.3; }
+      .met-anthropo .field input { padding-left: 7px; padding-right: 5px; }
+      .met-anthropo .field input { padding-left: 7px; padding-right: 5px; }
+      .met-anthropo .field select { padding-left: 5px; padding-right: 0; }
+      .age-badge, .met-anthropo .field label .auto-badge { margin-left: 2px; padding: 1px 4px; }
+    }
     /* 体重自动读取（只读）：灰底 + 不可点，标题右侧挂「自动」小标签 */
     .auto-badge { display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 7px; background: rgba(212, 163, 115, 0.18); color: #9A7F6A; font-size: 10px; font-weight: 700; line-height: 1.5; vertical-align: 1px; letter-spacing: 0; }
     .met-anthropo .field input.auto-readonly { background: rgba(246, 236, 228, 0.85); color: #6B5B4E; border-color: rgba(212, 163, 115, 0.32); cursor: not-allowed; box-shadow: none; }
@@ -1817,7 +1830,7 @@
         <div class="form-grid metabolism-grid" data-page-node-id="67slXbJOyckrqn8Sramhr5">
           <div class="field month-field" data-page-node-id="gtAigRHWxpf4BQSphHA4eF"><label data-page-node-id="yFE5WwbVIYyFLn69RjYldd">测试生效年月</label><input type="month" id="metabolism-month" data-page-node-id="pccTH40TJIGvNtZpEKrK27" /></div>
           <div class="met-anthropo" data-page-node-id="metAnthropoRow">
-            <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">年龄「岁」</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" data-page-node-id="WfmX7oKp0nf856PsxY0dBn" /></div>
+            <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">出生年份<span class="age-badge" id="met-age-badge" data-page-node-id="metAgeBadge"></span></label><select id="metabolism-birthyear" aria-label="选择出生年份" data-page-node-id="metBirthYear"></select></div>
             <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重「kg」<span class="auto-badge" data-page-node-id="metWeightAuto">自动</span></label><input type="number" id="metabolism-weight" min="1" step="0.1" class="auto-readonly" readonly title="自动读取：首月取「初始数据（基线）」的体重，之后取上个月最后一次记录的体重" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
             <div class="field" data-page-node-id="mJSxqe1Q1tdEg84BpaYCvb"><label data-page-node-id="PXkPZIPCbx5vXWpk2SlsOm">身高「cm」</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" data-page-node-id="u6eQVEIPEHbpcYMrRQNePc" /></div>
           </div>
@@ -6156,15 +6169,39 @@
     }
 
     function setupMetabolismTest() {
-      const ids = { age: 'metabolism-age', weight: 'metabolism-weight', height: 'metabolism-height', bmr: 'metabolism-bmr', tdee: 'metabolism-tdee' };
+      const ids = { birthyear: 'metabolism-birthyear', weight: 'metabolism-weight', height: 'metabolism-height', bmr: 'metabolism-bmr', tdee: 'metabolism-tdee' };
       const inputs = {
-        age: document.getElementById(ids.age),
+        birthyear: document.getElementById(ids.birthyear),
         weight: document.getElementById(ids.weight),
         height: document.getElementById(ids.height)
       };
       const genderEls = document.querySelectorAll('input[name="metabolism-gender"]');
       const phaseEls = document.querySelectorAll('input[name="metabolism-phase"]');
       const activityEls = document.querySelectorAll('input[name="metabolism-activity"]');
+
+      // 出生年份 → 年龄（按今年换算，例：2026 年选 1996 出生 = 30 岁）
+      function getMetabolismAge(birthYear) {
+        const y = parseInt(birthYear, 10);
+        if (!y) return 0;
+        const age = new Date().getFullYear() - y;
+        return age > 0 ? age : 0;
+      }
+      function buildBirthYearOptions() {
+        if (!inputs.birthyear) return;
+        const yNow = new Date().getFullYear();
+        const opts = ['<option value="">请选择</option>'];
+        for (let y = yNow - 10; y >= yNow - 100; y--) {
+          opts.push('<option value="' + y + '">' + y + '</option>');
+        }
+        inputs.birthyear.innerHTML = opts.join('');
+      }
+      function updateAgeBadge() {
+        const badge = document.getElementById('met-age-badge');
+        if (!badge) return;
+        const age = getMetabolismAge(inputs.birthyear ? inputs.birthyear.value : '');
+        badge.textContent = age ? age + '岁' : '';
+      }
+      buildBirthYearOptions();
 
       function updateRadioChipStyle(radios) {
         radios.forEach(r => {
@@ -6177,7 +6214,9 @@
         const gender = Array.from(genderEls).find(r => r.checked)?.value || 'female';
         const phase = Array.from(phaseEls).find(r => r.checked)?.value || 'fatloss';
         const activity = parseFloat(Array.from(activityEls).find(r => r.checked)?.value || '1.2');
-        const age = parseFloat(inputs.age.value) || 0;
+        const birthYear = parseInt(inputs.birthyear.value, 10) || 0;
+        const age = getMetabolismAge(birthYear);
+        updateAgeBadge();
         const height = parseFloat(inputs.height.value) || 0;
         const ym = getCurrentMetabolismMonth();
         // 体重只读：一律取自动读取值（首月基线 / 之后上个月最后一条），并把显示同步回去
@@ -6207,7 +6246,7 @@
         if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
         state.goalsByMonth[ym].dynamicBurn = tdeeRounded;
         if (!state.metabolismByMonth) state.metabolismByMonth = {};
-        state.metabolismByMonth[ym] = { gender, phase, age, weight, height, activity };
+        state.metabolismByMonth[ym] = { gender, phase, age, birthYear, weight, height, activity };
         // 兼容旧版单一 state.metabolism（始终等于当前正在编辑的月份）
         state.metabolism = state.metabolismByMonth[ym];
         if (ym === getTodayStr().slice(0, 7)) syncCurrentGoals();
@@ -6215,6 +6254,7 @@
       }
 
       Object.values(inputs).forEach(el => { if (el) el.addEventListener('input', calc); });
+      if (inputs.birthyear) inputs.birthyear.addEventListener('change', calc);
       genderEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(genderEls); calc(); }));
       phaseEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(phaseEls); calc(); }));
       activityEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(activityEls); calc(); }));
@@ -6243,7 +6283,10 @@
             if (def) def.checked = true;
           }
         }
-        if (m.age !== undefined) inputs.age.value = m.age;
+        // 出生年份：旧存档只存了 age 的，按今年反推出生年（2026 - 30 = 1996）
+        let birthYear = m.birthYear;
+        if (!birthYear && m.age) birthYear = new Date().getFullYear() - Number(m.age);
+        inputs.birthyear.value = birthYear ? String(birthYear) : '';
         // 体重：只读 + 自动读取（首月取基线，之后取上个月最后一次记录的体重），不再沿用旧存档
         const autoW = getMetabolismAutoWeight(ym);
         inputs.weight.value = (autoW === null || autoW === undefined) ? '' : autoW;
