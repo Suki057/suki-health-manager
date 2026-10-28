@@ -917,13 +917,11 @@
     }
     .goal-fixed-box.fx-sugar { width: 108px; }
     .goal-fixed-box.fx-sodium { width: 144px; }
-    /* 超窄屏（320 档）：压缩横间距，保证「糖 108px + 钠 144px」仍在同一行 */
+    /* 超窄屏（320 档）：压缩横间距，保证「糖 108px + 钠 144px」仍在同一行；
+       同时隐掉「自动」小标签，给并排的三框腾出空间 */
     @media (max-width: 360px) {
       .goal-row { gap: 10px 4px; }
-    }
-    /* 超窄屏（320 档）：压缩横间距，保证「糖 108px + 钠 144px」仍在同一行 */
-    @media (max-width: 360px) {
-      .goal-row { gap: 10px 4px; }
+      .goal-row .auto-badge { display: none; }
     }
     /* 「围度数据」展开态高亮 */
     #body-girth-toggle.active { background: #b3537a; color: #fff; border-color: #b3537a; }
@@ -1189,7 +1187,6 @@
       .metabolism-grid .met-anthropo { gap: 10px 8px; }
       .met-anthropo .field label { white-space: normal; line-height: 1.3; }
       .met-anthropo .field input { padding-left: 7px; padding-right: 5px; }
-      .met-anthropo .field input { padding-left: 7px; padding-right: 5px; }
       .met-anthropo .field select { padding-left: 5px; padding-right: 0; }
       .age-badge, .met-anthropo .field label .auto-badge { margin-left: 2px; padding: 1px 4px; }
     }
@@ -1200,7 +1197,7 @@
     .form-grid .field input.auto-readonly { background: rgba(246, 236, 228, 0.85); color: #6B5B4E; border-color: rgba(212, 163, 115, 0.32); cursor: default; box-shadow: none; font-weight: 700; }
     .form-grid .field input.auto-readonly:focus { outline: none; border-color: rgba(212, 163, 115, 0.32); box-shadow: none; }
     .goal-auto-hint { line-height: 1.65; }
-    .goal-auto-hint b { color: #7A4E2E; font-weight: 800; }
+    .goal-auto-hint b { color: #7A4E2E; font-weight: 800; white-space: nowrap; }
     .goal-auto-hint .gah-warn { color: #C0392B; font-weight: 700; }
     .met-anthropo .field input.auto-readonly:focus { outline: none; border-color: rgba(212, 163, 115, 0.32); box-shadow: none; }
     .radio-row { display: grid; gap: 10px; }
@@ -1902,9 +1899,9 @@
           <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal/日）<span class="auto-badge" data-page-node-id="goalDynAuto">自动</span></label><input type="number" id="goal-dynamic-burn" class="auto-readonly" readonly placeholder="自动读取" title="自动读取「代谢测试」里该月的 TDEE" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
             <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
-              <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
-              <div class="field" data-page-node-id="YfpwQLOcPeRlHkn6ylUmE2"><label data-page-node-id="TEGERcnV0ikDazvhffHVHd">碳水 (g)</label><input type="text" id="goal-carbs" inputmode="text" placeholder="如 180" data-page-node-id="E0svl6NVSik6sTB25vFe6u" /></div>
-              <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)</label><input type="text" id="goal-fat" inputmode="text" placeholder="如 50" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
+              <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)<span class="auto-badge" data-page-node-id="goalProteinAuto">自动</span></label><input type="text" id="goal-protein" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：瘦体重 LBM × 蛋白质系数区间（减脂期见系数表；维持期整体下调 0.2）" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
+              <div class="field" data-page-node-id="YfpwQLOcPeRlHkn6ylUmE2"><label data-page-node-id="TEGERcnV0ikDazvhffHVHd">碳水 (g)<span class="auto-badge" data-page-node-id="goalCarbsAuto">自动</span></label><input type="text" id="goal-carbs" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：瘦体重 LBM × 碳水系数区间（按性别与活动档位）" data-page-node-id="E0svl6NVSik6sTB25vFe6u" /></div>
+              <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)<span class="auto-badge" data-page-node-id="goalFatAuto">自动</span></label><input type="text" id="goal-fat" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：瘦体重 LBM × 脂肪系数区间（按性别与活动档位）" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
             </div>
             <div class="goal-row goal-row-b" data-page-node-id="goalRowB">
               <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><span class="goal-fixed-box fx-sugar" id="goal-sugar-fixed" data-page-node-id="goalSugarFixed" title="固定参考区间，不需要填写">25-50</span></div>
@@ -1913,6 +1910,7 @@
           </div>
         </div>
         <p class="hint goal-auto-hint" id="goal-auto-hint" data-page-node-id="goalAutoHint"></p>
+        <p class="hint goal-auto-hint" id="goal-macro-hint" data-page-node-id="goalMacroHint"></p>
         <p class="hint" id="goals-hint" data-page-node-id="UkgmNbANT317ja3zEAfRQo"></p>
       </details>
 
@@ -4097,6 +4095,133 @@
     // 1 kg 脂肪 ≈ 7700 kcal（换算常量，只对脂肪成立；肌肉/水分不该按这个算）
     const KCAL_PER_KG_FAT = 7700;
 
+    // ==================== 三大营养素：按瘦体重 LBM × 系数区间自动算 ====================
+    // 系数单位 g / kg 瘦体重（LBM）。顺序 = 活动档位：① 久坐 ② 轻度 ③ 中频 ④ 高频
+    // 蛋白质：减脂期用表内系数；维持期整体下调 0.2（如 1.4-1.6 → 1.2-1.4）
+    const MACRO_TABLE = {
+      protein: {
+        female: [[1.4, 1.6], [1.6, 1.8], [1.8, 2.0], [2.0, 2.4]],
+        male:   [[1.4, 1.6], [1.6, 1.8], [1.8, 2.2], [2.2, 2.6]],
+      },
+      fat: {
+        female: [[0.9, 1.1], [0.9, 1.1], [1.0, 1.2], [1.0, 1.2]],
+        male:   [[0.8, 1.0], [0.8, 1.0], [0.9, 1.1], [0.9, 1.1]],
+      },
+      carbs: {
+        female: [[2.0, 3.0], [3.0, 4.0], [4.0, 5.5], [5.5, 7.0]],
+        male:   [[2.0, 3.0], [3.0, 4.0], [4.5, 6.0], [6.0, 8.0]],
+      },
+    };
+    const ACTIVITY_LABELS = ['久坐不动', '轻度运动', '中频训练', '高频训练'];
+    // 活动系数 → 档位下标（1.2 / 1.375 / 1.55 / 1.725）
+    function activityIndex(activity) {
+      const a = Number(activity) || 1.2;
+      if (a >= 1.7) return 3;
+      if (a >= 1.5) return 2;
+      if (a >= 1.3) return 1;
+      return 0;
+    }
+
+    // LBM 来源：上个月（及更早）最后一条体重 + 最后一条体脂率；都没有就用「初始数据（基线）」
+    function getLbmSource(ym) {
+      ym = ym || getCurrentGoalMonth();
+      const limit = ym + '-01';
+      const logs = state.logs || {};
+      const readBody = (d) => {
+        const b = logs[d] && logs[d].body;
+        if (!b) return null;
+        const w = parseFloat(b.weight), f = parseFloat(b.bodyFat);
+        const hasW = !Number.isNaN(w) && w > 0;
+        const hasF = !Number.isNaN(f) && f > 0;
+        if (!hasW && !hasF) return null;
+        return { day: d, weight: hasW ? w : null, bodyFat: hasF ? f : null };
+      };
+      const before = Object.keys(logs).filter(d => d < limit).sort();
+      let weightDay = null, bodyFatDay = null;
+      for (let i = before.length - 1; i >= 0; i--) {
+        const r = readBody(before[i]);
+        if (r && r.weight) { weightDay = r.day; break; }
+      }
+      for (let i = before.length - 1; i >= 0; i--) {
+        const r = readBody(before[i]);
+        if (r && r.bodyFat) { bodyFatDay = r.day; break; }
+      }
+      let weight = weightDay ? readBody(weightDay).weight : null;
+      let bodyFat = bodyFatDay ? readBody(bodyFatDay).bodyFat : null;
+      const base = state.baseline || {};
+      if (weight == null && Number(base.weight) > 0) weight = Number(base.weight);
+      if (bodyFat == null && Number(base.bodyFat) > 0) bodyFat = Number(base.bodyFat);
+      if (!weight || !bodyFat) return null;
+      return {
+        weight, bodyFat,
+        weightDay: weightDay || 'baseline',
+        bodyFatDay: bodyFatDay || 'baseline',
+        sameDay: (weightDay || 'baseline') === (bodyFatDay || 'baseline')
+      };
+    }
+
+    function macroRangeText(r) {
+      if (!r) return '';
+      return formatNum(r[0]) + '-' + formatNum(r[1]);
+    }
+
+    // 自动算三大营养素区间（g）
+    function computeAutoMacros(ym) {
+      ym = ym || getCurrentGoalMonth();
+      const met = computeMetabolismForMonth(ym);
+      if (!met) return { ok: false, reason: 'no-metabolism', ym };
+      const src = getLbmSource(ym);
+      if (!src) return { ok: false, reason: 'no-lbm', ym, met };
+      const lbm = src.weight * (1 - src.bodyFat / 100);
+      const gender = met.gender === 'male' ? 'male' : 'female';
+      const phase = met.phase === 'maintain' ? 'maintain' : 'fatloss';
+      const idx = activityIndex(met.activity);
+      const ranges = {}, coef = {};
+      ['protein', 'fat', 'carbs'].forEach(k => {
+        let lo = MACRO_TABLE[k][gender][idx][0];
+        let hi = MACRO_TABLE[k][gender][idx][1];
+        if (k === 'protein' && phase === 'maintain') { lo -= 0.2; hi -= 0.2; }
+        lo = Math.round(lo * 10) / 10;
+        hi = Math.round(hi * 10) / 10;
+        coef[k] = [lo, hi];
+        ranges[k] = [Math.round(lbm * lo), Math.round(lbm * hi)];
+      });
+      return { ok: true, ym, met, src, lbm, gender, phase, idx, coef, ranges };
+    }
+
+    // 三大营养素的推导说明
+    function buildMacroHint(m, ym) {
+      if (!m) return '';
+      if (!m.ok) {
+        const tail = ' 上面显示的是上次保存的值，补齐数据后会自动更新。';
+        if (m.reason === 'no-metabolism') {
+          return '<span class="gah-warn">还缺「代谢测试」（性别 / 出生年份 / 身高 / 活动量），填好后这里会按瘦体重自动算出蛋白质 / 碳水 / 脂肪区间。' + tail + '</span>';
+        }
+        return '<span class="gah-warn">还缺「上个月最后一次记录的体重 + 体脂率」（或「初始数据（基线）」），补上后这里会自动算出三大营养素区间。' + tail + '</span>';
+      }
+      const gTxt = m.gender === 'male' ? '男' : '女';
+      const phTxt = m.phase === 'maintain' ? '维持期' : '减脂期';
+      const src = m.src;
+      const lbmTxt = formatNum(m.lbm, 1);
+      let t = '💪 瘦体重 LBM = 上个月最后一条记录 ' + formatNum(src.weight, 1) + 'kg × (1 − '
+        + formatNum(src.bodyFat, 1) + '%) = <b>' + lbmTxt + 'kg</b> · ' + gTxt + '性 · ' + phTxt + ' · ' + ACTIVITY_LABELS[m.idx];
+      if (!src.sameDay) {
+        t += '<br><span class="gah-warn">体重取自 ' + src.weightDay + '，体脂率取自 ' + src.bodyFatDay + '（不是同一天，已各取最近一条）。</span>';
+      }
+      const line = (label, key, unit) => {
+        const c = m.coef[key], r = m.ranges[key];
+        return label + '：' + lbmTxt + '×' + c[0] + '=' + formatNum(Math.round(m.lbm * c[0])) + '，'
+          + lbmTxt + '×' + c[1] + '=' + formatNum(Math.round(m.lbm * c[1])) + ' → <b>' + macroRangeText(r) + ' ' + unit + '</b>';
+      };
+      t += '<br>' + line('蛋白质', 'protein', 'g');
+      t += '<br>' + line('脂肪', 'fat', 'g');
+      t += '<br>' + line('碳水', 'carbs', 'g');
+      if (m.phase === 'maintain') {
+        t += '<br><span class="gah-warn">当前是维持期：蛋白质系数已在减脂期基础上整体下调 0.2（脂肪 / 碳水系数不变）。</span>';
+      }
+      return t;
+    }
+
     // 取某个月的代谢测试结果（BMR / TDEE）；该月没填时回退到最近的更早月份
     function computeMetabolismForMonth(ym) {
       const byMonth = state.metabolismByMonth || {};
@@ -4118,7 +4243,12 @@
       }
       const activity = Number(m.activity) || 1.2;
       const tdee = Number(m.tdee) || Math.round(bmr * activity);
-      return { bmr: Math.round(bmr), tdee: Math.round(tdee), weight, height, age, activity, gender: m.gender || 'female', sourceYm: key };
+      return {
+        bmr: Math.round(bmr), tdee: Math.round(tdee), weight, height, age, activity,
+        gender: m.gender || 'female',
+        phase: m.phase === 'maintain' ? 'maintain' : 'fatloss',
+        sourceYm: key
+      };
     }
 
     function getMonthDays(ym) {
@@ -4233,31 +4363,44 @@
       return t;
     }
 
-    // 把 TDEE / 摄入需求写回两个只读框（并按月存档，供 AI 分析与热量缺口使用）
+    // 把 TDEE / 摄入需求 / 三大营养素区间写回只读框（并按月存档，供 AI 分析与热量缺口使用）
     function refreshAutoGoals(opts) {
       const o = opts || {};
       const ym = getCurrentGoalMonth();
       const kcalEl = document.getElementById('goal-kcal');
       const dynEl = document.getElementById('goal-dynamic-burn');
       const hintEl = document.getElementById('goal-auto-hint');
+      const macroHintEl = document.getElementById('goal-macro-hint');
       if (!kcalEl || !dynEl) return;
       const met = computeMetabolismForMonth(ym);
       const r = computeAutoKcalTarget(ym);
       dynEl.value = met ? String(met.tdee) : '';
+      if (!state.goalsByMonth) state.goalsByMonth = {};
+      if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
+      const g = state.goalsByMonth[ym];
+      let dirty = false;
+      if (met && String(g.dynamicBurn) !== String(met.tdee)) { g.dynamicBurn = met.tdee; dirty = true; }
       if (r.ok) {
         kcalEl.value = String(r.intake);
-        if (!state.goalsByMonth) state.goalsByMonth = {};
-        if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
-        const g = state.goalsByMonth[ym];
-        let dirty = false;
-        if (String(g.dynamicBurn) !== String(met.tdee)) { g.dynamicBurn = met.tdee; dirty = true; }
         if (String(g.kcal) !== String(r.intake)) { g.kcal = String(r.intake); dirty = true; }
-        if ((dirty || o.forceSave) && !o.noSave) {
-          if (ym === getTodayStr().slice(0, 7)) syncCurrentGoals();
-          save();
-        }
+      }
+      // 三大营养素 = LBM × 系数区间（自动、不可手填）
+      const macro = computeAutoMacros(ym);
+      if (macro.ok) {
+        ['protein', 'fat', 'carbs'].forEach(k => {
+          const el = document.getElementById(GOAL_IDS[k]);
+          const txt = macroRangeText(macro.ranges[k]);
+          if (el && el.value !== txt) el.value = txt;
+          if (String(g[k]) !== txt) { g[k] = txt; dirty = true; }
+        });
+        fitGoalInputs();
+      }
+      if ((dirty || o.forceSave) && !o.noSave) {
+        if (ym === getTodayStr().slice(0, 7)) syncCurrentGoals();
+        save();
       }
       if (hintEl) hintEl.innerHTML = buildAutoGoalHint(r, ym);
+      if (macroHintEl) macroHintEl.innerHTML = buildMacroHint(macro, ym);
     }
     // 从目标对象中挑出「目标管理」的体重/体脂（这两项不随年月版本化）
     function pickTargets(src) {
@@ -6351,23 +6494,12 @@
         toast('数据已清空');
       });
 
-      // 「保存目标」按钮已去掉：蛋白质 / 碳水 / 脂肪 改完自动保存（停止输入 0.5s 或离开输入框时落盘）
-      GOAL_INPUT_KEYS.forEach(k => {
-        const el = document.getElementById(GOAL_IDS[k]);
-        if (!el) return;
-        const scheduleSave = () => {
-          fitGoalInputs();
-          clearTimeout(goalSaveTimer);
-          goalSaveTimer = setTimeout(() => saveGoals({ silent: true }), 500);
-        };
-        el.addEventListener('input', scheduleSave);
-        el.addEventListener('change', scheduleSave);
-        el.addEventListener('blur', () => { clearTimeout(goalSaveTimer); saveGoals({ silent: true }); });
-      });
+      // 蛋白质 / 碳水 / 脂肪 已改为按 LBM 自动计算（只读），不再需要手输保存；
+      // 值由 refreshAutoGoals() 统一写回并落盘。
       const gmEl = document.getElementById('goal-month');
       if (gmEl) {
         gmEl.value = getTodayStr().slice(0, 7);
-        gmEl.addEventListener('change', () => { renderGoals(); refreshAutoGoals(); });
+        gmEl.addEventListener('change', () => { renderGoals(); saveGoals({ silent: true }); });
       }
       applyFixedGoalRanges();
       renderGoals();
@@ -6556,7 +6688,7 @@
     const GOAL_IDS = { kcal: 'goal-kcal', protein: 'goal-protein', fat: 'goal-fat', carbs: 'goal-carbs', dynamicBurn: 'goal-dynamic-burn' };
     // 糖 / 钠含量：固定参考区间，界面上不给输入框
     const GOAL_FIXED = { sugar: '25-50', sodium: '2000-2300' };
-    // 仅这三项需要手动填（改完自动保存，不再有「保存目标」按钮）
+    // 三大营养素键（现在由 LBM × 系数自动算出，同样只读自动保存）
     const GOAL_INPUT_KEYS = ['protein', 'carbs', 'fat'];
     let goalSaveTimer = null;
     // 支持区间的目标键（其余如动态消耗仍为单一数值）
@@ -6587,7 +6719,7 @@
       return p ? (p.isRange ? (formatNum(p.min) + '-' + formatNum(p.max)) : formatNum(p.mid)) : '—';
     }
 
-    // 保存当月目标：蛋白质/碳水/脂肪读输入框；热量摄入需求 / 动态消耗读自动算出的只读框；
+    // 保存当月目标：蛋白质/碳水/脂肪、热量摄入需求、动态消耗都读自动算出的只读框；
     // 糖 / 钠含量固定为 25-50g、2000-2300mg（不需要用户填）
     function saveGoals(opts) {
       const o = opts || {};
@@ -6618,9 +6750,7 @@
       save();
       const hintEl = document.getElementById('goals-hint');
       if (hintEl) {
-        hintEl.textContent = o.silent
-          ? ('已自动保存 ' + ym + ' 月份目标（蛋白质 / 碳水 / 脂肪）。糖 25-50g、钠 2000-2300mg 为固定参考区间。')
-          : ('已保存 ' + ym + ' 月份目标。翻看历史数据时，会按当时月份的目标精确计算热量缺口。');
+        hintEl.textContent = '已按「瘦体重 × 系数表」自动生成本月目标（蛋白质 / 脂肪 / 碳水区间）。糖 25-50g、钠 2000-2300mg 为固定参考区间。翻看历史数据时，会按当时月份的目标精确计算热量缺口。';
       }
       if (!o.silent) toast('每日目标已保存');
     }
