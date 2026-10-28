@@ -897,16 +897,34 @@
       margin-bottom: 6px;
     }
     .form-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-start; margin-top: 4px; }
-    /* 每日营养目标：蛋白质/碳水 一行（输入框为原 72px 的 1.5 倍 = 108px），脂肪/糖/钠含量 一行（脂肪输入框同为 108px）；标题在上、输入框在下 */
+    /* 每日营养目标：蛋白质/碳水/脂肪 并排一行（框宽 54px = 原 72px 的 3/4）；
+       糖 / 钠含量为固定区间、不需要填写（糖框 108px = 原 1.5 倍，钠框 144px = 原 2 倍） */
     .goal-nutrient-grid { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px; }
-    .goal-row { display: grid; justify-content: start; align-items: start; gap: 12px 20px; }
-    .goal-row-a { grid-template-columns: repeat(2, auto); }
-    .goal-row-b { grid-template-columns: repeat(3, auto); gap: 12px; }
+    .goal-row { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; gap: 12px 14px; }
     .goal-row .field { min-width: 0; flex: 0 0 auto; }
     .goal-row .field label { white-space: nowrap; }
-    .goal-row .field input { width: 72px; max-width: 100%; }
-    .goal-row-a .field input { width: 108px; }
-    .goal-row-b .field:first-child input { width: 108px; }
+    .goal-row .field input { width: 54px; max-width: 100%; height: 38px; box-sizing: border-box; padding: 0 5px; text-align: center; }
+    /* 框只有 54px：填区间（如 85-95 / 160-180）时自动缩字号，保证完整显示不被截断 */
+    .goal-row .field input.goal-fit-s { font-size: 13px !important; letter-spacing: -0.02em; }
+    .goal-row .field input.goal-fit-xs { font-size: 11px !important; letter-spacing: -0.04em; padding-left: 3px; padding-right: 3px; }
+    .goal-fixed-box {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 38px; padding: 0 8px; box-sizing: border-box;
+      border: 1px dashed rgba(212, 163, 115, 0.60); border-radius: 12px;
+      background: rgba(246, 236, 228, 0.72); color: #7A4E2E;
+      font-size: 14px; font-weight: 800; letter-spacing: 0.02em;
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .goal-fixed-box.fx-sugar { width: 108px; }
+    .goal-fixed-box.fx-sodium { width: 144px; }
+    /* 超窄屏（320 档）：压缩横间距，保证「糖 108px + 钠 144px」仍在同一行 */
+    @media (max-width: 360px) {
+      .goal-row { gap: 10px 4px; }
+    }
+    /* 超窄屏（320 档）：压缩横间距，保证「糖 108px + 钠 144px」仍在同一行 */
+    @media (max-width: 360px) {
+      .goal-row { gap: 10px 4px; }
+    }
     /* 「围度数据」展开态高亮 */
     #body-girth-toggle.active { background: #b3537a; color: #fff; border-color: #b3537a; }
     /* 饮食记录行内编辑：份量变成可输入数字框 */
@@ -1886,15 +1904,12 @@
             <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
               <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
               <div class="field" data-page-node-id="YfpwQLOcPeRlHkn6ylUmE2"><label data-page-node-id="TEGERcnV0ikDazvhffHVHd">碳水 (g)</label><input type="text" id="goal-carbs" inputmode="text" placeholder="如 180" data-page-node-id="E0svl6NVSik6sTB25vFe6u" /></div>
+              <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)</label><input type="text" id="goal-fat" inputmode="text" placeholder="如 50" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
             </div>
             <div class="goal-row goal-row-b" data-page-node-id="goalRowB">
-              <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)</label><input type="text" id="goal-fat" inputmode="text" placeholder="如 50" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
-              <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><input type="text" id="goal-sugar" inputmode="text" placeholder="如 50" data-page-node-id="IFMwoFjrxz1o6uueUU81C9" /></div>
-              <div class="field" data-page-node-id="FXxJIiI4rREeU7MeEiRAzY"><label data-page-node-id="r4D4YgArBro2ScbSOQA1cr">钠含量 (mg)</label><input type="text" id="goal-sodium" inputmode="text" placeholder="如 2000" data-page-node-id="nN6ckiYnnZpHeQcHfE2fSS" /></div>
+              <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><span class="goal-fixed-box fx-sugar" id="goal-sugar-fixed" data-page-node-id="goalSugarFixed" title="固定参考区间，不需要填写">25-50</span></div>
+              <div class="field" data-page-node-id="FXxJIiI4rREeU7MeEiRAzY"><label data-page-node-id="r4D4YgArBro2ScbSOQA1cr">钠含量 (mg)</label><span class="goal-fixed-box fx-sodium" id="goal-sodium-fixed" data-page-node-id="goalSodiumFixed" title="固定参考区间，不需要填写">2000-2300</span></div>
             </div>
-          </div>
-          <div class="form-actions" data-page-node-id="kxYkspxBfzpMAZg8rbNAqS">
-            <button type="button" class="btn primary" id="goal-save-btn" data-page-node-id="OYdGQ6Eiy8UlVwuJXHbYHs">保存目标</button>
           </div>
         </div>
         <p class="hint goal-auto-hint" id="goal-auto-hint" data-page-node-id="goalAutoHint"></p>
@@ -4171,7 +4186,8 @@
         mode = 'weight';
       }
       const intakeRaw = met.tdee - (kcalTotal / days);
-      const floor = Math.max(met.bmr, met.gender === 'male' ? 1500 : 1200);
+      // 安全下限：女性 1200 kcal / 男性 1500 kcal（低于此值一律按标准下限显示）
+      const floor = met.gender === 'male' ? 1500 : 1200;
       const floored = intakeRaw < floor;
       return {
         ok: true, ym, days, start, target, mode, fatDiff, kcalTotal, met, floor, floored,
@@ -4181,33 +4197,38 @@
       };
     }
 
-    // 计算说明文案
+    // 计算说明文案（按 Suki 指定的叙述顺序：需求 → 折算热量 → 日均缺口 → 摄入需求 → 下限警告）
     function buildAutoGoalHint(r, ym) {
       const parts = String(ym).split('-');
-      const head = '📐 ' + parts[0] + ' 年 ' + Number(parts[1]) + ' 月：';
+      const ymText = parts[0] + '年' + Number(parts[1]) + '月';
       if (!r || !r.ok) {
-        return head + '<span class="gah-warn">还没填「代谢测试」（出生年份 / 身高 / 体重），填好后这里会自动算出摄入需求。</span>';
+        return '<span class="gah-warn">还缺「代谢测试」（出生年份 / 身高 / 体重），填好后这里会自动算出热量摄入需求。</span>';
       }
       const met = r.met;
-      let t = head + 'TDEE <b>' + met.tdee + '</b> kcal（BMR ' + met.bmr + ' × ' + met.activity + '）';
-      if (r.mode === 'fat') {
-        const sign = r.fatDiff >= 0 ? '需减脂' : '需增脂';
-        t += '<br>起点 ' + formatNum(r.start.weight, 1) + 'kg / ' + formatNum(r.start.bodyFat, 1) + '% → 目标 '
-          + formatNum(r.target.weight, 1) + 'kg / ' + formatNum(r.target.bodyFat, 1) + '%，' + sign + ' <b>'
-          + formatNum(Math.abs(r.fatDiff), 2) + ' kg</b> ≈ ' + formatNum(Math.abs(r.kcalTotal), 0) + ' kcal';
-        t += '<br>按 ' + r.days + ' 天摊平，日均' + (r.fatDiff >= 0 ? '缺口' : '盈余') + ' <b>'
-          + formatNum(Math.abs(r.deficitPerDay), 0) + '</b> kcal → 摄入 = ' + met.tdee + (r.fatDiff >= 0 ? ' − ' : ' + ')
-          + formatNum(Math.abs(r.deficitPerDay), 0) + ' = <b>' + r.intakeRaw + '</b> kcal';
-      } else if (r.mode === 'weight') {
-        t += '<br><span class="gah-warn">缺月初或目标体脂率</span>，暂按体重差粗估：'
-          + formatNum(r.start.weight, 1) + 'kg → ' + formatNum(r.target.weight, 1) + 'kg，日均缺口 <b>'
-          + formatNum(Math.abs(r.deficitPerDay), 0) + '</b> kcal';
+      let t = '';
+      if (r.mode === 'fat' || r.mode === 'weight') {
+        const gain = r.fatDiff < 0;
+        const word = gain ? '增脂' : '减脂';
+        const gapWord = gain ? '盈余' : '缺口';
+        const diffKg = formatNum(Math.abs(r.fatDiff), 2);
+        const totalKcal = formatNum(Math.abs(r.kcalTotal), 0);
+        const perDay = formatNum(Math.abs(r.deficitPerDay), 0);
+        t += '根据 ' + ymText + ' 的身材管理需求，需' + word + '：' + diffKg + 'kg ≈ ' + totalKcal + 'kcal，当月日均热量' + gapWord + '为：' + totalKcal + 'kcal/' + r.days + '=' + perDay + 'kcal';
+        if (r.mode === 'weight') {
+          t += '<br><span class="gah-warn">缺月初或目标体脂率，暂按体重差粗估（会把缺口算偏大）。</span>';
+        }
+        t += '<br>因此当月日均热量摄入需求为：动态消耗-日均热量' + gapWord + '=' + met.tdee + (gain ? '+' : '-') + perDay + '=<b>' + r.intakeRaw + '</b>kcal';
       } else {
-        t += '<br>还缺「月初身体数据」或「目标体重 / 体脂」，先按维持期处理（摄入 = TDEE）。';
+        t += '根据 ' + ymText + ' 的身材管理需求，还缺「月初身体数据」或「目标体重 / 体脂率」，先按维持期处理：当月日均热量摄入需求=动态消耗=<b>' + met.tdee + '</b>kcal';
       }
       if (r.floored) {
-        t += '<br><span class="gah-warn">⚠️ 按目标算出的 ' + r.intakeRaw + ' kcal 低于安全下限（BMR ' + met.bmr
-          + '），已按 ' + r.intake + ' kcal 计。建议把目标周期拉长或把目标调缓，长期低于 BMR 容易掉肌肉、代谢下降。</span>';
+        const std = met.gender === 'male' ? '男性' : '女性';
+        t += '<br><span class="gah-warn">⚠️ 按目标算出的 ' + r.intakeRaw + 'kcal 低于' + std + '标准 ' + r.floor
+          + 'kcal，热量摄入需求已默认为 ' + r.intake + 'kcal。</span>';
+        if (r.floor < met.bmr) {
+          t += '<br><span class="gah-warn">（' + r.floor + 'kcal 也低于你的基础代谢 ' + met.bmr
+            + 'kcal，长期低于基础代谢容易掉肌肉、代谢下降，建议把目标周期拉长或把目标调缓。）</span>';
+        }
       }
       return t;
     }
@@ -4622,8 +4643,8 @@
         protein: Math.round(w * 1.6),
         fat: Math.round(w * 0.8),
         carbs: Math.round(w * 3),
-        sugar: 50,
-        sodium: 2000,
+        sugar: '25-50',
+        sodium: '2000-2300',
       };
     }
 
@@ -6330,12 +6351,25 @@
         toast('数据已清空');
       });
 
-      document.getElementById('goal-save-btn').addEventListener('click', saveGoals);
+      // 「保存目标」按钮已去掉：蛋白质 / 碳水 / 脂肪 改完自动保存（停止输入 0.5s 或离开输入框时落盘）
+      GOAL_INPUT_KEYS.forEach(k => {
+        const el = document.getElementById(GOAL_IDS[k]);
+        if (!el) return;
+        const scheduleSave = () => {
+          fitGoalInputs();
+          clearTimeout(goalSaveTimer);
+          goalSaveTimer = setTimeout(() => saveGoals({ silent: true }), 500);
+        };
+        el.addEventListener('input', scheduleSave);
+        el.addEventListener('change', scheduleSave);
+        el.addEventListener('blur', () => { clearTimeout(goalSaveTimer); saveGoals({ silent: true }); });
+      });
       const gmEl = document.getElementById('goal-month');
       if (gmEl) {
         gmEl.value = getTodayStr().slice(0, 7);
         gmEl.addEventListener('change', () => { renderGoals(); refreshAutoGoals(); });
       }
+      applyFixedGoalRanges();
       renderGoals();
       // 首次进入就把自动值（TDEE / 摄入需求）落盘，保证 AI 分析与热量缺口用的是同一套数
       refreshAutoGoals({ forceSave: true });
@@ -6519,7 +6553,12 @@
     }
 
     const GOAL_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium', 'dynamicBurn'];
-    const GOAL_IDS = { kcal: 'goal-kcal', protein: 'goal-protein', fat: 'goal-fat', carbs: 'goal-carbs', sugar: 'goal-sugar', sodium: 'goal-sodium', dynamicBurn: 'goal-dynamic-burn' };
+    const GOAL_IDS = { kcal: 'goal-kcal', protein: 'goal-protein', fat: 'goal-fat', carbs: 'goal-carbs', dynamicBurn: 'goal-dynamic-burn' };
+    // 糖 / 钠含量：固定参考区间，界面上不给输入框
+    const GOAL_FIXED = { sugar: '25-50', sodium: '2000-2300' };
+    // 仅这三项需要手动填（改完自动保存，不再有「保存目标」按钮）
+    const GOAL_INPUT_KEYS = ['protein', 'carbs', 'fat'];
+    let goalSaveTimer = null;
     // 支持区间的目标键（其余如动态消耗仍为单一数值）
     const GOAL_RANGE_KEYS = ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium'];
 
@@ -6548,36 +6587,80 @@
       return p ? (p.isRange ? (formatNum(p.min) + '-' + formatNum(p.max)) : formatNum(p.mid)) : '—';
     }
 
-    function saveGoals() {
+    // 保存当月目标：蛋白质/碳水/脂肪读输入框；热量摄入需求 / 动态消耗读自动算出的只读框；
+    // 糖 / 钠含量固定为 25-50g、2000-2300mg（不需要用户填）
+    function saveGoals(opts) {
+      const o = opts || {};
       const ym = getCurrentGoalMonth();
+      if (!state.goalsByMonth) state.goalsByMonth = {};
       const g = state.goalsByMonth[ym] ? Object.assign({}, state.goalsByMonth[ym]) : {};
-      GOAL_KEYS.forEach(k => {
-        const raw = document.getElementById(GOAL_IDS[k]).value.trim();
+      GOAL_INPUT_KEYS.forEach(k => {
+        const el = document.getElementById(GOAL_IDS[k]);
+        if (!el) return;
+        const raw = String(el.value || '').trim();
         if (raw === '') { delete g[k]; return; }
-        if (k === 'dynamicBurn') {
-          const v = parseFloat(raw);
-          if (!Number.isNaN(v) && v >= 0) g[k] = v;
-        } else {
-          const p = parseGoal(raw);
-          if (p) g[k] = raw; // 存原始串，分析时再用 parseGoal 解析（支持区间）
-        }
+        const p = parseGoal(raw);
+        if (p) g[k] = raw; // 存原始串，分析时再用 parseGoal 解析（支持区间）
       });
+      const dynEl = document.getElementById('goal-dynamic-burn');
+      if (dynEl) {
+        const v = parseFloat(String(dynEl.value || '').trim());
+        if (!Number.isNaN(v) && v > 0) g.dynamicBurn = v; else delete g.dynamicBurn;
+      }
+      const kcalEl = document.getElementById('goal-kcal');
+      if (kcalEl) {
+        const raw = String(kcalEl.value || '').trim();
+        if (parseGoal(raw)) g.kcal = raw; else delete g.kcal;
+      }
+      Object.keys(GOAL_FIXED).forEach(k => { g[k] = GOAL_FIXED[k]; });
       state.goalsByMonth[ym] = g;
       syncCurrentGoals();
       save();
-      const n = Object.keys(g).length;
-      document.getElementById('goals-hint').textContent = n
-        ? ('已保存 ' + ym + ' 月份目标（共 ' + n + ' 项）。翻看历史数据时，会按当时月份的目标精确计算热量缺口。')
-        : '已清空该月目标（将使用通用参考值估算）。';
-      toast('每日目标已保存');
+      const hintEl = document.getElementById('goals-hint');
+      if (hintEl) {
+        hintEl.textContent = o.silent
+          ? ('已自动保存 ' + ym + ' 月份目标（蛋白质 / 碳水 / 脂肪）。糖 25-50g、钠 2000-2300mg 为固定参考区间。')
+          : ('已保存 ' + ym + ' 月份目标。翻看历史数据时，会按当时月份的目标精确计算热量缺口。');
+      }
+      if (!o.silent) toast('每日目标已保存');
+    }
+    // 旧存档里糖 / 钠可能是手填的 50 / 2000，统一纠正为固定区间
+    function applyFixedGoalRanges() {
+      let dirty = false;
+      const fix = (obj) => {
+        if (!obj || typeof obj !== 'object') return;
+        Object.keys(GOAL_FIXED).forEach(k => {
+          if (String(obj[k]) !== GOAL_FIXED[k]) { obj[k] = GOAL_FIXED[k]; dirty = true; }
+        });
+      };
+      if (state.goalsByMonth) Object.keys(state.goalsByMonth).forEach(k => fix(state.goalsByMonth[k]));
+      fix(state.goals);
+      if (dirty) save();
+    }
+    // 三个输入框只有 54px 宽：按内容长度自动缩字号，区间值也能完整显示
+    function fitGoalInputs() {
+      const els = GOAL_INPUT_KEYS.map(k => document.getElementById(GOAL_IDS[k])).filter(Boolean);
+      if (!els.length) return;
+      // 三个框统一字号（取最长内容那档），避免同行大小不一
+      const maxLen = Math.max.apply(null, els.map(el => String(el.value || '').length));
+      els.forEach(el => {
+        el.classList.toggle('goal-fit-s', maxLen >= 4 && maxLen < 6);
+        el.classList.toggle('goal-fit-xs', maxLen >= 6);
+      });
     }
     function renderGoals() {
       const ym = getCurrentGoalMonth();
       const g = state.goalsByMonth[ym] || getGoalsForDay(ym) || {};
-      GOAL_KEYS.forEach(k => {
+      GOAL_INPUT_KEYS.forEach(k => {
         const el = document.getElementById(GOAL_IDS[k]);
         if (el) el.value = (g[k] !== undefined && g[k] !== null) ? g[k] : '';
       });
+      fitGoalInputs();
+      // 糖 / 钠：固定区间，直接写进展示框
+      const sugarEl = document.getElementById('goal-sugar-fixed');
+      const sodiumEl = document.getElementById('goal-sodium-fixed');
+      if (sugarEl) sugarEl.textContent = GOAL_FIXED.sugar;
+      if (sodiumEl) sodiumEl.textContent = GOAL_FIXED.sodium;
       // 动态消耗 = 代谢测试的 TDEE，摄入需求 = TDEE − 日均脂肪缺口（两者都自动、不可手填）
       refreshAutoGoals({ noSave: true });
     }
@@ -6647,7 +6730,7 @@
 
       // 造一组初始基线与每日目标，方便直接看 AI 分析与对比效果
       state.baseline = { weight: 58, bodyFat: 27, calf: 37, thigh: 54, waist: 72, hip: 95 };
-      state.goals = { kcal: 1500, protein: 90, fat: 50, carbs: 180, sugar: 50, sodium: 2000 };
+      state.goals = { kcal: 1500, protein: 90, fat: 50, carbs: 180, sugar: '25-50', sodium: '2000-2300' };
     }
 
     // 图片食物表（单份）：来自 Suki 新上传的两张图（饮品 + 其他/外卖）
