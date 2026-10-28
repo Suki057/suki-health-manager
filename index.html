@@ -951,7 +951,7 @@
     /* 身材日历：指标选择框居中一行（在月份标题上方） */
     .cal-metric-row { display: flex; justify-content: center; align-items: center; margin: 2px 0 12px; }
     .cal-metric-row .field.small { display: inline-flex; align-items: center; margin: 0; }
-    /* 身材日历：比上次下降 😊 / 上升 😫 的浅表情底纹（20% 透明，不挡数值） */
+    /* 身材日历：比上次下降 🌹 / 上升 🥀 的浅表情底纹（20% 透明，不挡数值） */
     .cal-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 26px; line-height: 1; opacity: 0.2; pointer-events: none; z-index: 0; }
     .cal-day.has-body > span:not(.cal-face) { position: relative; z-index: 1; }
     .body-cal-toolbar .field.small { display: inline-flex; align-items: center; gap: 8px; }
@@ -1163,6 +1163,12 @@
       text-align: center;
     }
     .confirm-msg { font-size: 15px; color: var(--text); margin-bottom: 20px; line-height: 1.5; font-weight: 500; }
+    /* 达成目标恭喜弹窗 */
+    .congrats-box { text-align: center; }
+    .congrats-emoji { font-size: 42px; line-height: 1.1; margin-bottom: 8px; }
+    .congrats-box h3 { margin: 0 0 10px; font-size: 17px; font-weight: 700; color: #b3537a; }
+    .congrats-msg { margin: 0 0 10px; font-size: 14px; line-height: 1.75; color: #5A3A42; }
+    .congrats-next { margin: 0; font-size: 12.5px; line-height: 1.65; color: #9c6a7a; }
     .confirm-actions {
       display: flex;
       gap: 0;
@@ -1597,22 +1603,22 @@
 
       </div>
 
-      <div class="summary-grid" data-page-node-id="pleqIAXfLQ2Ahxr1M2FWzM">
-        <div class="card intake" data-page-node-id="vtHmU2xfDOZN1EgUMtoW2D"><span class="label" data-page-node-id="VrwxZviCyBm5zB5eAiSXw9">摄入热量</span><span class="value" id="total-intake-kcal" data-page-node-id="QewCZGTuizCtIS6aN2kQMN">0</span><span class="unit" data-page-node-id="DuJeqas6qzPz5oRPkMLjwq">kcal</span></div>
-        <div class="card burn" data-page-node-id="d2v9O9CMWpRhk2bTDGi77c"><span class="label" data-page-node-id="GMy3cUVAEOTDV40znAmwDu">今日消耗</span><span class="value" id="total-burn-kcal" data-page-node-id="2rVw0Bdkwpfma59mxJPZ9f">0</span><span class="unit" data-page-node-id="MY4t2qVIBcVInjogDvDjbm">kcal</span></div>
-        <div class="card net" data-page-node-id="4BUKwBHFgh6aHU1j8PzmSz"><span class="label" data-page-node-id="CFdNvQyB205gc8fawe62pr">热量缺口</span><span class="value" id="net-kcal" data-page-node-id="JJ5jX2jw3Ia4CrfUUyeh4c">0</span><span class="unit" data-page-node-id="d0PE1NMQEUHmfHbbNyx0DB">kcal</span></div>
-        <div class="card" data-page-node-id="mJBJE0WehnDZkk4F8EOKt1"><span class="label" data-page-node-id="t2PHU9raN7OUf2j2dME6Vc">蛋白质</span><span class="value" id="total-protein" data-page-node-id="jMBLJwqioZCRW8sCETnzdi">0</span><span class="unit" data-page-node-id="ntZw8OU2jI0vCLmphnSLTN">g</span></div>
-        <div class="card" data-page-node-id="Ws1JZ8uxIUSUfKCJB54CFH"><span class="label" data-page-node-id="n6fLPWE5i9ZiCc6l3AEpY4">脂肪</span><span class="value" id="total-fat" data-page-node-id="uJeyBrzE7tKhSBrnqhYLiq">0</span><span class="unit" data-page-node-id="9V1cwg27Wk3tsdbCmcW3Bn">g</span></div>
-        <div class="card" data-page-node-id="z9oPEMw9bNU91apzERHtnn"><span class="label" data-page-node-id="gohPEVQd5Iz6BOFJRZUbOM">碳水</span><span class="value" id="total-carbs" data-page-node-id="o2lPaF4INmMH9JL976giji">0</span><span class="unit" data-page-node-id="V8ys34NDcDd5B6odJUdb5K">g</span></div>
-        <div class="card" data-page-node-id="7qLfgqrH5VSHzFXGCu5UkM"><span class="label" data-page-node-id="Et7DifvmElN7YfeNy9VJLL">糖</span><span class="value" id="total-sugar" data-page-node-id="aPxs2kZUeYbRNR5tkeCJAO">0</span><span class="unit" data-page-node-id="sZRet71l8tQB3raXGOC4A6">g</span></div>
-        <div class="card" data-page-node-id="Zr0vRCDDbn8TnVsTPsgLvh"><span class="label" data-page-node-id="riiFOHHNZ5q5WEsXe0yFC1">钠</span><span class="value" id="total-sodium" data-page-node-id="70gKLSB5vJXeTHxerHtc0p">0</span><span class="unit" data-page-node-id="rQgn9K9vbMZaDgiMWNPsqV">mg</span></div>
-      </div>
-
       <div class="panel analysis-panel" data-page-node-id="2KSp0ELrlOERGBO3DW4sol">
         <h2 data-page-node-id="atm1DfSGGs1o2MrzyWIEf4">🤖 AI 饮食分析 <small data-page-node-id="NqoAwfZFvkOEMwEIasMgkz">当日摄入合理性评估</small></h2>
         <p class="hint" data-page-node-id="mMkFtnWFxix8kM2dXBRFbz">请在「数据页」输入你的每日营养目标，以便自动评估当日营养是否摄入充足。</p>
         <div id="diet-analysis" class="analysis-body" data-page-node-id="bDKrteIql2ELy6YzIxOE2t">
           <p class="empty-state" data-page-node-id="8pGU06SXlS8KvFSAOONCWZ">记录完饮食后，这里会给出当日营养合理性分析。</p>
+        </div>
+      </div>
+
+      <div class="panel" data-page-node-id="cC4XMSdSVb6X577dQeZnc7">
+        <h2 data-page-node-id="dvgAOWwUFVIFuOc4LX8enD">📊 热量日历</h2>
+        <p class="hint" style="margin:6px 0 10px;">点击日历中的日期，可查看当日摄入 / 消耗 / 营养素明细</p>
+        <div class="table-wrap" data-page-node-id="VFCMdKFL5IQuum3yP8RM9H">
+          <div id="calorie-calendar" class="exercise-calendar" data-page-node-id="calorieCal"></div>
+        </div>
+        <div class="row" style="margin-top:14px;" data-page-node-id="StatsMonthlyRow">
+          <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
         </div>
       </div>
 
@@ -1860,17 +1866,6 @@
 
     <!-- 统计 -->
     <section id="stats" class="tab-panel" data-page-node-id="OxvJg2lHmkG3bUw1LSWwCl">
-      <div class="panel" data-page-node-id="cC4XMSdSVb6X577dQeZnc7">
-        <h2 data-page-node-id="dvgAOWwUFVIFuOc4LX8enD">📊 热量日历</h2>
-        <p class="hint" style="margin:6px 0 10px;">点击日历中的日期，可查看当日摄入 / 消耗 / 营养素明细</p>
-        <div class="table-wrap" data-page-node-id="VFCMdKFL5IQuum3yP8RM9H">
-          <div id="calorie-calendar" class="exercise-calendar" data-page-node-id="calorieCal"></div>
-        </div>
-        <div class="row" style="margin-top:14px;" data-page-node-id="StatsMonthlyRow">
-          <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
-        </div>
-      </div>
-
       <div class="panel" data-page-node-id="DietPanelInStats">
         <h2 data-page-node-id="itfyG8a8Jc2ljyWJPizzCs">🍱 饮食明细 <small data-page-node-id="YoBA54099o51FsoSuErpcd">已记录的饮食与热量</small></h2>
         <div class="date-bar" style="margin:10px 0 14px;" data-page-node-id="DietDateBar">
@@ -2023,6 +2018,19 @@
       <div class="confirm-actions" data-page-node-id="0oSx1XKEW4hqSeg8uOZSpn">
         <button class="btn" id="confirm-cancel" data-page-node-id="MGsggveu4JDfdum5JwV90q">取消</button>
         <button class="btn danger" id="confirm-ok" data-page-node-id="9pnmHBYYyfaBHFPTFEguIp">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 达成目标恭喜弹窗（体重 / 体脂率达到当月目标时弹出） -->
+  <div id="congrats-modal" class="modal-overlay" style="display:none" data-page-node-id="congratsModal">
+    <div class="modal-box congrats-box" data-page-node-id="congratsBox">
+      <div class="congrats-emoji" id="congrats-emoji" data-page-node-id="congratsEmoji">🏆</div>
+      <h3 id="congrats-title" data-page-node-id="congratsTitle">恭喜达成</h3>
+      <p class="congrats-msg" id="congrats-msg" data-page-node-id="congratsMsg"></p>
+      <p class="congrats-next" id="congrats-next" data-page-node-id="congratsNext"></p>
+      <div class="modal-actions" style="margin-top:16px;display:flex;justify-content:center;" data-page-node-id="congratsActions">
+        <button class="btn primary" id="congrats-ok" data-page-node-id="congratsOk">继续加油</button>
       </div>
     </div>
   </div>
@@ -2330,34 +2338,44 @@
     }
 
     // ==================== 标签页 ====================
+    // 统一切页：按钮高亮 + 面板显隐 + 该页签需要的重绘（开屏「开始管理」也走这里）
+    function activateTab(name) {
+      const btn = document.querySelector('.tab-btn[data-tab="' + name + '"]');
+      if (!btn) return;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.getElementById(name);
+      if (panel) panel.classList.add('active');
+      const mainPicker = document.getElementById('date-picker');
+      if (name === 'stats') {
+        renderStats();
+        const ddp = document.getElementById('diet-date-picker');
+        if (ddp && mainPicker) ddp.value = mainPicker.value;
+        renderToday();
+      }
+      if (name === 'body') {
+        const bdp = document.getElementById('body-date-picker');
+        if (bdp && mainPicker) bdp.value = mainPicker.value;
+        renderBody();
+        renderBodyStats();
+      }
+      if (name === 'today') {
+        renderToday();
+      }
+      if (name === 'trash') renderTrash();
+      if (name === 'food-review') renderFoodReview();
+      if (name === 'progress') { renderProgress(); renderBaseline(); renderTargetManagement(); renderGoalDataTable(); }
+      if (name === 'calories') {
+        const cdp = document.getElementById('cal-date-picker');
+        if (cdp && mainPicker) cdp.value = mainPicker.value;
+        renderToday();
+      }
+    }
+
     function setupTabs() {
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-          btn.classList.add('active');
-          document.getElementById(btn.dataset.tab).classList.add('active');
-          if (btn.dataset.tab === 'stats') {
-            renderStats();
-            const ddp = document.getElementById('diet-date-picker');
-            if (ddp) ddp.value = document.getElementById('date-picker').value;
-            renderToday();
-          }
-          if (btn.dataset.tab === 'body') {
-            const bdp = document.getElementById('body-date-picker');
-            if (bdp) bdp.value = document.getElementById('date-picker').value;
-            renderBody();
-            renderBodyStats();
-          }
-          if (btn.dataset.tab === 'trash') renderTrash();
-          if (btn.dataset.tab === 'food-review') renderFoodReview();
-          if (btn.dataset.tab === 'progress') { renderProgress(); renderBaseline(); renderTargetManagement(); renderGoalDataTable(); }
-          if (btn.dataset.tab === 'calories') {
-            const cdp = document.getElementById('cal-date-picker');
-            if (cdp) cdp.value = document.getElementById('date-picker').value;
-            renderToday();
-          }
-        });
+        btn.addEventListener('click', () => activateTab(btn.dataset.tab));
       });
     }
 
@@ -2543,6 +2561,13 @@
       });
 
       document.getElementById('body-save-btn').addEventListener('click', saveBodyEntry);
+      // 恭喜弹窗：按钮 / 点遮罩关闭
+      const congratsModal = document.getElementById('congrats-modal');
+      const congratsOk = document.getElementById('congrats-ok');
+      if (congratsOk && congratsModal) {
+        congratsOk.addEventListener('click', () => { congratsModal.style.display = 'none'; });
+        congratsModal.addEventListener('click', e => { if (e.target === congratsModal) congratsModal.style.display = 'none'; });
+      }
       // 「纬度数据」开关：展开 / 收起小腿围、大腿围、腰围、臀围输入
       const girthBtn = document.getElementById('body-girth-toggle');
       const girthWrap = document.getElementById('body-girth-wrap');
@@ -2613,6 +2638,85 @@
         ? '已保存 ' + day + ' 的身材数据；如需修改，直接改数值后再点保存即可覆盖，清空某项再保存即删除该项，次日 0 点自动清空。'
         : '已清除 ' + day + ' 的身材数据。';
       toast(hasValue ? '身材数据已保存（' + day + '）' : '已清除 ' + day + ' 的身材数据');
+      // 保存后若已达到当月目标，弹出恭喜弹窗
+      if (hasValue) maybeCongratsGoal(body, day);
+    }
+
+    // ===== 达成当月目标 → 恭喜弹窗 =====
+    // 鸡汤句（两个目标都达成时随机抽一句，鼓励继续冲下一个目标）
+    const CONGRATS_SOUP = [
+      '你已经证明了自己真的做得到——把这份自律带到下一个目标里去。',
+      '目标是一天一天的记录走出来的，方向对了，剩下的只是继续走。',
+      '身体从不辜负认真记录的人，下一段路依旧值得期待。',
+      '今天的达成，是过去很多次“再坚持一下”攒出来的结果。下一个目标，同样拿得下。',
+      '你不需要一次变成理想的样子，你只需要像现在这样，一次次抵达。'
+    ];
+    // 取「某天所在月份」的那条目标；同月多条时取达成日期最靠后的那条
+    function getMonthGoal(day) {
+      const ym = String(day).slice(0, 7);
+      const hist = Array.isArray(state.goalHistory) ? state.goalHistory : [];
+      const inMonth = hist.filter(it => it && it.targetDate && String(it.targetDate).slice(0, 7) === ym);
+      if (!inMonth.length) return null;
+      return inMonth.slice().sort((a, b) => String(a.targetDate).localeCompare(String(b.targetDate))).pop();
+    }
+    // 该月之后最近的一条目标（用于「激励达成下一个目标」）
+    function getNextGoal(day) {
+      const ym = String(day).slice(0, 7);
+      const hist = Array.isArray(state.goalHistory) ? state.goalHistory : [];
+      const future = hist.filter(it => it && it.targetDate && String(it.targetDate).slice(0, 7) > ym)
+        .sort((a, b) => String(a.targetDate).localeCompare(String(b.targetDate)));
+      return future.length ? future[0] : null;
+    }
+    function showCongrats(emoji, title, msgHtml, nextText) {
+      const modal = document.getElementById('congrats-modal');
+      if (!modal) return;
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+      set('congrats-emoji', emoji);
+      set('congrats-title', title);
+      set('congrats-msg', msgHtml);
+      set('congrats-next', nextText || '');
+      modal.style.display = 'flex';
+    }
+    function maybeCongratsGoal(body, day) {
+      const goal = getMonthGoal(day);
+      if (!goal) return;
+      const wT = (goal.targetWeight != null) ? Number(goal.targetWeight) : null;
+      const fT = (goal.targetBodyFat != null) ? Number(goal.targetBodyFat) : null;
+      const wV = (body && body.weight != null) ? Number(body.weight) : null;
+      const fV = (body && body.bodyFat != null) ? Number(body.bodyFat) : null;
+      const wOk = (wT != null && wV != null && wV <= wT);
+      const fOk = (fT != null && fV != null && fV <= fT);
+      if (!wOk && !fOk) return;
+      const next = getNextGoal(day);
+      let nextText;
+      if (next) {
+        const bits = [];
+        if (next.targetWeight != null) bits.push(formatNum(next.targetWeight) + ' kg');
+        if (next.targetBodyFat != null) bits.push(formatNum(next.targetBodyFat) + ' %');
+        nextText = '下一个目标：' + escapeHtml(next.targetDate) + (bits.length ? ' · ' + bits.join(' / ') : '') + '，接着往前走吧。';
+      } else {
+        nextText = '还没有下一个目标，可以去「管理进度」给自己定一个新目标。';
+      }
+      if (wOk && fOk) {
+        const soup = CONGRATS_SOUP[Math.floor(Math.random() * CONGRATS_SOUP.length)];
+        showCongrats('🏆', '双目标达成！',
+          '体重 ' + formatNum(wV) + ' kg（目标 ' + formatNum(wT) + ' kg）、体脂率 ' + formatNum(fV) + ' %（目标 ' + formatNum(fT) + ' %）都达成了。<br>' + soup,
+          nextText);
+        return;
+      }
+      if (wOk) {
+        const tail = (fT != null && fV != null)
+          ? '体脂率 ' + formatNum(fV) + ' %，距离目标 ' + formatNum(fT) + ' % 还差 ' + formatNum(fV - fT) + ' %，仍需努力。'
+          : '这次没记体脂率，下次一起量一下更有参考价值。';
+        showCongrats('⚖️', '恭喜体重已经达成！',
+          '体重 ' + formatNum(wV) + ' kg 已达成本月目标 ' + formatNum(wT) + ' kg。<br>' + tail, nextText);
+        return;
+      }
+      const tail = (wT != null && wV != null)
+        ? '体重 ' + formatNum(wV) + ' kg，距离目标 ' + formatNum(wT) + ' kg 还差 ' + formatNum(wV - wT) + ' kg，仍需努力。'
+        : '这次没记体重，下次一起量一下更有参考价值。';
+      showCongrats('💧', '恭喜体脂率已经达成！',
+        '体脂率 ' + formatNum(fV) + ' % 已达成本月目标 ' + formatNum(fT) + ' %。<br>' + tail, nextText);
     }
 
     // ===== 身材 CSV 导入 =====
@@ -3205,7 +3309,11 @@
       const enter = document.getElementById('splash-enter');
       const splash = document.getElementById('splash');
       if (!enter || !splash) return;
-      enter.addEventListener('click', () => splash.classList.add('hidden'));
+      enter.addEventListener('click', () => {
+        splash.classList.add('hidden');
+        // 进入 App 后默认落在「身材记录」页签
+        activateTab('body');
+      });
     }
 
     // 「体重记录」输入框当前对应的日期 / 上次已知的“今天”，用于次日 0 点自动清空
@@ -3906,14 +4014,16 @@
       }
 
       const t = computeDayTotals(day);
-      document.getElementById('total-intake-kcal').textContent = formatNum(t.kcal, 0);
-      document.getElementById('total-burn-kcal').textContent = formatNum(t.burn, 0);
-      document.getElementById('net-kcal').textContent = formatNum(t.burn - t.kcal, 0);
-      document.getElementById('total-protein').textContent = formatNum(t.protein);
-      document.getElementById('total-fat').textContent = formatNum(t.fat);
-      document.getElementById('total-carbs').textContent = formatNum(t.carbs);
-      document.getElementById('total-sugar').textContent = formatNum(t.sugar);
-      document.getElementById('total-sodium').textContent = formatNum(t.sodium);
+      // 数值卡片已移除，这里改成有则更新、无则跳过，避免空引用
+      const setNum = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setNum('total-intake-kcal', formatNum(t.kcal, 0));
+      setNum('total-burn-kcal', formatNum(t.burn, 0));
+      setNum('net-kcal', formatNum(t.burn - t.kcal, 0));
+      setNum('total-protein', formatNum(t.protein));
+      setNum('total-fat', formatNum(t.fat));
+      setNum('total-carbs', formatNum(t.carbs));
+      setNum('total-sugar', formatNum(t.sugar));
+      setNum('total-sodium', formatNum(t.sodium));
       renderDietAnalysis();
       renderMealAI();
       renderExerciseCalendar();
@@ -5506,12 +5616,12 @@
           } else {
             nums = '<span class="cal-num">' + formatNum(b[metric]) + '</span>';
           }
-          // 比上一次记录下降 → 😊，上升 → 😫（20% 透明做底纹）
+          // 比上一次记录下降 → 🌹，上升 → 🥀（20% 透明做底纹）
           const curV = pickVal(b);
           const lastV = prevValMap[dateStr];
           let face = '';
           if (curV !== undefined && curV !== null && lastV !== null && lastV !== undefined && curV !== lastV) {
-            face = curV < lastV ? '🌹' : '😫';
+            face = curV < lastV ? '🌹' : '🥀';
           }
           html += '<div class="cal-day has-body" data-date="' + dateStr + '">'
             + (face ? '<span class="cal-face">' + face + '</span>' : '')
