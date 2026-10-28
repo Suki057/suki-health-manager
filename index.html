@@ -974,7 +974,7 @@
     .persist-row:focus-visible { outline: 2px solid rgba(214,138,166,0.5); outline-offset: 2px; }
     .persist-label { font-size: 14.5px; font-weight: 600; color: #5A3A42; }
     .persist-count { font-size: 20px; font-weight: 800; color: #b3537a; font-variant-numeric: tabular-nums; }
-    .persist-total { font-size: 12px; font-weight: 700; color: #5A3A42; margin: 6px 0 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 4px; }
+    .persist-total { font-size: 12px; font-weight: 700; color: #5A3A42; margin: 14px 0 0; line-height: 1.6; display: flex; flex-direction: column; gap: 4px; }
     /* 左侧「总时长」+ 右侧「月均」同一行两端对齐，字号/行高与原来一致 */
     .persist-sum-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 700; color: #5A3A42; }
     .persist-sum-row > span { font-variant-numeric: tabular-nums; }
@@ -1676,8 +1676,8 @@
           <span class="persist-count" id="persist-count" data-page-node-id="persistCnt1">0</span>
         </div>
         <div class="persist-panel" id="persist-panel" style="display:none" data-page-node-id="persistPanel1">
-          <div class="persist-total" id="persist-total" data-page-node-id="persistTotal1"></div>
           <div class="persist-months" id="persist-months" data-page-node-id="persistMonths1"></div>
+          <div class="persist-total" id="persist-total" data-page-node-id="persistTotal1"></div>
         </div>
       </div>
 
@@ -2290,6 +2290,12 @@
     }
 
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+    // 保留 1 位小数；第二位只要有零头（非 0）就进一位，即向上取整到 0.1
+    function ceil1(n) {
+      const v = Number(n);
+      if (!isFinite(v)) return 0;
+      return Math.ceil(Number((v * 10).toFixed(6))) / 10;
+    }
     function formatNum(n, digits = 1) {
       if (n === undefined || n === null || Number.isNaN(n)) return '0';
       let s = Number(n).toFixed(digits);
@@ -4508,15 +4514,17 @@
         const { total, totalAer, totalAna, months } = computePersistStats();
         const totalEl = document.getElementById('persist-total');
         const monthsEl = document.getElementById('persist-months');
-        // 月均 = 该项总时长 ÷ 有运动记录的月份数（如 8/9/10 三月共 849 分 → 849/3 = 283）
+        // 总时长按「界面上显示的整数」参与计算，避免显示 849 而月均按 848.5 算出 282.8
         const monthCount = Object.keys(months).length;
-        const aerAvg = monthCount > 0 ? totalAer / monthCount : 0;
-        const anaAvg = monthCount > 0 ? totalAna / monthCount : 0;
+        const aerTotal = Math.round(totalAer);
+        const anaTotal = Math.round(totalAna);
+        const aerAvg = monthCount > 0 ? ceil1(aerTotal / monthCount) : 0;
+        const anaAvg = monthCount > 0 ? ceil1(anaTotal / monthCount) : 0;
         if (totalEl) {
           totalEl.innerHTML =
-              '<div class="persist-sum-row"><span>有氧总时长「分」：' + formatNum(totalAer, 0) + '</span>'
+              '<div class="persist-sum-row"><span>有氧总时长「分」：' + aerTotal + '</span>'
             + '<span>月均有氧「分」：' + formatNum(aerAvg, 1) + '</span></div>'
-            + '<div class="persist-sum-row"><span>无氧总时长「分」：' + formatNum(totalAna, 0) + '</span>'
+            + '<div class="persist-sum-row"><span>无氧总时长「分」：' + anaTotal + '</span>'
             + '<span>月均无氧「分」：' + formatNum(anaAvg, 1) + '</span></div>';
         }
         // 有运动的月份 + 各月坚持次数 + 各月有氧/无氧时长
