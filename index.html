@@ -1292,6 +1292,16 @@
     .goal-data-table > summary::before { content: "▸ "; color: #b3537a; }
     .goal-data-table[open] > summary::before { content: "▾ "; }
     .goal-data-table .gdt-body { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+    /* 达成目标数据图：月份导航（复用运动日历的 cal-nav 样式）+ 未设日期分组标题 */
+    .goal-data-table .gdt-nav { margin-bottom: 2px; }
+    .goal-data-table .gdt-undated-label {
+      margin-top: 2px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(214, 138, 166, 0.45);
+      font-size: 12px;
+      font-weight: 700;
+      color: #9c6a7a;
+    }
     .gdt-card { padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(214, 138, 166, 0.18); transition: background .25s, border-color .25s, opacity .25s; }
     /* 已过去的月份：达成→绿色，未达成→灰色；当前/未来月保持中性 */
     .gdt-card.gdt-done { background: rgba(31, 138, 76, 0.10); border-color: rgba(31, 138, 76, 0.5); }
@@ -1427,63 +1437,6 @@
   <main class="container" data-page-node-id="iGZP1Fkg9yn4noLq3Lbnxm">
     <!-- 身材记录 -->
     <section id="body" class="tab-panel" data-page-node-id="BodyTabSuki057">
-      <div class="date-bar" data-page-node-id="BodyDateBar">
-        <input type="date" id="body-date-picker" data-page-node-id="BodyDatePicker" />
-        <button id="body-today-btn" class="btn secondary" data-page-node-id="BodyTodayBtn">回到今天</button>
-      </div>
-
-      <div class="panel" data-page-node-id="CxYqo0hEImxEh6K5HIqH7G">
-        <details class="section-details" open data-page-node-id="ZFzB9dwnDmmdNGqmM5pEjF">
-          <summary class="section-summary" data-page-node-id="coy3IMvCIJaNDtOKInMrpK">📏 体重记录 <small data-page-node-id="3zawjCNdfAGvmpLcWFEsnM">每日量测 · 点击收缩</small></summary>
-          <div class="form-grid" data-page-node-id="vCVm5ki4uXlJOGfgchDuC5">
-            <div class="field" data-page-node-id="hyEOYlMgbWPzSTIWOKbGMK"><label data-page-node-id="COUqxskXefuPIL3G6GcHEP">体重 (kg)</label><input type="number" id="body-weight" min="0" step="0.1" placeholder="如 55.5" data-page-node-id="RgZkzgDhnD8ds13wt0BwAo" /></div>
-            <div class="field" data-page-node-id="wMUWaSNKHnV6jBdQUb2JJW"><label data-page-node-id="gnFmeVmH1E8VyLbm7CGY9a">体脂率 (%)</label><input type="number" id="body-fat" min="0" step="0.1" placeholder="如 22.5" data-page-node-id="LopWsphSQCbzcEe9jPVdaQ" /></div>
-            <div class="form-actions" data-page-node-id="2SxKhs6ou9ITxkwhxalRUR">
-              <button type="button" class="btn primary" id="body-save-btn" data-page-node-id="ZMvNEyPElCI8CbBewoyQF1">保存身材数据</button>
-              <button type="button" class="btn secondary" id="body-girth-toggle" data-page-node-id="bodyGirthToggle">纬度数据</button>
-            </div>
-          </div>
-          <div class="form-grid" id="body-girth-wrap" style="display:none;margin-top:10px;" data-page-node-id="bodyGirthWrap">
-            <div class="field" data-page-node-id="rnxK2djQzhwfJ6bDomNBPL"><label data-page-node-id="Ydby1GSu5uDBfuFEyauA7n">小腿围 (cm)</label><input type="number" id="body-calf" min="0" step="0.1" placeholder="如 36" data-page-node-id="7w5JDS6jxjVzTZbpomBplC" /></div>
-            <div class="field" data-page-node-id="aAwmasYSIJ0Nu23NW8VSSZ"><label data-page-node-id="ayCFHXSEkEykwG5OgVoiS2">大腿围 (cm)</label><input type="number" id="body-thigh" min="0" step="0.1" placeholder="如 52" data-page-node-id="ZLoGapLnmTTD0UCtadlcah" /></div>
-            <div class="field" data-page-node-id="k8v6NiraqdfMU0TZeTgAP1"><label data-page-node-id="vHyNyNnOX3PXtV4MSJDU2E">腰围 (cm)</label><input type="number" id="body-waist" min="0" step="0.1" placeholder="如 68" data-page-node-id="DST4eP6fRfdUli3RCgxnfp" /></div>
-            <div class="field" data-page-node-id="s6E5f0G85pmveSDELIwyKv"><label data-page-node-id="wK47n7yOrFXrxjfXtah8T5">臀围 (cm)</label><input type="number" id="body-hip" min="0" step="0.1" placeholder="如 92" data-page-node-id="TMJ45OG6Y7SG4a19FOzicA" /></div>
-            <div class="field" data-page-node-id="bodyBicepField"><label data-page-node-id="bodyBicepLbl">上臂围 (cm)</label><input type="number" id="body-bicep" min="0" step="0.1" placeholder="如 28" data-page-node-id="bodyBicepInput" /></div>
-            <div class="field" data-page-node-id="bodyChestField"><label data-page-node-id="bodyChestLbl">胸围 (cm)</label><input type="number" id="body-chest" min="0" step="0.1" placeholder="如 86" data-page-node-id="bodyChestInput" /></div>
-          </div>
-          <p class="hint" id="body-saved-hint" data-page-node-id="7YYv1CMhDg9gSGH83oYcfQ"></p>
-        </details>
-      </div>
-
-      <details class="panel section-details" id="body-stats-collapse" open data-page-node-id="hLE4La2vfiVIdjxx6Hj5NH">
-        <summary data-page-node-id="TxjrhQ5WnZpjZBLDBX6pWe">📐 身材记录 <small data-page-node-id="sqmHSNy256pcKHyAbD4GiK">点击展开 / 收起</small></summary>
-        <div class="table-wrap" data-page-node-id="LczQn75vTOJshLsDEDFewh">
-          <div class="row body-cal-toolbar" id="body-cal-toolbar" style="display:none;" data-page-node-id="bodyCalToolbar">
-            <div class="field small" id="body-cal-metric-holder" style="margin:0;" data-page-node-id="bodyCalField">
-              <label style="display:none" data-page-node-id="bodyCalLbl">显示指标</label>
-              <select id="body-cal-metric" style="font-size:7px;width:175px;padding:4px 8px;border-radius:9px;" data-page-node-id="bodyCalSel">
-                <option value="combo" data-page-node-id="bodyCalCombo">体重&amp;体脂「kg&amp;%」</option>
-                <option value="calf" data-page-node-id="bodyCalCalf">小腿围「cm」</option>
-                <option value="thigh" data-page-node-id="bodyCalThigh">大腿围「cm」</option>
-                <option value="waist" data-page-node-id="bodyCalWaist">腰围「cm」</option>
-                <option value="hip" data-page-node-id="bodyCalHip">臀围「cm」</option>
-                <option value="bicep" data-page-node-id="bodyCalBicep">上臂围「cm」</option>
-                <option value="chest" data-page-node-id="bodyCalChest">胸围「cm」</option>
-              </select>
-            </div>
-          </div>
-          <div id="body-calendar" class="exercise-calendar" data-page-node-id="bodyCal"></div>
-        </div>
-        <div class="row" style="margin-top:12px;gap:12px;align-items:center;flex-wrap:wrap;" data-page-node-id="SeHsCDx3GxY5nu4zuqOORG">
-          <button type="button" class="btn secondary" id="body-csv-import-btn" data-page-node-id="6SXLqsWQvI2gH1tURaDXyh">📥 导入体重/体脂 CSV</button>
-          <span class="hint" style="margin:0;flex:1;min-width:220px;" data-page-node-id="TpYGPfoYWjIGGaECyB10wK">CSV 首行表头含「日期、体重、体脂率」即可（列顺序不限，也支持小腿围/大腿围/腰围/臀围/上臂围/胸围）。日期支持 2026-08-01 或 8/1 格式。</span>
-        </div>
-        <input type="file" id="body-csv-file" accept=".csv,text/csv" style="display:none" data-page-node-id="Zqh8a5WuigLZIfVQwgflNp" />
-      </details>
-    </section>
-
-    <!-- 饮食记录 -->
-    <section id="today" class="tab-panel active" data-page-node-id="5RjfiB5dVrWN2mnITSRNKt">
       <div class="lp-hero" data-page-node-id="9qpJdA8Q2CdvIN0Olmszr0">
         <svg viewBox="0 0 600 210" class="lp-art" role="img" aria-label="小王子与他的玫瑰" data-page-node-id="FDwuYeEb6pDEAby1JJ9Q6r">
           <defs data-page-node-id="1iWrGJR1ht89jsYDB1gYoP">
@@ -1547,6 +1500,63 @@
           <p class="lp-quote" data-page-node-id="RZWZcKn6r8GY4lKFgFFnoP">“也许世界上也有五千朵和你一模一样的花，<br data-page-node-id="VCHavY1eAgp9bEByFUvhOi">但只有你浇灌的那<b data-page-node-id="K6sHoVyquqBrTB6OZNjXSa">一朵</b>，才真正属于你。”</p>
         </div>
       </div>
+      <div class="date-bar" data-page-node-id="BodyDateBar">
+        <input type="date" id="body-date-picker" data-page-node-id="BodyDatePicker" />
+        <button id="body-today-btn" class="btn secondary" data-page-node-id="BodyTodayBtn">回到今天</button>
+      </div>
+
+      <div class="panel" data-page-node-id="CxYqo0hEImxEh6K5HIqH7G">
+        <details class="section-details" open data-page-node-id="ZFzB9dwnDmmdNGqmM5pEjF">
+          <summary class="section-summary" data-page-node-id="coy3IMvCIJaNDtOKInMrpK">📏 体重记录 <small data-page-node-id="3zawjCNdfAGvmpLcWFEsnM">每日量测 · 点击收缩</small></summary>
+          <div class="form-grid" data-page-node-id="vCVm5ki4uXlJOGfgchDuC5">
+            <div class="field" data-page-node-id="hyEOYlMgbWPzSTIWOKbGMK"><label data-page-node-id="COUqxskXefuPIL3G6GcHEP">体重 (kg)</label><input type="number" id="body-weight" min="0" step="0.1" placeholder="如 55.5" data-page-node-id="RgZkzgDhnD8ds13wt0BwAo" /></div>
+            <div class="field" data-page-node-id="wMUWaSNKHnV6jBdQUb2JJW"><label data-page-node-id="gnFmeVmH1E8VyLbm7CGY9a">体脂率 (%)</label><input type="number" id="body-fat" min="0" step="0.1" placeholder="如 22.5" data-page-node-id="LopWsphSQCbzcEe9jPVdaQ" /></div>
+            <div class="form-actions" data-page-node-id="2SxKhs6ou9ITxkwhxalRUR">
+              <button type="button" class="btn primary" id="body-save-btn" data-page-node-id="ZMvNEyPElCI8CbBewoyQF1">保存身材数据</button>
+              <button type="button" class="btn secondary" id="body-girth-toggle" data-page-node-id="bodyGirthToggle">纬度数据</button>
+            </div>
+          </div>
+          <div class="form-grid" id="body-girth-wrap" style="display:none;margin-top:10px;" data-page-node-id="bodyGirthWrap">
+            <div class="field" data-page-node-id="rnxK2djQzhwfJ6bDomNBPL"><label data-page-node-id="Ydby1GSu5uDBfuFEyauA7n">小腿围 (cm)</label><input type="number" id="body-calf" min="0" step="0.1" placeholder="如 36" data-page-node-id="7w5JDS6jxjVzTZbpomBplC" /></div>
+            <div class="field" data-page-node-id="aAwmasYSIJ0Nu23NW8VSSZ"><label data-page-node-id="ayCFHXSEkEykwG5OgVoiS2">大腿围 (cm)</label><input type="number" id="body-thigh" min="0" step="0.1" placeholder="如 52" data-page-node-id="ZLoGapLnmTTD0UCtadlcah" /></div>
+            <div class="field" data-page-node-id="k8v6NiraqdfMU0TZeTgAP1"><label data-page-node-id="vHyNyNnOX3PXtV4MSJDU2E">腰围 (cm)</label><input type="number" id="body-waist" min="0" step="0.1" placeholder="如 68" data-page-node-id="DST4eP6fRfdUli3RCgxnfp" /></div>
+            <div class="field" data-page-node-id="s6E5f0G85pmveSDELIwyKv"><label data-page-node-id="wK47n7yOrFXrxjfXtah8T5">臀围 (cm)</label><input type="number" id="body-hip" min="0" step="0.1" placeholder="如 92" data-page-node-id="TMJ45OG6Y7SG4a19FOzicA" /></div>
+            <div class="field" data-page-node-id="bodyBicepField"><label data-page-node-id="bodyBicepLbl">上臂围 (cm)</label><input type="number" id="body-bicep" min="0" step="0.1" placeholder="如 28" data-page-node-id="bodyBicepInput" /></div>
+            <div class="field" data-page-node-id="bodyChestField"><label data-page-node-id="bodyChestLbl">胸围 (cm)</label><input type="number" id="body-chest" min="0" step="0.1" placeholder="如 86" data-page-node-id="bodyChestInput" /></div>
+          </div>
+          <p class="hint" id="body-saved-hint" data-page-node-id="7YYv1CMhDg9gSGH83oYcfQ"></p>
+        </details>
+      </div>
+
+      <details class="panel section-details" id="body-stats-collapse" open data-page-node-id="hLE4La2vfiVIdjxx6Hj5NH">
+        <summary data-page-node-id="TxjrhQ5WnZpjZBLDBX6pWe">📐 身材记录 <small data-page-node-id="sqmHSNy256pcKHyAbD4GiK">点击展开 / 收起</small></summary>
+        <div class="table-wrap" data-page-node-id="LczQn75vTOJshLsDEDFewh">
+          <div class="row body-cal-toolbar" id="body-cal-toolbar" style="display:none;" data-page-node-id="bodyCalToolbar">
+            <div class="field small" id="body-cal-metric-holder" style="margin:0;" data-page-node-id="bodyCalField">
+              <label style="display:none" data-page-node-id="bodyCalLbl">显示指标</label>
+              <select id="body-cal-metric" style="font-size:7px;width:175px;padding:4px 8px;border-radius:9px;" data-page-node-id="bodyCalSel">
+                <option value="combo" data-page-node-id="bodyCalCombo">体重&amp;体脂「kg&amp;%」</option>
+                <option value="calf" data-page-node-id="bodyCalCalf">小腿围「cm」</option>
+                <option value="thigh" data-page-node-id="bodyCalThigh">大腿围「cm」</option>
+                <option value="waist" data-page-node-id="bodyCalWaist">腰围「cm」</option>
+                <option value="hip" data-page-node-id="bodyCalHip">臀围「cm」</option>
+                <option value="bicep" data-page-node-id="bodyCalBicep">上臂围「cm」</option>
+                <option value="chest" data-page-node-id="bodyCalChest">胸围「cm」</option>
+              </select>
+            </div>
+          </div>
+          <div id="body-calendar" class="exercise-calendar" data-page-node-id="bodyCal"></div>
+        </div>
+        <div class="row" style="margin-top:12px;gap:12px;align-items:center;flex-wrap:wrap;" data-page-node-id="SeHsCDx3GxY5nu4zuqOORG">
+          <button type="button" class="btn secondary" id="body-csv-import-btn" data-page-node-id="6SXLqsWQvI2gH1tURaDXyh">📥 导入体重/体脂 CSV</button>
+          <span class="hint" style="margin:0;flex:1;min-width:220px;" data-page-node-id="TpYGPfoYWjIGGaECyB10wK">CSV 首行表头含「日期、体重、体脂率」即可（列顺序不限，也支持小腿围/大腿围/腰围/臀围/上臂围/胸围）。日期支持 2026-08-01 或 8/1 格式。</span>
+        </div>
+        <input type="file" id="body-csv-file" accept=".csv,text/csv" style="display:none" data-page-node-id="Zqh8a5WuigLZIfVQwgflNp" />
+      </details>
+    </section>
+
+    <!-- 饮食记录 -->
+    <section id="today" class="tab-panel active" data-page-node-id="5RjfiB5dVrWN2mnITSRNKt">
       <div class="date-bar" data-page-node-id="j7pnNNpG8evb6732hmYjj6">
         <input type="date" id="date-picker" data-page-node-id="10DzDTWIDEnfaxfTrmwZM2" />
         <button id="today-btn" class="btn secondary" data-page-node-id="RzJCRRIGxeBNIUE8dQHE66">回到今天</button>
@@ -1699,7 +1709,7 @@
             <p class="hint" id="target-hint" data-page-node-id="Q4wpZDHADsbLQ1YUiuFEtg"></p>
           </details>
           <details class="goal-data-table" id="goal-data-table" data-page-node-id="gdt1">
-            <summary data-page-node-id="gdtSum1">📋 达成目标数据表</summary>
+            <summary data-page-node-id="gdtSum1">📋 达成目标数据图</summary>
             <div class="gdt-body" id="gdt-body" data-page-node-id="gdtBody1"></div>
           </details>
         </div>
@@ -2771,6 +2781,8 @@
         completed: false
       });
       save();
+      // 新增的目标若带日期，把目标图切到该目标所在月份，保证保存后马上能看到这一条
+      if (dv) { gdtYear = Number(dv.slice(0, 4)); gdtMonth = Number(dv.slice(5, 7)) - 1; }
       renderTargetManagement(); renderGoalDataTable(); renderSplash();
       const parts = [];
       if (state.goals.targetDate) parts.push('达到目标日期 ' + state.goals.targetDate);
@@ -2838,6 +2850,25 @@
       if (future.length) return future[0].i;
       return valid.slice().sort((a, b) => String(b.it.targetDate).localeCompare(String(a.it.targetDate)))[0].i;
     }
+    // 达成目标数据图：当前查看的目标月份（独立于运动/热量/身材日历），默认今天所在月
+    let gdtYear = null, gdtMonth = null; // gdtMonth 取值 0-11
+    function gdtEnsureMonth() {
+      if (gdtYear === null || gdtMonth === null) {
+        const t = getTodayStr();
+        gdtYear = Number(t.slice(0, 4));
+        gdtMonth = Number(t.slice(5, 7)) - 1;
+      }
+    }
+    function gdtYmPrefix() { gdtEnsureMonth(); return gdtYear + '-' + pad2(gdtMonth + 1); }
+    function gdtShiftMonth(delta) {
+      gdtEnsureMonth();
+      let y = gdtYear, m = gdtMonth + delta;
+      while (m < 0) { m += 12; y -= 1; }
+      while (m > 11) { m -= 12; y += 1; }
+      gdtYear = y; gdtMonth = m;
+      gdtEditingIdx = null;
+      renderGoalDataTable();
+    }
     // 达成目标数据表：当前处于「卡片编辑」模式的行索引（null 表示无）；编辑键文字在 编辑/完成 间切换
     let gdtEditingIdx = null;
     function renderGoalDataTable() {
@@ -2856,8 +2887,10 @@
       }
       const todayYm = getTodayStr().slice(0, 7);
       const activeIdx = getActiveGoalIdx(getTodayStr());
-      let html = '';
-      ordered.forEach(({ it: item, i: realIdx }) => {
+      // 只显示「达成目标日期」落在当前查看月份的记录
+      const ymPrefix = gdtYmPrefix();
+      const monthItems = dated.filter(o => String(o.it.targetDate).slice(0, 7) === ymPrefix);
+      const buildCard = ({ it: item, i: realIdx }) => {
         const dateDisp = item.targetDate ? escapeHtml(item.targetDate) : '—';
         const weightDisp = item.targetWeight ? formatNum(item.targetWeight) + ' kg' : '—';
         const fatDisp = item.targetBodyFat ? formatNum(item.targetBodyFat) + ' %' : '—';
@@ -2896,7 +2929,7 @@
           ? '<input type="number" step="0.1" min="0" inputmode="decimal" class="gdt-edit-input" id="gdt-f-' + realIdx + '" value="' + escapeHtml(item.targetBodyFat == null ? '' : String(item.targetBodyFat)) + '" />'
           : '<span class="gdt-group-value gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetBodyFat" data-edit-type="number" data-edit-value="' + encodeURIComponent(item.targetBodyFat == null ? '' : item.targetBodyFat) + '">' + fatDisp + '</span>';
         const editBtnHtml = '<button type="button" class="gdt-edit-toggle' + (isEditing ? ' editing' : '') + '" data-editcard-idx="' + realIdx + '">' + (isEditing ? '完成' : '编辑') + '</button>';
-        html +=
+        return (
           '<div class="gdt-card ' + cardCls + '" data-idx="' + realIdx + '">' +
             '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span>' + curBadge + '</div>' +
             '<div class="gdt-metric">' +
@@ -2916,9 +2949,26 @@
               (aText ? '<button type="button" class="btn goal-achieve-btn ' + aCls + '" data-achieve-idx="' + realIdx + '">' + aText + '</button>' : '') +
               '<button type="button" class="btn danger" data-delete-idx="' + realIdx + '">删除</button>' +
             '</div>' +
-          '</div>';
-      });
+          '</div>'
+        );
+      };
+      // 月份导航：左上角「上个目标」、右上角「下个目标」，与运动日历的上月/下月同一套样式
+      let html = '<div class="cal-nav gdt-nav">'
+        + '<button type="button" class="cal-nav-btn" data-gdt-nav="prev">‹ 上个目标</button>'
+        + '<div class="cal-nav-title">' + gdtYear + '年 ' + (gdtMonth + 1) + '月</div>'
+        + '<button type="button" class="cal-nav-btn" data-gdt-nav="next">下个目标 ›</button>'
+        + '</div>';
+      html += monthItems.map(buildCard).join('');
+      if (!monthItems.length) {
+        html += '<div class="gdt-empty">' + gdtYear + '年 ' + (gdtMonth + 1) + '月还没有设定目标，点左上角「‹ 上个目标」或右上角「下个目标 ›」切换月份查看。</div>';
+      }
+      if (undated.length) {
+        html += '<div class="gdt-undated-label">未设置达成日期的目标</div>' + undated.map(buildCard).join('');
+      }
       body.innerHTML = html;
+      body.querySelectorAll('[data-gdt-nav]').forEach(b => {
+        b.addEventListener('click', () => gdtShiftMonth(b.dataset.gdtNav === 'prev' ? -1 : 1));
+      });
       body.querySelectorAll('[data-delete-idx]').forEach(b => {
         b.addEventListener('click', () => deleteGoalData(Number(b.dataset.deleteIdx)));
       });
