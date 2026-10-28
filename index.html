@@ -2757,7 +2757,7 @@
         const editBtnHtml = '<button type="button" class="gdt-edit-toggle' + (isEditing ? ' editing' : '') + '" data-editcard-idx="' + realIdx + '">' + (isEditing ? '完成' : '编辑') + '</button>';
         html +=
           '<div class="gdt-card ' + cardCls + '" data-idx="' + realIdx + '">' +
-            '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span>' + curBadge + editBtnHtml + '</div>' +
+            '<div class="gdt-date">达成目标日期：<span class="gdt-val editable" title="双击修改" data-edit-idx="' + realIdx + '" data-edit-field="targetDate" data-edit-type="date" data-edit-value="' + encodeURIComponent(item.targetDate || '') + '">' + dateDisp + '</span>' + curBadge + '</div>' +
             '<div class="gdt-metric">' +
               '<div class="gdt-metric-head"><span class="gdt-group-label">目标体重</span><span class="gdt-status-text">当日体重</span></div>' +
               '<div class="gdt-metric-body">' + weightValHtml +
@@ -2771,7 +2771,8 @@
               '</div>' +
             '</div>' +
             '<div class="gdt-actions">' +
-              '<button type="button" class="btn goal-achieve-btn ' + aCls + '" data-achieve-idx="' + realIdx + '">' + aText + '</button>' +
+              editBtnHtml +
+              (aText ? '<button type="button" class="btn goal-achieve-btn ' + aCls + '" data-achieve-idx="' + realIdx + '">' + aText + '</button>' : '') +
               '<button type="button" class="btn danger" data-delete-idx="' + realIdx + '">删除</button>' +
             '</div>' +
           '</div>';
