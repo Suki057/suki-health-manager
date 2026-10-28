@@ -5915,7 +5915,7 @@
       const [y, m, d] = String(dateStr).split('-').map(Number);
       return `${y}年${m}月${d}日`;
     }
-    // 标题下方说明：数据参考值：xx年xx月xx日 「体重 xxkg，体脂率 xx%」 + 表格显示区间
+    // 标题下方说明：数据参考值：xx年xx月xx日 「体重 xxkg，体脂率 xx%」
     function renderProgressRefNote(dates, base) {
       const el = document.getElementById('progress-ref-note');
       if (!el) return;
@@ -5923,11 +5923,7 @@
       if (base.weight !== undefined) vals.push('体重 ' + formatNum(base.weight, 1) + 'kg');
       if (base.bodyFat !== undefined) vals.push('体脂率 ' + formatNum(base.bodyFat, 1) + '%');
       const who = base.isBaseline ? '初始数据' : (base.date ? formatDateCn(base.date) : '初始数据');
-      const line1 = '数据参考值：' + who + (vals.length ? ' 「' + vals.join('，') + '」' : '');
-      const line2 = dates.length
-        ? '表格显示：' + formatMonthHeader(dates[0]) + (dates.length > 1 ? ' — ' + formatMonthHeader(dates[dates.length - 1]) : '')
-        : '表格显示：无（参考值在 12 月，没有更晚的月份）';
-      el.innerHTML = line1 + '<br>' + line2;
+      el.textContent = '数据参考值：' + who + (vals.length ? ' 「' + vals.join('，') + '」' : '');
     }
     function getBodyAtEndOfMonth(dateStr) {
       // 找当月最后一天及之前最近一条身材记录
