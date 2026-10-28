@@ -921,6 +921,23 @@
     }
     .goal-fixed-box.fx-sugar { width: 108px; }
     .goal-fixed-box.fx-sodium { width: 144px; }
+    /* 热量摄入需求 + 标准摄入热量：并排同一行、各占一半、方框底部对齐 */
+    .goal-kcal-row {
+      grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 10px; align-items: end; width: 100%;
+    }
+    .goal-kcal-row .field { width: 100%; min-width: 0; }
+    .goal-kcal-row .field label { white-space: normal; line-height: 1.35; }
+    .goal-kcal-row .field input {
+      width: 100%; height: 38px; box-sizing: border-box;
+      text-align: center; font-size: 14px; font-weight: 700;
+    }
+    /* 两列各只有 136px：这一行不挂「自动 / 标准」小标，靠只读底色区分 */
+    .goal-kcal-row .auto-badge { display: none; }
+    @media (max-width: 360px) {
+      .goal-kcal-row { gap: 10px 6px; }
+      .goal-kcal-row .field input { font-size: 13px; }
+    }
     /* 超窄屏（320 档）：压缩横间距，保证「糖 108px + 钠 144px」仍在同一行；
        同时隐掉「自动」小标签，给并排的三框腾出空间 */
     @media (max-width: 360px) {
@@ -1899,9 +1916,12 @@
         <p class="hint" data-page-node-id="9cZCeeC9OMNtvitEuiYnKS">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
         <div class="form-grid" data-page-node-id="qYELEw5Tc2rJX1gvmieXKh">
           <div class="field month-field" data-page-node-id="6fiMz53udzQIwCpTZDsK4M"><label data-page-node-id="VCuxThHGDPTwrhMETyTlAT">目标生效年月</label><input type="month" id="goal-month" data-page-node-id="a5KaQ4SRu0ScQAf9fsPwXY" /></div>
-          <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">🍽️热量摄入需求（kcal/日）<span class="auto-badge" data-page-node-id="goalKcalAuto">自动</span></label><input type="text" id="goal-kcal" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：TDEE − 本月需减脂肪折算的日均热量缺口" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
-          <div class="field" data-page-node-id="goalKcalGapField"><label data-page-node-id="goalKcalGapLabel">📉热量缺口（kcal/日）<span class="auto-badge" data-page-node-id="goalGapAuto">自动</span></label><input type="text" id="goal-kcal-gap" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 热量摄入需求（当月日均缺口；摄入被最低标准兜住时按实际差值显示）" data-page-node-id="goalKcalGapInput" /></div>
-          <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal/日）<span class="auto-badge" data-page-node-id="goalDynAuto">自动</span></label><input type="number" id="goal-dynamic-burn" class="auto-readonly" readonly placeholder="自动读取" title="自动读取「代谢测试」里该月的 TDEE" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
+          <div class="goal-kcal-row" data-page-node-id="goalKcalRow">
+            <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">🍽️热量摄入需求（kcal）</label><input type="text" id="goal-kcal" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 本月需减脂肪折算的日均热量缺口" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
+            <div class="field" data-page-node-id="goalStdKcalField"><label data-page-node-id="goalStdKcalLabel">标准摄入热量（kcal）</label><input type="text" id="goal-std-kcal" class="auto-readonly" readonly placeholder="标准" title="按性别自动取值：女性 1200 kcal、男性 1500 kcal" data-page-node-id="goalStdKcalInput" /></div>
+          </div>
+          <div class="field" data-page-node-id="goalKcalGapField"><label data-page-node-id="goalKcalGapLabel">📉热量缺口（kcal）<span class="auto-badge" data-page-node-id="goalGapAuto">自动</span></label><input type="text" id="goal-kcal-gap" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 热量摄入需求（当月日均缺口；摄入被最低标准兜住时按实际差值显示）" data-page-node-id="goalKcalGapInput" /></div>
+          <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal）<span class="auto-badge" data-page-node-id="goalDynAuto">自动</span></label><input type="number" id="goal-dynamic-burn" class="auto-readonly" readonly placeholder="自动读取" title="自动读取「代谢测试」里该月的 TDEE" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
             <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
               <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)<span class="auto-badge" data-page-node-id="goalProteinAuto">自动</span></label><input type="text" id="goal-protein" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：瘦体重 LBM × 蛋白质系数区间（减脂期见系数表；维持期整体下调 0.2）" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
@@ -1915,7 +1935,6 @@
           </div>
         </div>
         <p class="hint goal-auto-hint" id="goal-auto-hint" data-page-node-id="goalAutoHint"></p>
-        <p class="hint goal-auto-hint" id="goal-macro-hint" data-page-node-id="goalMacroHint"></p>
         <p class="hint" id="goals-hint" data-page-node-id="UkgmNbANT317ja3zEAfRQo"></p>
       </details>
 
@@ -4194,39 +4213,6 @@
       return { ok: true, ym, met, src, lbm, gender, phase, idx, coef, ranges };
     }
 
-    // 三大营养素的推导说明
-    function buildMacroHint(m, ym) {
-      if (!m) return '';
-      if (!m.ok) {
-        const tail = ' 上面显示的是上次保存的值，补齐数据后会自动更新。';
-        if (m.reason === 'no-metabolism') {
-          return '<span class="gah-warn">还缺「代谢测试」（性别 / 出生年份 / 身高 / 活动量），填好后这里会按瘦体重自动算出蛋白质 / 碳水 / 脂肪区间。' + tail + '</span>';
-        }
-        return '<span class="gah-warn">还缺「上个月最后一次记录的体重 + 体脂率」（或「初始数据（基线）」），补上后这里会自动算出三大营养素区间。' + tail + '</span>';
-      }
-      const gTxt = m.gender === 'male' ? '男' : '女';
-      const phTxt = m.phase === 'maintain' ? '维持期' : '减脂期';
-      const src = m.src;
-      const lbmTxt = formatNum(m.lbm, 1);
-      let t = '💪 瘦体重 LBM = 上个月最后一条记录 ' + formatNum(src.weight, 1) + 'kg × (1 − '
-        + formatNum(src.bodyFat, 1) + '%) = <b>' + lbmTxt + 'kg</b> · ' + gTxt + '性 · ' + phTxt + ' · ' + ACTIVITY_LABELS[m.idx];
-      if (!src.sameDay) {
-        t += '<br><span class="gah-warn">体重取自 ' + src.weightDay + '，体脂率取自 ' + src.bodyFatDay + '（不是同一天，已各取最近一条）。</span>';
-      }
-      const line = (label, key, unit) => {
-        const c = m.coef[key], r = m.ranges[key];
-        return label + '：' + lbmTxt + '×' + c[0] + '=' + formatNum(Math.round(m.lbm * c[0])) + '，'
-          + lbmTxt + '×' + c[1] + '=' + formatNum(Math.round(m.lbm * c[1])) + ' → <b>' + macroRangeText(r) + ' ' + unit + '</b>';
-      };
-      t += '<br>' + line('蛋白质', 'protein', 'g');
-      t += '<br>' + line('脂肪', 'fat', 'g');
-      t += '<br>' + line('碳水', 'carbs', 'g');
-      if (m.phase === 'maintain') {
-        t += '<br><span class="gah-warn">当前是维持期：蛋白质系数已在减脂期基础上整体下调 0.2（脂肪 / 碳水系数不变）。</span>';
-      }
-      return t;
-    }
-
     // 取某个月的代谢测试结果（BMR / TDEE）；该月没填时回退到最近的更早月份
     function computeMetabolismForMonth(ym) {
       const byMonth = state.metabolismByMonth || {};
@@ -4337,7 +4323,7 @@
       if (!r || !r.ok) {
         return '<span class="gah-warn">还缺「代谢测试」（出生年份 / 身高 / 体重），填好后这里会自动算出热量摄入需求。</span>';
       }
-      if (!r.floored) return '';
+      if (r.intakeRaw >= r.floor) return '';
       const std = r.met.gender === 'male' ? '男性' : '女性';
       return '<span class="gah-warn">⚠️ 按目标算出的 ' + r.intakeRaw + 'kcal 低于' + std + '标准 ' + r.floor
         + ' kcal，若长期低于标准热量摄入会伤害身体，发生不同的生理反应。</span>'
@@ -4351,25 +4337,32 @@
       const kcalEl = document.getElementById('goal-kcal');
       const dynEl = document.getElementById('goal-dynamic-burn');
       const gapEl = document.getElementById('goal-kcal-gap');
+      const stdEl = document.getElementById('goal-std-kcal');
       const hintEl = document.getElementById('goal-auto-hint');
-      const macroHintEl = document.getElementById('goal-macro-hint');
       if (!kcalEl || !dynEl) return;
       const met = computeMetabolismForMonth(ym);
       const r = computeAutoKcalTarget(ym);
       dynEl.value = met ? String(met.tdee) : '';
-      // 热量缺口 = 动态消耗 − 热量摄入需求（摄入被最低标准兜住时，按实际差值显示，保证「摄入 + 缺口 = 消耗」）
-      const kcalGap = (met && r.ok) ? (met.tdee - r.intake) : null;
+      // 标准摄入热量：按性别取 女性 1200 / 男性 1500（仅作参照，达到与否由红字提醒）
+      if (stdEl) {
+        const stdVal = met ? (met.gender === 'male' ? 1500 : 1200) : '';
+        stdEl.value = (stdVal === '') ? '' : String(stdVal);
+      }
+      // 热量摄入需求 = 按身材目标算出的值（不再被标准下限改写）；缺口 = 动态消耗 − 该值
+      const intakeVal = r.ok ? r.intakeRaw : null;
+      const kcalGap = (met && intakeVal !== null) ? (met.tdee - intakeVal) : null;
       if (gapEl) gapEl.value = (kcalGap === null) ? '' : String(kcalGap);
       if (!state.goalsByMonth) state.goalsByMonth = {};
       if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
       const g = state.goalsByMonth[ym];
       let dirty = false;
       if (met && String(g.dynamicBurn) !== String(met.tdee)) { g.dynamicBurn = met.tdee; dirty = true; }
-      if (r.ok) {
-        kcalEl.value = String(r.intake);
-        if (String(g.kcal) !== String(r.intake)) { g.kcal = String(r.intake); dirty = true; }
+      if (intakeVal !== null) {
+        kcalEl.value = String(intakeVal);
+        if (String(g.kcal) !== String(intakeVal)) { g.kcal = String(intakeVal); dirty = true; }
       }
       if (kcalGap !== null && String(g.kcalGap) !== String(kcalGap)) { g.kcalGap = kcalGap; dirty = true; }
+      if (r.ok && String(g.kcalStd) !== String(r.floor)) { g.kcalStd = r.floor; dirty = true; }
       // 三大营养素 = LBM × 系数区间（自动、不可手填）
       const macro = computeAutoMacros(ym);
       if (macro.ok) {
@@ -4389,7 +4382,6 @@
         hintEl.innerHTML = buildAutoGoalHint(r, ym);
         hintEl.hidden = !hintEl.textContent.trim();
       }
-      if (macroHintEl) macroHintEl.innerHTML = buildMacroHint(macro, ym);
     }
     // 从目标对象中挑出「目标管理」的体重/体脂（这两项不随年月版本化）
     function pickTargets(src) {
@@ -6738,13 +6730,18 @@
         const v = parseFloat(String(gapEl.value || '').trim());
         if (!Number.isNaN(v)) g.kcalGap = v; else delete g.kcalGap;
       }
+      const stdEl = document.getElementById('goal-std-kcal');
+      if (stdEl) {
+        const v = parseFloat(String(stdEl.value || '').trim());
+        if (!Number.isNaN(v) && v > 0) g.kcalStd = v; else delete g.kcalStd;
+      }
       Object.keys(GOAL_FIXED).forEach(k => { g[k] = GOAL_FIXED[k]; });
       state.goalsByMonth[ym] = g;
       syncCurrentGoals();
       save();
       const hintEl = document.getElementById('goals-hint');
       if (hintEl) {
-        hintEl.textContent = '已按「瘦体重 × 系数表」自动生成本月目标（蛋白质 / 脂肪 / 碳水区间）。糖 25-50g、钠 2000-2300mg 为固定参考区间。翻看历史数据时，会按当时月份的目标精确计算热量缺口。';
+        hintEl.textContent = '已自动生成本月目标：热量摄入需求 / 热量缺口 / 动态消耗按身材目标与代谢测试计算，蛋白质 / 脂肪 / 碳水按瘦体重区间计算，标准摄入热量按性别取 1200 / 1500 kcal。糖 25-50g、钠 2000-2300mg 为固定参考区间。翻看历史数据时，会按当时月份的目标精确计算热量缺口。';
       }
       if (!o.silent) toast('每日目标已保存');
     }
