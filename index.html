@@ -1178,6 +1178,12 @@
     /* 体重自动读取（只读）：灰底 + 不可点，标题右侧挂「自动」小标签 */
     .auto-badge { display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 7px; background: rgba(212, 163, 115, 0.18); color: #9A7F6A; font-size: 10px; font-weight: 700; line-height: 1.5; vertical-align: 1px; letter-spacing: 0; }
     .met-anthropo .field input.auto-readonly { background: rgba(246, 236, 228, 0.85); color: #6B5B4E; border-color: rgba(212, 163, 115, 0.32); cursor: not-allowed; box-shadow: none; }
+    /* 营养目标里「自动」计算的两个框：只读、灰底、不显示光标 */
+    .form-grid .field input.auto-readonly { background: rgba(246, 236, 228, 0.85); color: #6B5B4E; border-color: rgba(212, 163, 115, 0.32); cursor: default; box-shadow: none; font-weight: 700; }
+    .form-grid .field input.auto-readonly:focus { outline: none; border-color: rgba(212, 163, 115, 0.32); box-shadow: none; }
+    .goal-auto-hint { line-height: 1.65; }
+    .goal-auto-hint b { color: #7A4E2E; font-weight: 800; }
+    .goal-auto-hint .gah-warn { color: #C0392B; font-weight: 700; }
     .met-anthropo .field input.auto-readonly:focus { outline: none; border-color: rgba(212, 163, 115, 0.32); box-shadow: none; }
     .radio-row { display: grid; gap: 10px; }
     /* 性别 / 状态：两个标题并排一行，下面四个方框等宽同一行，方框比原来的性别方框小一号 */
@@ -1874,8 +1880,8 @@
         <p class="hint" data-page-node-id="9cZCeeC9OMNtvitEuiYnKS">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
         <div class="form-grid" data-page-node-id="qYELEw5Tc2rJX1gvmieXKh">
           <div class="field month-field" data-page-node-id="6fiMz53udzQIwCpTZDsK4M"><label data-page-node-id="VCuxThHGDPTwrhMETyTlAT">目标生效年月</label><input type="month" id="goal-month" data-page-node-id="a5KaQ4SRu0ScQAf9fsPwXY" /></div>
-          <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">🍽️热量摄入需求（kcal/日）</label><input type="text" id="goal-kcal" inputmode="text" placeholder="如 1500 或 1400-1600" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
-          <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal/日）</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
+          <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">🍽️热量摄入需求（kcal/日）<span class="auto-badge" data-page-node-id="goalKcalAuto">自动</span></label><input type="text" id="goal-kcal" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：TDEE − 本月需减脂肪折算的日均热量缺口" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
+          <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal/日）<span class="auto-badge" data-page-node-id="goalDynAuto">自动</span></label><input type="number" id="goal-dynamic-burn" class="auto-readonly" readonly placeholder="自动读取" title="自动读取「代谢测试」里该月的 TDEE" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
             <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
               <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
@@ -1891,6 +1897,7 @@
             <button type="button" class="btn primary" id="goal-save-btn" data-page-node-id="OYdGQ6Eiy8UlVwuJXHbYHs">保存目标</button>
           </div>
         </div>
+        <p class="hint goal-auto-hint" id="goal-auto-hint" data-page-node-id="goalAutoHint"></p>
         <p class="hint" id="goals-hint" data-page-node-id="UkgmNbANT317ja3zEAfRQo"></p>
       </details>
 
@@ -2882,6 +2889,8 @@
       toast(hasValue ? '身材数据已保存（' + day + '）' : '已清除 ' + day + ' 的身材数据');
       // 身体数据变了，代谢测试的只读体重跟着刷新（首月无基线时也会自动带入）
       refreshMetabolismWeight();
+      // 月初体重/体脂可能变了 → 摄入需求跟着重算
+      refreshAutoGoals({ noSave: true });
       // 保存后若已达到当月目标，弹出恭喜弹窗
       if (hasValue) maybeCongratsGoal(body, day);
     }
@@ -3156,6 +3165,8 @@
       if (state.goals.targetBodyFat) parts.push('目标体脂 ' + formatNum(state.goals.targetBodyFat) + '%');
       const hint = document.getElementById('target-hint');
       if (hint) hint.textContent = '目标管理已保存：' + parts.join('，') + '。';
+      // 目标体重/体脂变了 → 摄入需求跟着重算
+      refreshAutoGoals();
       toast('目标管理已保存，已新增一条数据表记录');
     }
     function renderTargetManagement() {
@@ -4065,6 +4076,167 @@
     function getCurrentGoalMonth() {
       const el = document.getElementById('goal-month');
       return (el && el.value) ? el.value : getTodayStr().slice(0, 7);
+    }
+
+    // ==================== 自动推导：动态消耗（TDEE）与热量摄入需求 ====================
+    // 1 kg 脂肪 ≈ 7700 kcal（换算常量，只对脂肪成立；肌肉/水分不该按这个算）
+    const KCAL_PER_KG_FAT = 7700;
+
+    // 取某个月的代谢测试结果（BMR / TDEE）；该月没填时回退到最近的更早月份
+    function computeMetabolismForMonth(ym) {
+      const byMonth = state.metabolismByMonth || {};
+      let key = ym;
+      if (!byMonth[key]) {
+        const keys = Object.keys(byMonth).filter(k => k <= ym).sort();
+        if (!keys.length) return null;
+        key = keys[keys.length - 1];
+      }
+      const m = byMonth[key];
+      if (!m) return null;
+      const weight = Number(m.weight) || 0;
+      const height = Number(m.height) || 0;
+      const age = Number(m.age) || (m.birthYear ? (new Date().getFullYear() - Number(m.birthYear)) : 0);
+      let bmr = Number(m.bmr) || 0;
+      if (!bmr) {
+        if (!weight || !height || !age) return null;
+        bmr = 10 * weight + 6.25 * height - 5 * age + (m.gender === 'male' ? 5 : -161);
+      }
+      const activity = Number(m.activity) || 1.2;
+      const tdee = Number(m.tdee) || Math.round(bmr * activity);
+      return { bmr: Math.round(bmr), tdee: Math.round(tdee), weight, height, age, activity, gender: m.gender || 'female', sourceYm: key };
+    }
+
+    function getMonthDays(ym) {
+      const parts = String(ym).split('-');
+      const y = Number(parts[0]), m = Number(parts[1]);
+      if (!y || !m) return 30;
+      return new Date(y, m, 0).getDate();
+    }
+
+    // 「月初起点」体重/体脂：该月第一条身体数据 → 之前最后一条 → 基线
+    function getMonthStartBody(ym) {
+      const logs = state.logs || {};
+      const readBody = (d) => {
+        const b = logs[d] && logs[d].body;
+        if (!b) return null;
+        const w = Number(b.weight), f = Number(b.bodyFat);
+        const hasW = !Number.isNaN(w) && w > 0;
+        const hasF = !Number.isNaN(f) && f > 0;
+        if (!hasW && !hasF) return null;
+        return { day: d, weight: hasW ? w : null, bodyFat: hasF ? f : null };
+      };
+      const inMonth = Object.keys(logs).filter(d => String(d).slice(0, 7) === ym).sort();
+      for (const d of inMonth) {
+        const r = readBody(d);
+        if (r) return Object.assign(r, { carried: false });
+      }
+      const before = Object.keys(logs).filter(d => String(d).slice(0, 7) < ym).sort();
+      for (let i = before.length - 1; i >= 0; i--) {
+        const r = readBody(before[i]);
+        if (r) return Object.assign(r, { carried: true });
+      }
+      if (state.baseline && Number(state.baseline.weight) > 0) {
+        return { day: 'baseline', weight: Number(state.baseline.weight), bodyFat: Number(state.baseline.bodyFat) || null, carried: true, fromBaseline: true };
+      }
+      return null;
+    }
+
+    // 该月的目标体重 / 目标体脂：优先取「达成目标数据图」里当月那条，其次取目标管理里最新的
+    function getMonthTargetBody(ym) {
+      const goal = getMonthGoal(ym + '-01') || {};
+      const g = state.goals || {};
+      const w = (goal.targetWeight != null) ? Number(goal.targetWeight) : (g.targetWeight != null ? Number(g.targetWeight) : null);
+      const f = (goal.targetBodyFat != null) ? Number(goal.targetBodyFat) : (g.targetBodyFat != null ? Number(g.targetBodyFat) : null);
+      return { weight: (w && w > 0) ? w : null, bodyFat: (f && f > 0) ? f : null, fromHistory: !!goal.targetDate };
+    }
+
+    // 热量摄入需求 = TDEE −（本月需减脂肪折算热量 ÷ 本月天数），并设安全下限
+    function computeAutoKcalTarget(ym) {
+      ym = ym || getCurrentGoalMonth();
+      const met = computeMetabolismForMonth(ym);
+      if (!met) return { ok: false, reason: 'no-metabolism', ym };
+      const days = getMonthDays(ym);
+      const start = getMonthStartBody(ym);
+      const target = getMonthTargetBody(ym);
+      let fatDiff = 0, kcalTotal = 0, mode = 'maintain';
+      if (start && start.weight && start.bodyFat && target.weight && target.bodyFat) {
+        // 只按「脂肪量差」折算：体重差里包含脂肪，重复计算会把缺口算大
+        fatDiff = (start.weight * start.bodyFat / 100) - (target.weight * target.bodyFat / 100);
+        kcalTotal = fatDiff * KCAL_PER_KG_FAT;
+        mode = 'fat';
+      } else if (start && start.weight && target.weight) {
+        // 没有体脂数据时，退化用体重差粗估（会高估缺口，仅作参考）
+        fatDiff = start.weight - target.weight;
+        kcalTotal = fatDiff * KCAL_PER_KG_FAT;
+        mode = 'weight';
+      }
+      const intakeRaw = met.tdee - (kcalTotal / days);
+      const floor = Math.max(met.bmr, met.gender === 'male' ? 1500 : 1200);
+      const floored = intakeRaw < floor;
+      return {
+        ok: true, ym, days, start, target, mode, fatDiff, kcalTotal, met, floor, floored,
+        intakeRaw: Math.round(intakeRaw),
+        intake: Math.round(floored ? floor : intakeRaw),
+        deficitPerDay: Math.round(kcalTotal / days)
+      };
+    }
+
+    // 计算说明文案
+    function buildAutoGoalHint(r, ym) {
+      const parts = String(ym).split('-');
+      const head = '📐 ' + parts[0] + ' 年 ' + Number(parts[1]) + ' 月：';
+      if (!r || !r.ok) {
+        return head + '<span class="gah-warn">还没填「代谢测试」（出生年份 / 身高 / 体重），填好后这里会自动算出摄入需求。</span>';
+      }
+      const met = r.met;
+      let t = head + 'TDEE <b>' + met.tdee + '</b> kcal（BMR ' + met.bmr + ' × ' + met.activity + '）';
+      if (r.mode === 'fat') {
+        const sign = r.fatDiff >= 0 ? '需减脂' : '需增脂';
+        t += '<br>起点 ' + formatNum(r.start.weight, 1) + 'kg / ' + formatNum(r.start.bodyFat, 1) + '% → 目标 '
+          + formatNum(r.target.weight, 1) + 'kg / ' + formatNum(r.target.bodyFat, 1) + '%，' + sign + ' <b>'
+          + formatNum(Math.abs(r.fatDiff), 2) + ' kg</b> ≈ ' + formatNum(Math.abs(r.kcalTotal), 0) + ' kcal';
+        t += '<br>按 ' + r.days + ' 天摊平，日均' + (r.fatDiff >= 0 ? '缺口' : '盈余') + ' <b>'
+          + formatNum(Math.abs(r.deficitPerDay), 0) + '</b> kcal → 摄入 = ' + met.tdee + (r.fatDiff >= 0 ? ' − ' : ' + ')
+          + formatNum(Math.abs(r.deficitPerDay), 0) + ' = <b>' + r.intakeRaw + '</b> kcal';
+      } else if (r.mode === 'weight') {
+        t += '<br><span class="gah-warn">缺月初或目标体脂率</span>，暂按体重差粗估：'
+          + formatNum(r.start.weight, 1) + 'kg → ' + formatNum(r.target.weight, 1) + 'kg，日均缺口 <b>'
+          + formatNum(Math.abs(r.deficitPerDay), 0) + '</b> kcal';
+      } else {
+        t += '<br>还缺「月初身体数据」或「目标体重 / 体脂」，先按维持期处理（摄入 = TDEE）。';
+      }
+      if (r.floored) {
+        t += '<br><span class="gah-warn">⚠️ 按目标算出的 ' + r.intakeRaw + ' kcal 低于安全下限（BMR ' + met.bmr
+          + '），已按 ' + r.intake + ' kcal 计。建议把目标周期拉长或把目标调缓，长期低于 BMR 容易掉肌肉、代谢下降。</span>';
+      }
+      return t;
+    }
+
+    // 把 TDEE / 摄入需求写回两个只读框（并按月存档，供 AI 分析与热量缺口使用）
+    function refreshAutoGoals(opts) {
+      const o = opts || {};
+      const ym = getCurrentGoalMonth();
+      const kcalEl = document.getElementById('goal-kcal');
+      const dynEl = document.getElementById('goal-dynamic-burn');
+      const hintEl = document.getElementById('goal-auto-hint');
+      if (!kcalEl || !dynEl) return;
+      const met = computeMetabolismForMonth(ym);
+      const r = computeAutoKcalTarget(ym);
+      dynEl.value = met ? String(met.tdee) : '';
+      if (r.ok) {
+        kcalEl.value = String(r.intake);
+        if (!state.goalsByMonth) state.goalsByMonth = {};
+        if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
+        const g = state.goalsByMonth[ym];
+        let dirty = false;
+        if (String(g.dynamicBurn) !== String(met.tdee)) { g.dynamicBurn = met.tdee; dirty = true; }
+        if (String(g.kcal) !== String(r.intake)) { g.kcal = String(r.intake); dirty = true; }
+        if ((dirty || o.forceSave) && !o.noSave) {
+          if (ym === getTodayStr().slice(0, 7)) syncCurrentGoals();
+          save();
+        }
+      }
+      if (hintEl) hintEl.innerHTML = buildAutoGoalHint(r, ym);
     }
     // 从目标对象中挑出「目标管理」的体重/体脂（这两项不随年月版本化）
     function pickTargets(src) {
@@ -6162,9 +6334,11 @@
       const gmEl = document.getElementById('goal-month');
       if (gmEl) {
         gmEl.value = getTodayStr().slice(0, 7);
-        gmEl.addEventListener('change', renderGoals);
+        gmEl.addEventListener('change', () => { renderGoals(); refreshAutoGoals(); });
       }
       renderGoals();
+      // 首次进入就把自动值（TDEE / 摄入需求）落盘，保证 AI 分析与热量缺口用的是同一套数
+      refreshAutoGoals({ forceSave: true });
       setupMetabolismTest();
     }
 
@@ -6246,10 +6420,12 @@
         if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
         state.goalsByMonth[ym].dynamicBurn = tdeeRounded;
         if (!state.metabolismByMonth) state.metabolismByMonth = {};
-        state.metabolismByMonth[ym] = { gender, phase, age, birthYear, weight, height, activity };
+        state.metabolismByMonth[ym] = { gender, phase, age, birthYear, weight, height, activity, bmr: Math.round(bmr), tdee: tdeeRounded };
         // 兼容旧版单一 state.metabolism（始终等于当前正在编辑的月份）
         state.metabolism = state.metabolismByMonth[ym];
         if (ym === getTodayStr().slice(0, 7)) syncCurrentGoals();
+        // TDEE 变了 → 营养目标里的动态消耗 / 摄入需求跟着重算（自动值由 refreshAutoGoals 统一写回）
+        refreshAutoGoals({ noSave: true });
         save();
       }
 
@@ -6402,6 +6578,8 @@
         const el = document.getElementById(GOAL_IDS[k]);
         if (el) el.value = (g[k] !== undefined && g[k] !== null) ? g[k] : '';
       });
+      // 动态消耗 = 代谢测试的 TDEE，摄入需求 = TDEE − 日均脂肪缺口（两者都自动、不可手填）
+      refreshAutoGoals({ noSave: true });
     }
 
     function loadSampleData() {
