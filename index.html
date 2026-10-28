@@ -1170,14 +1170,16 @@
     /* 性别 / 状态：两个标题并排一行，下面四个方框等宽同一行，方框比原来的性别方框小一号 */
     .metabolism-grid .met-gender-state { grid-column: 1 / -1; }
     .mgs-labels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 6px; }
-    .mgs-labels span { grid-column: span 2; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
+    .mgs-labels span { grid-column: span 2; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; text-align: center; }
     .mgs-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
     .mgs-row .radio-chip { aspect-ratio: auto; height: 54px; padding: 5px 2px; font-size: 12px; border-radius: 16px; }
     .mgs-row .radio-chip input { width: 16px; height: 16px; margin: 0 0 4px; }
     .mgs-row .radio-chip span { font-size: 12px; line-height: 1.2; }
     .radio-row.gender-row { grid-template-columns: repeat(2, 78px); justify-content: start; }
-    .radio-row.activity-row { grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 360px) { .radio-row.activity-row { grid-template-columns: 1fr; } }
+    /* 活动量：2 列 × 2 行，每格宽度对齐「女性左 → 男性右」的 137px（137×2+7=281 刚好占满内容宽） */
+    .radio-row.activity-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 7px; }
+    /* 标题居中压在各自那一组方框上方 */
+    .metabolism-grid label.activity-label { text-align: center; }
     .radio-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 10px 6px; border-radius: 20px; background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(245,242,234,0.45)); border: 1px solid rgba(214,138,166,0.25); font-size: 13px; text-align: center; line-height: 1.2; cursor: pointer; transition: background .15s, border-color .15s, box-shadow .15s; box-sizing: border-box; width: 100%; aspect-ratio: 1 / 1; min-height: 0; box-shadow: 0 1px 2px rgba(90,58,66,0.04); }
     .radio-chip input { margin: 0 0 6px; accent-color: #D68AA6; flex-shrink: 0; width: 18px; height: 18px; }
     .radio-chip span { display: inline-block; }
@@ -1831,11 +1833,12 @@
               <label class="radio-chip" data-page-node-id="metPhaseMaintain"><input type="radio" name="metabolism-phase" value="maintain" data-page-node-id="metPhaseMaintainI"><span data-page-node-id="metPhaseMaintainS">维持期</span></label>
             </div>
           </div>
-          <div class="field full-width" data-page-node-id="B25iOBbVfWUUrgTzTGNUD6"><label data-page-node-id="ROPBxK1PVkAEgIDdkfDiFw">日常活动量</label>
+          <div class="field full-width" data-page-node-id="B25iOBbVfWUUrgTzTGNUD6"><label class="activity-label" data-page-node-id="ROPBxK1PVkAEgIDdkfDiFw">日常活动量</label>
             <div class="radio-row activity-row" data-page-node-id="6a0v820ETCWPr6cewdtfjn">
               <label class="radio-chip" data-page-node-id="8JoF6JDrq7Vri1a53IYLVc"><input type="radio" name="metabolism-activity" value="1.2" checked data-page-node-id="ObFsjVQsVNtCwfrKT72zGd"><span data-page-node-id="ujxOUthxEaJtgntCpU0WJ8">久坐不运动</span></label>
               <label class="radio-chip" data-page-node-id="dg49BrzzIur0Bd6L3IYI3N"><input type="radio" name="metabolism-activity" value="1.375" data-page-node-id="FNu4WLWuejPOL1QS69Qu5T"><span class="chip-txt" data-page-node-id="WKfmXjuKHGzIkpYlbxWaAX"><span class="chip-main">轻度运动</span><span class="chip-sub">1-2次运动/周</span></span></label>
               <label class="radio-chip" data-page-node-id="jEPGUCXmDrkk0QnHn4PBOC"><input type="radio" name="metabolism-activity" value="1.55" data-page-node-id="sbZYDnZguj3GSfkOwENw10"><span class="chip-txt" data-page-node-id="wxjEzNMEb8BTsnJEs80qvP"><span class="chip-main">中频规律训练</span><span class="chip-sub">3-4次运动/周</span></span></label>
+              <label class="radio-chip" data-page-node-id="metActHigh"><input type="radio" name="metabolism-activity" value="1.725" data-page-node-id="metActHighI"><span class="chip-txt" data-page-node-id="metActHighT"><span class="chip-main">高频规律训练</span><span class="chip-sub">5-7次运动/周</span></span></label>
             </div>
           </div>
         </div>
