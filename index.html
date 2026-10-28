@@ -1162,6 +1162,10 @@
     .met-anthropo .field { min-width: 0; }
     .met-anthropo .field label { white-space: nowrap; }
     .met-anthropo .field input { width: 72px; max-width: 100%; }
+    /* 体重自动读取（只读）：灰底 + 不可点，标题右侧挂「自动」小标签 */
+    .auto-badge { display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 7px; background: rgba(212, 163, 115, 0.18); color: #9A7F6A; font-size: 10px; font-weight: 700; line-height: 1.5; vertical-align: 1px; letter-spacing: 0; }
+    .met-anthropo .field input.auto-readonly { background: rgba(246, 236, 228, 0.85); color: #6B5B4E; border-color: rgba(212, 163, 115, 0.32); cursor: not-allowed; box-shadow: none; }
+    .met-anthropo .field input.auto-readonly:focus { outline: none; border-color: rgba(212, 163, 115, 0.32); box-shadow: none; }
     .radio-row { display: grid; gap: 10px; }
     /* 性别 / 状态：两个标题并排一行，下面四个方框等宽同一行，方框比原来的性别方框小一号 */
     .metabolism-grid .met-gender-state { grid-column: 1 / -1; }
@@ -1812,7 +1816,7 @@
           <div class="field month-field" data-page-node-id="gtAigRHWxpf4BQSphHA4eF"><label data-page-node-id="yFE5WwbVIYyFLn69RjYldd">测试生效年月</label><input type="month" id="metabolism-month" data-page-node-id="pccTH40TJIGvNtZpEKrK27" /></div>
           <div class="met-anthropo" data-page-node-id="metAnthropoRow">
             <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">年龄「岁」</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" data-page-node-id="WfmX7oKp0nf856PsxY0dBn" /></div>
-            <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重「kg」</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
+            <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重「kg」<span class="auto-badge" data-page-node-id="metWeightAuto">自动</span></label><input type="number" id="metabolism-weight" min="1" step="0.1" class="auto-readonly" readonly title="自动读取：首月取「初始数据（基线）」的体重，之后取上个月最后一次记录的体重" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
             <div class="field" data-page-node-id="mJSxqe1Q1tdEg84BpaYCvb"><label data-page-node-id="PXkPZIPCbx5vXWpk2SlsOm">身高「cm」</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" data-page-node-id="u6eQVEIPEHbpcYMrRQNePc" /></div>
           </div>
           <div class="met-gender-state" data-page-node-id="metGenderState">
@@ -1854,8 +1858,8 @@
         <p class="hint" data-page-node-id="9cZCeeC9OMNtvitEuiYnKS">设置你的每日目标值，「AI 饮食分析」将以此判断摄入是否合理。留空的项会使用通用参考值估算。</p>
         <div class="form-grid" data-page-node-id="qYELEw5Tc2rJX1gvmieXKh">
           <div class="field month-field" data-page-node-id="6fiMz53udzQIwCpTZDsK4M"><label data-page-node-id="VCuxThHGDPTwrhMETyTlAT">目标生效年月</label><input type="month" id="goal-month" data-page-node-id="a5KaQ4SRu0ScQAf9fsPwXY" /></div>
-          <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">每日目标摄入热量（kcal）</label><input type="text" id="goal-kcal" inputmode="text" placeholder="如 1500 或 1400-1600" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
-          <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">每日动态消耗 (kcal)</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
+          <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">🍽️热量摄入需求（kcal/日）</label><input type="text" id="goal-kcal" inputmode="text" placeholder="如 1500 或 1400-1600" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
+          <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal/日）</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
             <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
               <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
@@ -2860,6 +2864,8 @@
         ? '已保存 ' + day + ' 的身材数据；如需修改，直接改数值后再点保存即可覆盖，清空某项再保存即删除该项，次日 0 点自动清空。'
         : '已清除 ' + day + ' 的身材数据。';
       toast(hasValue ? '身材数据已保存（' + day + '）' : '已清除 ' + day + ' 的身材数据');
+      // 身体数据变了，代谢测试的只读体重跟着刷新（首月无基线时也会自动带入）
+      refreshMetabolismWeight();
       // 保存后若已达到当月目标，弹出恭喜弹窗
       if (hasValue) maybeCongratsGoal(body, day);
     }
@@ -3084,6 +3090,8 @@
       const parts = [];
       for (const k in b) parts.push(labels[k] + ' ' + formatNum(b[k]) + units[k]);
       document.getElementById('base-hint').textContent = '初始基线已保存：' + parts.join('，') + '。';
+      // 代谢测试的体重自动读取，基线改了要跟着变
+      refreshMetabolismWeight();
       toast('初始基线已保存');
     }
 
@@ -6167,9 +6175,12 @@
         const phase = Array.from(phaseEls).find(r => r.checked)?.value || 'fatloss';
         const activity = parseFloat(Array.from(activityEls).find(r => r.checked)?.value || '1.2');
         const age = parseFloat(inputs.age.value) || 0;
-        const weight = parseFloat(inputs.weight.value) || 0;
         const height = parseFloat(inputs.height.value) || 0;
         const ym = getCurrentMetabolismMonth();
+        // 体重只读：一律取自动读取值（首月基线 / 之后上个月最后一条），并把显示同步回去
+        const autoWeight = getMetabolismAutoWeight(ym);
+        const weight = autoWeight || 0;
+        inputs.weight.value = (autoWeight === null || autoWeight === undefined) ? '' : autoWeight;
         if (!age || !weight || !height) {
           document.getElementById(ids.bmr).textContent = '--';
           document.getElementById(ids.tdee).textContent = '--';
@@ -6206,17 +6217,6 @@
       activityEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(activityEls); calc(); }));
 
       const mmEl = document.getElementById('metabolism-month');
-      // 取「带入的体重」：严格取所选月份之前（即上一个月）最后一次录入的体重
-      // 例：选 11 月 → 取 10 月最后一条；选 10 月 → 取 9 月最后一条（不再用本月自己的记录）
-      function getCarryWeight(ym) {
-        const limit = ym + '-01';
-        const dates = Object.keys(state.logs)
-          .filter(d => d < limit && state.logs[d] && state.logs[d].body &&
-            state.logs[d].body.weight !== undefined && state.logs[d].body.weight !== null)
-          .sort();
-        if (!dates.length) return null;
-        return state.logs[dates[dates.length - 1]].body.weight;
-      }
       function loadMetabolismMonth(ym, isSwitch) {
         // 只读该月份自己的存档；旧版单一 metabolism 仅在完全没有分月数据时才兜底
         // （此前 fallback 到 state.metabolism 会让新月份直接沿用上个月体重，导致换月体重不变）
@@ -6241,15 +6241,9 @@
           }
         }
         if (m.age !== undefined) inputs.age.value = m.age;
-        // 体重：手动换月时一律带入「该月之前最后一次录入的体重」；首次进入优先显示该月存档
-        const carried = getCarryWeight(ym);
-        if (isSwitch && carried !== null) {
-          inputs.weight.value = carried;
-        } else if (m.weight !== undefined && m.weight !== null) {
-          inputs.weight.value = m.weight;
-        } else {
-          inputs.weight.value = (carried !== null ? carried : '');
-        }
+        // 体重：只读 + 自动读取（首月取基线，之后取上个月最后一次记录的体重），不再沿用旧存档
+        const autoW = getMetabolismAutoWeight(ym);
+        inputs.weight.value = (autoW === null || autoW === undefined) ? '' : autoW;
         if (m.height !== undefined) inputs.height.value = m.height;
         updateRadioChipStyle(genderEls);
         updateRadioChipStyle(phaseEls);
@@ -6261,6 +6255,39 @@
         mmEl.addEventListener('change', () => loadMetabolismMonth(mmEl.value, true));
       }
       loadMetabolismMonth(getTodayStr().slice(0, 7), false);
+    }
+
+    // 代谢测试的体重：自动读取、不允许手动输入
+    // 规则：① 该月之前（上个月及更早）最后一次录入的体重；② 没有则用「初始数据（基线）」的体重；
+    //      ③ 再没有则用该月内第一条体重记录；④ 都没有取全部记录里最新的一条；⑤ 都没有则为空
+    function getMetabolismAutoWeight(ym) {
+      ym = ym || getCurrentMetabolismMonth();
+      const limit = ym + '-01';
+      const weightDays = Object.keys(state.logs || {})
+        .filter(d => {
+          const b = state.logs[d] && state.logs[d].body;
+          if (!b) return false;
+          const w = parseFloat(b.weight);
+          return !Number.isNaN(w) && w > 0;
+        })
+        .sort();
+      const before = weightDays.filter(d => d < limit);
+      if (before.length) return parseFloat(state.logs[before[before.length - 1]].body.weight);
+      const base = parseFloat(state.baseline && state.baseline.weight);
+      if (!Number.isNaN(base) && base > 0) return base;
+      const inMonth = weightDays.filter(d => d.slice(0, 7) === ym);
+      if (inMonth.length) return parseFloat(state.logs[inMonth[0]].body.weight);
+      if (weightDays.length) return parseFloat(state.logs[weightDays[weightDays.length - 1]].body.weight);
+      return null;
+    }
+
+    // 基线或身体数据变了之后，把代谢测试里的只读体重刷新一次并重算 BMR / TDEE
+    function refreshMetabolismWeight() {
+      const el = document.getElementById('metabolism-weight');
+      if (!el) return;
+      const w = getMetabolismAutoWeight(getCurrentMetabolismMonth());
+      el.value = (w === null || w === undefined) ? '' : w;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     // 当前「代谢测试」表单选中的年月
