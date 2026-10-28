@@ -1106,7 +1106,9 @@
     .radio-chip span { display: inline-block; }
     .radio-chip.checked { background: linear-gradient(135deg, rgba(233,214,228,0.72), rgba(245,242,234,0.55)); border-color: rgba(214,138,166,0.65); box-shadow: 0 2px 8px rgba(214,138,166,0.12); font-weight: 600; }
     .activity-row .radio-chip span { font-size: 12.5px; line-height: 1.3; }
-    @media (max-width: 360px) { .radio-chip { padding: 8px 4px; } .activity-row .radio-chip span { font-size: 12px; } }
+    .activity-row .radio-chip span.chip-txt { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; }
+    .activity-row .radio-chip span.chip-txt .chip-sub { font-size: 10px; line-height: 1.2; opacity: 0.72; font-weight: 400; }
+    @media (max-width: 360px) { .radio-chip { padding: 8px 4px; } .activity-row .radio-chip span { font-size: 12px; } .activity-row .radio-chip span.chip-txt .chip-sub { font-size: 9.5px; } }
     .metabolism-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
     .result-box { background: linear-gradient(135deg, rgba(233,214,228,0.5), rgba(245,242,234,0.35)); border: 1px solid rgba(214,138,166,0.25); border-radius: 14px; padding: 14px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 96px; }
     .result-label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 2px; line-height: 1.3; }
@@ -1897,8 +1899,8 @@
             <div class="field full-width" data-page-node-id="B25iOBbVfWUUrgTzTGNUD6"><label data-page-node-id="ROPBxK1PVkAEgIDdkfDiFw">日常活动量</label>
               <div class="radio-row activity-row" data-page-node-id="6a0v820ETCWPr6cewdtfjn">
                 <label class="radio-chip" data-page-node-id="8JoF6JDrq7Vri1a53IYLVc"><input type="radio" name="metabolism-activity" value="1.2" checked data-page-node-id="ObFsjVQsVNtCwfrKT72zGd"><span data-page-node-id="ujxOUthxEaJtgntCpU0WJ8">久坐不运动</span></label>
-                <label class="radio-chip" data-page-node-id="dg49BrzzIur0Bd6L3IYI3N"><input type="radio" name="metabolism-activity" value="1.375" data-page-node-id="FNu4WLWuejPOL1QS69Qu5T"><span data-page-node-id="WKfmXjuKHGzIkpYlbxWaAX">轻度运动</span></label>
-                <label class="radio-chip" data-page-node-id="jEPGUCXmDrkk0QnHn4PBOC"><input type="radio" name="metabolism-activity" value="1.55" data-page-node-id="sbZYDnZguj3GSfkOwENw10"><span data-page-node-id="wxjEzNMEb8BTsnJEs80qvP">中频规律训练</span></label>
+                <label class="radio-chip" data-page-node-id="dg49BrzzIur0Bd6L3IYI3N"><input type="radio" name="metabolism-activity" value="1.375" data-page-node-id="FNu4WLWuejPOL1QS69Qu5T"><span class="chip-txt" data-page-node-id="WKfmXjuKHGzIkpYlbxWaAX"><span class="chip-main">轻度运动</span><span class="chip-sub">1-2次运动/周</span></span></label>
+                <label class="radio-chip" data-page-node-id="jEPGUCXmDrkk0QnHn4PBOC"><input type="radio" name="metabolism-activity" value="1.55" data-page-node-id="sbZYDnZguj3GSfkOwENw10"><span class="chip-txt" data-page-node-id="wxjEzNMEb8BTsnJEs80qvP"><span class="chip-main">中频规律训练</span><span class="chip-sub">3-4次运动/周</span></span></label>
               </div>
             </div>
           </div>
@@ -5609,13 +5611,12 @@
       activityEls.forEach(el => el.addEventListener('change', () => { updateRadioChipStyle(activityEls); calc(); }));
 
       const mmEl = document.getElementById('metabolism-month');
-      // 取「带入的体重」：当月取截至今天最新的一条；其他月份取该月之前最后一条（即上月最后一次录入）
+      // 取「带入的体重」：严格取所选月份之前（即上一个月）最后一次录入的体重
+      // 例：选 11 月 → 取 10 月最后一条；选 10 月 → 取 9 月最后一条（不再用本月自己的记录）
       function getCarryWeight(ym) {
-        const today = getTodayStr();
-        const isCurrent = (ym === today.slice(0, 7));
-        const upper = isCurrent ? today : (ym + '-01');
+        const limit = ym + '-01';
         const dates = Object.keys(state.logs)
-          .filter(d => (isCurrent ? d <= upper : d < upper) && state.logs[d] && state.logs[d].body &&
+          .filter(d => d < limit && state.logs[d] && state.logs[d].body &&
             state.logs[d].body.weight !== undefined && state.logs[d].body.weight !== null)
           .sort();
         if (!dates.length) return null;
