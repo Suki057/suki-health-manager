@@ -637,8 +637,6 @@
     #calories .exercise-entry .field select { padding: 9px 12px; font-size: 16px; }
     #today .entry-stack .row .btn.primary,
     #calories .exercise-entry .row .btn.primary { padding: 8px 14px; font-size: 13px; }
-    #diet-table th,
-    #diet-table td { padding: 9px 11px; font-size: 13px; }
     input[type="date"], input[type="text"], input[type="number"], select {
       padding: 9px 13px;
       border: 1px solid rgba(255, 255, 255, 0.70);
@@ -754,16 +752,50 @@
     /* 宽表格在窄屏（手机）下不挤压列，改为横向拖动 */
     #stats-table, #body-stats-table,
     #food-lib-table-100g, #food-lib-table-serving,
-    #exercise-lib-table-ana, #exercise-lib-table-aer,
-    #diet-table { min-width: 700px; }
-    /* 食物名与份量不折行（分组后列变多，避免「水煮蛋」被拆成两行） */
-    #diet-table .c-name, #diet-table .c-portion { white-space: nowrap; }
-    /* 进餐时段列：分组标题已经写明餐名，行内下拉收窄，让热量等数值列在手机宽度就能看到 */
-    #diet-table .c-meal { padding: 6px; }
-    #diet-table .c-meal .meal-drop-trigger { min-width: 56px; max-width: 84px; padding: 4px 6px; }
-    /* 进餐时段列：分组标题已经写明餐名，行内下拉收窄，让热量等数值列在手机宽度就能看到 */
-    #diet-table .c-meal { padding: 6px; }
-    #diet-table .c-meal .meal-drop-trigger { min-width: 56px; max-width: 84px; padding: 4px 6px; }
+    #exercise-lib-table-ana, #exercise-lib-table-aer { min-width: 700px; }
+    /* 饮食明细：每个进餐时段一张独立小表（表头一行：食物 份量 蛋白质 脂肪 碳水 糖 钠） */
+    .diet-meal-list { display: flex; flex-direction: column; gap: 16px; }
+    .diet-meal-block {
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(212, 163, 115, 0.28);
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: 0 1px 2px rgba(61, 58, 54, 0.03);
+    }
+    .diet-meal-head {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+      padding: 9px 12px;
+      background: linear-gradient(180deg, rgba(246, 236, 228, 0.96), rgba(252, 246, 241, 0.92));
+      border-bottom: 1px solid rgba(212, 163, 115, 0.24);
+    }
+    .diet-meal-head .dm-title { font-size: 12.5px; color: #9A7F6A; font-weight: 600; white-space: nowrap; }
+    .diet-meal-head .dm-title b { color: #7A4E2E; font-weight: 800; font-size: 13px; }
+    .diet-meal-head .dm-meta { font-size: 11.5px; font-weight: 700; color: #9A7F6A; white-space: nowrap; }
+    .diet-meal-block .table-wrap { border: none; border-radius: 0; box-shadow: none; }
+    /* 7 列数据 + 行尾「⋯」按钮，手机宽度一屏放得下，不横向滚动 */
+    .diet-meal-table th,
+    .diet-meal-table td { padding: 7px 4px; font-size: 12px; }
+    .diet-meal-table th { white-space: nowrap; }
+    .diet-meal-table .c-name,
+    .diet-meal-table .c-portion { white-space: nowrap; }
+    .diet-meal-table .c-name { font-weight: 700; color: #3a3a3a; }
+    .diet-meal-table .c-name .nm { display: inline-block; max-width: 92px; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+    .diet-meal-table .c-actions { width: 30px; padding: 4px 2px; text-align: center; }
+    .diet-meal-table tbody tr { cursor: pointer; }
+    .row-more {
+      border: none; background: transparent; color: #B08A6A;
+      font-size: 17px; line-height: 1; padding: 4px 5px; cursor: pointer; font-family: inherit;
+    }
+    .row-more:active { transform: scale(0.94); }
+    /* 行操作弹窗里的进餐时段胶囊 */
+    .rs-meal-label { font-size: 12.5px; font-weight: 700; color: #7A4E2E; margin-top: 6px; }
+    .rs-meals { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
+    .rs-meal {
+      border: 1px solid rgba(214, 138, 166, 0.45); background: #fff; color: #7a3b5b;
+      border-radius: 999px; padding: 7px 13px; font-size: 13px; font-family: inherit; cursor: pointer;
+    }
+    .rs-meal.on { background: rgba(214, 138, 166, 0.16); font-weight: 800; border-color: rgba(214, 138, 166, 0.8); }
+    #diet-row-modal .modal-actions { justify-content: stretch; }
+    #diet-row-modal .modal-actions .btn { flex: 1; }
     /* 运动明细：卡片式两行排版，单屏自适应，不横向滚动 */
     .exercise-list { display: flex; flex-direction: column; gap: 10px; }
     .exercise-card { border: 1px solid rgba(61, 58, 54, 0.08); border-radius: 12px; padding: 10px 12px; background: #fff; }
@@ -1247,14 +1279,6 @@
     .amb-seg { display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; font-weight: 700; white-space: nowrap; overflow: hidden; }
     .ana-note { font-size: 12.5px; color: #6B5B52; margin: 10px 0 0; line-height: 1.55; }
     .analysis-item.dim { opacity: 0.6; }
-    /* 饮食明细：按进餐时段分组的标题行 */
-    .diet-group-row td {
-      background: linear-gradient(180deg, rgba(246, 236, 228, 0.95), rgba(252, 246, 241, 0.92));
-      padding: 8px 11px !important;
-      font-size: 12.5px; font-weight: 800; color: #7A4E2E;
-      border-top: 1px solid rgba(212, 163, 115, 0.30);
-    }
-    .diet-group-row .dg-meta { font-weight: 600; color: #9A7F6A; margin-left: 8px; font-size: 12px; }
     .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-right: 6px; font-weight: 700; }
     .tag.ok { background: #D9EFE3; color: #4A7A62; }
     .tag.warn { background: #F9ECD9; color: #8A6A45; }
@@ -1979,16 +2003,7 @@
           <input type="date" id="diet-date-picker" data-page-node-id="DietDatePicker" />
           <button id="diet-today-btn" class="btn secondary" data-page-node-id="DietTodayBtn">回到今天</button>
         </div>
-        <div class="table-wrap" data-page-node-id="oU0LH8ISn2v2P38lKKxW7W">
-          <table id="diet-table" data-page-node-id="0dt4XVvMlwoYcbkb4j6gso">
-            <thead data-page-node-id="BC7JL8kHlmr6uSGJp4AJeG">
-              <tr data-page-node-id="GZY2eyrB9uAQchvQfMNGoQ">
-                <th data-page-node-id="twsUdMlv298E0c51H5g3C4">进餐时段</th><th data-page-node-id="nAFgf1psRrq4YfqqlGw1oM">食物</th><th data-page-node-id="B6qqc3tncmZrTz05Sfhezm">份量</th><th data-page-node-id="i42PefETvx93cmviaMKRfH">热量</th><th data-page-node-id="nwVj0PnXxpXJ4HQ7jGNIrj">蛋白质</th><th data-page-node-id="NOxjGAhP7DooA5wYQDPgmh">脂肪</th><th data-page-node-id="RdPgSQh1mb2ZOoBUKWlnCL">碳水</th><th data-page-node-id="FPtD01jEo6SwfrJix57Sx1">糖</th><th data-page-node-id="c6dHVHgYZRhNGR79GD71CQ">钠</th><th data-page-node-id="otDKYd6aM0FW1YNwQS8exS"></th>
-              </tr>
-            </thead>
-            <tbody data-page-node-id="GKZpkl7w4pltztx987T9HO"></tbody>
-          </table>
-        </div>
+        <div id="diet-meal-list" class="diet-meal-list" data-page-node-id="DietMealList"></div>
       </div>
     </section>
 
@@ -2137,6 +2152,23 @@
       <div class="modal-actions" data-page-node-id="670l1p1ZWNmUVysS2V3Xmf">
         <button class="btn secondary" id="ce-cancel" data-page-node-id="i5289sK0kTW2z8xa9CD3VJ">取消</button>
         <button class="btn primary" id="ce-save" data-page-node-id="OQzcWlz6UmEokGYucJCxgJ">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 饮食明细：点一行后的操作（编辑份量 / 换进餐时段 / 删除） -->
+  <div id="diet-row-modal" class="modal-overlay" style="display:none" data-page-node-id="DietRowModal">
+    <div class="modal-box" data-page-node-id="DietRowBox">
+      <h3 data-page-node-id="DietRowH3">🍽 这条饮食记录</h3>
+      <p class="hint" id="diet-row-title" data-page-node-id="DietRowTitle">—</p>
+      <div class="rs-meal-label" data-page-node-id="DietRowMealLabel">改到哪个进餐时段（点一下就移动）</div>
+      <div id="diet-row-meals" class="rs-meals" data-page-node-id="DietRowMeals"></div>
+      <div class="modal-actions" data-page-node-id="DietRowActions">
+        <button class="btn secondary" id="diet-row-edit" data-page-node-id="DietRowEdit">编辑份量</button>
+        <button class="btn danger" id="diet-row-del" data-page-node-id="DietRowDel">删除</button>
+      </div>
+      <div class="modal-actions" style="margin-top:8px;" data-page-node-id="DietRowActions2">
+        <button class="btn secondary" id="diet-row-close" data-page-node-id="DietRowClose">关闭</button>
       </div>
     </div>
   </div>
@@ -2334,6 +2366,11 @@
         }
       }
       if (!Array.isArray(state.mealPeriods)) state.mealPeriods = [];
+      // 迁移：历史数据里同一天、同一进餐时段重复录入的同种食物（如豆沙包 2 条），合并成一条
+      const deduped = dedupeFoodLogs();
+      if (deduped > 0) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { console.error('整理重复饮食记录失败', e); }
+      }
     }
 
     function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
@@ -3737,6 +3774,63 @@
       return String(Number.isInteger(sum) ? sum : sum) + unit;
     }
 
+    // 把 src 这条饮食记录合并进 target（同一食物、同一进餐时段的重复数据）
+    function mergeEntryPair(target, src) {
+      if (!target || !src) return;
+      if (target.custom && src.custom) {
+        ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium'].forEach(f => {
+          target[f] = round1((Number(target[f]) || 0) + (Number(src[f]) || 0));
+        });
+        target.portionRaw = mergePortionText(target.portionRaw, src.portionRaw);
+        return;
+      }
+      if (!target.custom && !src.custom && target.foodId === src.foodId) {
+        const addG = Number(src.portionG) || 0;
+        const addS = Number(src.servings) || 0;
+        target.portionG = round1((Number(target.portionG) || 0) + addG);
+        target.servings = round1((Number(target.servings) || 0) + addS);
+        if (addG > 0) target.portionRaw = Math.round(target.portionG) + 'g';
+        else target.portionRaw = Number(target.servings.toFixed(2)) + '份';
+        return;
+      }
+      // 一条来自食物库、一条自定义（或同名不同条目）：按当前营养折算成一条记录合并
+      const a = computeFoodEntry(target), b = computeFoodEntry(src);
+      target.custom = true;
+      delete target.foodId;
+      target.name = a.name;
+      ['kcal', 'protein', 'fat', 'carbs', 'sugar', 'sodium'].forEach(f => {
+        target[f] = round1((Number(a[f]) || 0) + (Number(b[f]) || 0));
+      });
+      target.portionG = 0;
+      target.servings = 0;
+      target.portionRaw = mergePortionText(target.portionRaw, src.portionRaw) || '1 份';
+    }
+
+    // 整理旧数据：同一天、同一进餐时段里重复录入的同种食物，合并成一条（份量累加）
+    // 返回合并掉的条数
+    function dedupeFoodLogs() {
+      let mergedTotal = 0;
+      Object.keys(state.logs || {}).forEach(day => {
+        const log = state.logs[day];
+        const list = log && log.foods;
+        if (!Array.isArray(list) || list.length < 2) return;
+        const seen = {};
+        const out = [];
+        let mergedHere = 0;
+        list.forEach(entry => {
+          let name = String(computeFoodEntry(entry).name || '').trim().toLowerCase();
+          // 食物已删除等无法判断同名的情况，按自身 id 单独成组，避免误合并
+          if (!name || name === '（已删除食物）') name = 'id:' + entry.id;
+          const key = name + '@' + getEntryMeals(entry).slice().sort().join('+');
+          if (seen[key]) { mergeEntryPair(seen[key], entry); mergedHere++; return; }
+          seen[key] = entry;
+          out.push(entry);
+        });
+        if (mergedHere) { log.foods = out; mergedTotal += mergedHere; }
+      });
+      return mergedTotal;
+    }
+
     function computeFoodEntry(entry) {
       if (entry.custom) {
         return {
@@ -3843,7 +3937,7 @@
         const p = parseFloat(input.value);
         if (isNaN(p) || p < 0) return;
         const ratio = p / unitSize;
-        kcalTd.textContent = formatNum(baseVals.kcal * ratio);
+        if (kcalTd) kcalTd.textContent = formatNum(baseVals.kcal * ratio);
         protTd.textContent = formatNum(baseVals.protein * ratio);
         fatTd.textContent = formatNum(baseVals.fat * ratio);
         carbTd.textContent = formatNum(baseVals.carbs * ratio);
@@ -4096,40 +4190,103 @@
       renderMealSelect('food-meal', 'food-meal-other-input', [defaultMealByTime()]);
     }
 
+    // ===== 饮食明细行操作弹窗：编辑份量 / 换进餐时段 / 删除 =====
+    let __dietRowEntry = null, __dietRowTr = null;
+    function openDietRowSheet(entry, tr) {
+      const modal = document.getElementById('diet-row-modal');
+      if (!modal) return;
+      __dietRowEntry = entry;
+      __dietRowTr = tr;
+      const c = computeFoodEntry(entry);
+      const portion = entry.custom
+        ? (entry.portionRaw || '')
+        : (entry.portionRaw || (entry.portionG ? formatNum(entry.portionG, 0) + ' g' : ''));
+      document.getElementById('diet-row-title').textContent =
+        c.name + (portion ? ' · ' + portion : '') + ' · ' + formatNum(c.kcal, 0) + ' kcal';
+      const cur = getEntryMeals(entry);
+      document.getElementById('diet-row-meals').innerHTML = getMealOptions().map(m =>
+        '<button type="button" class="rs-meal' + (cur.indexOf(m) !== -1 ? ' on' : '') + '" data-meal="' + escapeHtml(m) + '">'
+        + mealIcon(m) + ' ' + escapeHtml(m) + '</button>').join('');
+      openModal('diet-row-modal');
+    }
+    // 点胶囊把这条记录整体移到该进餐时段
+    function moveDietRowToMeal(meal) {
+      const entry = __dietRowEntry;
+      if (!entry) return;
+      const cur = getEntryMeals(entry);
+      if (cur.length === 1 && cur[0] === meal) { closeModal('diet-row-modal'); return; }
+      splitEntryMeals(entry, [meal]);
+      save();
+      renderToday();
+      closeModal('diet-row-modal');
+      toast('已移动到「' + meal + '」');
+    }
+    function initDietRowSheet() {
+      const modal = document.getElementById('diet-row-modal');
+      if (!modal) return;
+      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal('diet-row-modal'); });
+      document.getElementById('diet-row-close').addEventListener('click', () => closeModal('diet-row-modal'));
+      document.getElementById('diet-row-meals').addEventListener('click', (e) => {
+        const btn = e.target.closest('.rs-meal');
+        if (btn) moveDietRowToMeal(btn.dataset.meal);
+      });
+      document.getElementById('diet-row-edit').addEventListener('click', () => {
+        const entry = __dietRowEntry;
+        closeModal('diet-row-modal');
+        if (!entry) return;
+        const row = (__dietRowTr && __dietRowTr.isConnected) ? __dietRowTr
+          : document.querySelector('#diet-meal-list tr[data-entry-id="' + entry.id + '"]');
+        if (row) enterDietEdit(row, entry);
+      });
+      document.getElementById('diet-row-del').addEventListener('click', () => {
+        const entry = __dietRowEntry;
+        closeModal('diet-row-modal');
+        const log = state.logs[getCurrentDate()];
+        if (!entry || !log) return;
+        log.foods = log.foods.filter(f => f.id !== entry.id);
+        save();
+        renderToday();
+        toast('已删除这条饮食记录');
+      });
+    }
+
     function renderToday() {
       const day = getCurrentDate();
       const log = state.logs[day] || { foods: [], exercises: [] };
       bindMealDropOutside();
 
-      const dietBody = document.querySelector('#diet-table tbody');
-      dietBody.innerHTML = '';
+      // 饮食明细：每个进餐时段一张独立小表（表头一行：食物 份量 蛋白质 脂肪 碳水 糖 钠）
+      const dietList = document.getElementById('diet-meal-list');
+      dietList.innerHTML = '';
       if (log.foods.length === 0) {
-        dietBody.innerHTML = '<tr><td colspan="10" class="empty-state">还没有饮食记录</td></tr>';
+        dietList.innerHTML = '<div class="empty-state">还没有饮食记录</div>';
       }
       const sortedFoods = log.foods.slice().sort((a, b) =>
         mealSortIndex(getEntryMeals(a)[0] || '零食') - mealSortIndex(getEntryMeals(b)[0] || '零食'));
-      // 按进餐时段整合成分组：每组一行小标题（餐名 · 几样 · 该餐总热量），下面列这条时段里的食物
-      const groupStat = {};
+      // 按首个进餐时段分组，分组顺序沿用进餐时段的固定顺序
+      const mealGroups = [];
+      const mealGroupMap = {};
       sortedFoods.forEach(entry => {
         const m = getEntryMeals(entry)[0] || '零食';
-        if (!groupStat[m]) groupStat[m] = { count: 0, kcal: 0 };
-        groupStat[m].count += 1;
-        groupStat[m].kcal += computeFoodEntry(entry).kcal;
+        if (!mealGroupMap[m]) { mealGroupMap[m] = []; mealGroups.push(m); }
+        mealGroupMap[m].push(entry);
       });
-      let lastGroupMeal = null;
-      sortedFoods.forEach(entry => {
+      mealGroups.forEach(groupMeal => {
+        const entries = mealGroupMap[groupMeal];
+        const mealKcal = entries.reduce((s, e) => s + computeFoodEntry(e).kcal, 0);
+        const block = document.createElement('div');
+        block.className = 'diet-meal-block';
+        block.dataset.meal = groupMeal;
+        block.innerHTML = '<div class="diet-meal-head">'
+          + '<span class="dm-title">进餐时段：<b>' + mealIcon(groupMeal) + ' ' + escapeHtml(groupMeal) + '</b></span>'
+          + '<span class="dm-meta">' + entries.length + ' 样 · ' + formatNum(mealKcal, 0) + ' kcal</span>'
+          + '</div>'
+          + '<div class="table-wrap"><table class="diet-meal-table"><thead><tr>'
+          + '<th>食物</th><th>份量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>'
+          + '</tr></thead><tbody></tbody></table></div>';
+        const tbody = block.querySelector('tbody');
+        entries.forEach(entry => {
         const c = computeFoodEntry(entry);
-        const groupMeal = getEntryMeals(entry)[0] || '零食';
-        if (groupMeal !== lastGroupMeal) {
-          lastGroupMeal = groupMeal;
-          const gs = groupStat[groupMeal] || { count: 0, kcal: 0 };
-          const gtr = document.createElement('tr');
-          gtr.className = 'diet-group-row';
-          gtr.dataset.groupMeal = groupMeal;
-          gtr.innerHTML = '<td colspan="10"><span class="dg-name">' + mealIcon(groupMeal) + ' ' + escapeHtml(groupMeal) + '</span>'
-            + '<span class="dg-meta">' + gs.count + ' 样 · ' + formatNum(gs.kcal, 0) + ' kcal</span></td>';
-          dietBody.appendChild(gtr);
-        }
         let portionLabel;
         if (entry.custom) {
           portionLabel = entry.portionRaw || '—';
@@ -4138,68 +4295,30 @@
             ? (entry.portionRaw || (formatNum(entry.servings) + ' 份'))
             : (formatNum(entry.portionG, 0) + ' g');
         }
-        const meals = getEntryMeals(entry);
-        const selText = meals.length ? meals.join(' · ') : '选择时段';
-        const opts = getMealOptions().map(m => {
-          const on = meals.indexOf(m) !== -1;
-          return '<div class="meal-opt" data-meal="' + escapeHtml(m) + '"><span class="chk ' + (on ? '' : 'off') + '">' + (on ? '✅' : '□') + '</span><span class="opt-label">' + escapeHtml(m) + '</span></div>';
-        }).join('');
         const tr = document.createElement('tr');
         tr.dataset.entryId = entry.id;
         tr.innerHTML = `
-          <td class="c-meal">
-            <div class="meal-drop" data-entry-id="${entry.id}">
-              <button type="button" class="meal-drop-trigger ${meals.length ? '' : 'empty'}"><span class="trig-label">${escapeHtml(selText)}</span><span class="caret">▾</span></button>
-              <div class="meal-drop-panel">${opts}</div>
-            </div>
-          </td>
-          <td class="c-name">${escapeHtml(c.name)}</td>
+          <td class="c-name"><span class="nm">${escapeHtml(c.name)}</span></td>
           <td class="c-portion number">${portionLabel}</td>
-          <td class="c-kcal number">${formatNum(c.kcal)}</td>
           <td class="c-protein number">${formatNum(c.protein)}</td>
           <td class="c-fat number">${formatNum(c.fat)}</td>
           <td class="c-carbs number">${formatNum(c.carbs)}</td>
           <td class="c-sugar number">${formatNum(c.sugar)}</td>
           <td class="c-sodium number">${formatNum(c.sodium)}</td>
-          <td class="c-actions">
-            <button class="btn small secondary act-edit">编辑</button>
-            <button class="btn small danger act-del">删除</button>
-          </td>`;
-        tr.querySelector('.act-edit').addEventListener('click', () => enterDietEdit(tr, entry));
-        // 进餐时段多选下拉（选项框）：点触发开/关，点选项切换选中（左侧 ✅），关闭时提交拆分
-        const box = tr.querySelector('.meal-drop');
-        const trigger = tr.querySelector('.meal-drop-trigger');
-        const panel = tr.querySelector('.meal-drop-panel');
-        trigger.addEventListener('click', (e) => {
+          <td class="c-actions"><button type="button" class="row-more" title="编辑 / 换时段 / 删除">⋯</button></td>`;
+        // 点「⋯」或整行打开操作弹窗：编辑份量 / 换进餐时段 / 删除
+        const openSheet = (e) => {
           e.stopPropagation();
-          const wasOpen = box.classList.contains('open');
-          document.querySelectorAll('.meal-drop.open').forEach(o => { if (o !== box) closeMealDrop(o); });
-          if (wasOpen) { closeMealDrop(box); }
-          else { box._sel = getEntryMeals(entry).slice(); box._dirty = false; box.classList.add('open'); }
+          openDietRowSheet(entry, tr);
+        };
+        tr.querySelector('.row-more').addEventListener('click', openSheet);
+        tr.addEventListener('click', (e) => {
+          if (e.target.closest('input, button, select, textarea')) return;
+          openDietRowSheet(entry, tr);
         });
-        panel.querySelectorAll('.meal-opt').forEach(opt => {
-          opt.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const m = opt.dataset.meal;
-            const set = box._sel;
-            const idx = set.indexOf(m);
-            if (idx !== -1) {
-              if (set.length === 1) { toast('至少保留一个进餐时段'); return; }
-              set.splice(idx, 1);
-            } else { set.push(m); }
-            box._dirty = true;
-            const on = set.indexOf(m) !== -1;
-            opt.querySelector('.chk').textContent = on ? '✅' : '□';
-            opt.querySelector('.chk').classList.toggle('off', !on);
-            trigger.querySelector('.trig-label').textContent = set.length ? set.join(' · ') : '选择时段';
-            trigger.classList.toggle('empty', set.length === 0);
-          });
+        tbody.appendChild(tr);
         });
-        tr.querySelector('.act-del').addEventListener('click', () => {
-          log.foods = log.foods.filter(f => f.id !== entry.id);
-          save(); renderToday();
-        });
-        dietBody.appendChild(tr);
+        dietList.appendChild(block);
       });
 
       const exList = document.getElementById('exercise-list');
@@ -4443,8 +4562,8 @@
       const summary = face + ' 三餐：' + split.summary + '；热量与营养素：' + nutriSummary + '。';
 
       el.innerHTML = '<div class="analysis-summary">' + summary + '</div>'
-        + '<div class="ana-sec"><div class="ana-sec-title">🍽 三餐分配</div>' + split.html + '</div>'
         + '<div class="ana-sec"><div class="ana-sec-title">🔥 一日摄入热量与消耗</div><ul class="analysis-list">' + kcalItems.join('') + '</ul></div>'
+        + '<div class="ana-sec"><div class="ana-sec-title">🍽 三餐分配</div>' + split.html + '</div>'
         + '<div class="ana-sec"><div class="ana-sec-title">🥗 营养素</div><ul class="analysis-list">' + nutriItems.join('') + '</ul></div>';
     }
 
@@ -6755,6 +6874,7 @@
       enableNavDragScroll();
       setupTodayTab();
       setDefaultMealByTime();
+      initDietRowSheet();
       setupFoodLibrary();
       setupExerciseLibrary();
       setupFoodReview();
