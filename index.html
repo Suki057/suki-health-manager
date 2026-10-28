@@ -1274,8 +1274,8 @@
     .gdt-label { color: #5A3A42; font-weight: 600; }
     .gdt-val { color: #3d3a36; font-weight: 700; font-variant-numeric: tabular-nums; }
     .gdt-empty { padding: 12px 0; text-align: center; color: #7a3b5b; font-size: 13px; opacity: 0.85; }
-    .gdt-actions { display: flex; gap: 10px; margin-top: 12px; }
-    .gdt-actions .btn { flex: 1; }
+    .gdt-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .gdt-actions .btn { flex: 1; padding: 7px 8px; font-size: 12.5px; white-space: nowrap; }
     /* 达成目标数据表：双击数值即可就地编辑 */
     .gdt-val.editable { cursor: pointer; border-bottom: 1px dotted rgba(179,83,122,0.5); touch-action: manipulation; }
     .gdt-val.editable:hover { color: #b3537a; }
@@ -1285,7 +1285,7 @@
     .gdt-edit-cancel { background: rgba(122,108,98,0.16); color: #4a4038; }
     /* 达成目标数据表：卡片级「编辑 / 完成」切换键（与 达成/删除 键等宽并排同一行） */
     .gdt-actions .gdt-edit-toggle {
-      flex: 1; padding: 9px 16px; font-size: 14px; font-weight: 700;
+      flex: 1; padding: 7px 8px; font-size: 12.5px; font-weight: 700; white-space: nowrap;
       border-radius: 12px; border: 1px solid rgba(179, 83, 122, 0.5); background: #fff; color: #b3537a; cursor: pointer;
     }
     .gdt-actions .gdt-edit-toggle:hover { background: rgba(179, 83, 122, 0.12); }
@@ -4040,7 +4040,7 @@
         const { total, totalAer, totalAna, months } = computePersistStats();
         const totalEl = document.getElementById('persist-total');
         const monthsEl = document.getElementById('persist-months');
-        if (totalEl) totalEl.textContent = '有氧：' + formatNum(totalAer, 0) + '分，无氧：' + formatNum(totalAna, 0) + '分';
+        if (totalEl) totalEl.textContent = '有氧时长「分」：' + formatNum(totalAer, 0) + '，无氧时长「分」：' + formatNum(totalAna, 0);
         // 有运动的月份 + 各月坚持次数 + 各月有氧/无氧时长
         if (monthsEl) {
           const keys = Object.keys(months).sort();
