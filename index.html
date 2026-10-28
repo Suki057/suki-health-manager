@@ -5830,30 +5830,45 @@
         })
         .sort();
     }
-    // 表格参考的初始数据日期：优先用户所选，其次最早一条身材记录
+    // 表格参考值：'baseline'（体重档案里的初始数据）或 'YYYY-MM-DD'（某一天的身材记录）
     function getProgressRefDate() {
       const saved = state.progressRefDate;
+      if (saved === 'baseline') return 'baseline';
       if (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved)) return saved;
-      const days = getBodyRecordDays();
-      return days.length ? days[0] : '';
+      return 'baseline';
     }
-    // 初始数据（体重 / 体脂 / 围度）：取所选日期的身材记录，没有则退回「初始数据（基线）」
+    // 参考值数据（体重 / 体脂率 / 围度）：baseline 取「体重档案 · 初始数据」，日期取当天身材记录
     function getProgressBase() {
-      const refDate = getProgressRefDate();
-      const body = (refDate && state.logs[refDate] && state.logs[refDate].body) || null;
-      const src = body || state.baseline || {};
+      const ref = getProgressRefDate();
+      const isBaseline = (ref === 'baseline');
+      const body = (!isBaseline && state.logs[ref] && state.logs[ref].body) || null;
+      const src = isBaseline ? (state.baseline || {}) : (body || state.baseline || {});
       const num = (v) => (v === undefined || v === null || v === '' || Number.isNaN(Number(v))) ? undefined : Number(v);
       return {
-        date: refDate, fromBody: !!body,
+        ref, isBaseline, date: isBaseline ? '' : ref, fromBody: !!body,
         weight: num(src.weight), bodyFat: num(src.bodyFat),
         calf: num(src.calf), thigh: num(src.thigh), waist: num(src.waist), hip: num(src.hip)
       };
     }
-    // 表格列：初始数据所在月「之后」的每个月月末（同一年，最多到 12 月）
+    // 表格列 = 参考值所在月「之后」的每个月月末（同一年，最多到 12 月）
+    // 参考值是「初始数据」时没有具体日期，取最早一条身材记录所在月（把已记录的第一个月也显示出来）
     function getProgressDates() {
-      const refDate = getProgressRefDate();
-      const year = refDate ? Number(refDate.slice(0, 4)) : new Date().getFullYear();
-      const startMonth = refDate ? Number(refDate.slice(5, 7)) + 1 : 1;
+      const ref = getProgressRefDate();
+      let year, startMonth;
+      if (ref === 'baseline') {
+        const days = getBodyRecordDays();
+        if (days.length) {
+          year = Number(days[0].slice(0, 4));
+          startMonth = Number(days[0].slice(5, 7));
+        } else {
+          const now = new Date();
+          year = now.getFullYear();
+          startMonth = now.getMonth() + 1;
+        }
+      } else {
+        year = Number(ref.slice(0, 4));
+        startMonth = Number(ref.slice(5, 7)) + 1;
+      }
       const dates = [];
       for (let m = startMonth; m <= 12; m++) {
         const lastDay = new Date(year, m, 0).getDate();
@@ -5869,18 +5884,18 @@
       const [y, m, d] = String(dateStr).split('-').map(Number);
       return `${y}年${m}月${d}日`;
     }
-    // 标题下方一行说明：初始数据是谁 + 表格显示到哪
+    // 标题下方说明：数据参考值：xx年xx月xx日 「体重 xxkg，体脂率 xx%」 + 表格显示区间
     function renderProgressRefNote(dates, base) {
       const el = document.getElementById('progress-ref-note');
       if (!el) return;
-      const parts = [];
-      if (base.weight !== undefined) parts.push('体重 ' + formatNum(base.weight, 1) + 'kg');
-      if (base.bodyFat !== undefined) parts.push('体脂 ' + formatNum(base.bodyFat, 1) + '%');
-      if (base.calf !== undefined) parts.push('小腿围 ' + formatNum(base.calf, 1) + 'cm');
-      const line1 = '初始数据：' + (base.date ? formatDateCn(base.date) : '基线') + (parts.length ? '（' + parts.join(' · ') + '）' : '');
+      const vals = [];
+      if (base.weight !== undefined) vals.push('体重 ' + formatNum(base.weight, 1) + 'kg');
+      if (base.bodyFat !== undefined) vals.push('体脂率 ' + formatNum(base.bodyFat, 1) + '%');
+      const who = base.isBaseline ? '初始数据' : (base.date ? formatDateCn(base.date) : '初始数据');
+      const line1 = '数据参考值：' + who + (vals.length ? ' 「' + vals.join('，') + '」' : '');
       const line2 = dates.length
         ? '表格显示：' + formatMonthHeader(dates[0]) + (dates.length > 1 ? ' — ' + formatMonthHeader(dates[dates.length - 1]) : '')
-        : '表格显示：无（初始数据在 12 月，没有更晚的月份）';
+        : '表格显示：无（参考值在 12 月，没有更晚的月份）';
       el.innerHTML = line1 + '<br>' + line2;
     }
     function getBodyAtEndOfMonth(dateStr) {
@@ -6002,13 +6017,16 @@
       `).join('');
     }
     // 「数据参考值」弹窗：① 初始数据 ② 年月份 ③ 日历
+    // 「数据参考值」弹窗：① 下拉选项（初始数据 / 某一天） ② 年月份 ③ 日历
     function openProgressRef() {
       const days = getBodyRecordDays();
-      const cur = getProgressRefDate() || getTodayStr();
+      const cur = getProgressRefDate();            // 'baseline' 或 'YYYY-MM-DD'
       const nowY = new Date().getFullYear();
-      let pendDate = cur;
-      let pickYear = Number(cur.slice(0, 4)) || nowY;
-      let pickMonth = Number(cur.slice(5, 7)) || (new Date().getMonth() + 1);
+      const base0 = state.baseline || {};
+      let pendDate = (cur === 'baseline' || days.indexOf(cur) >= 0) ? cur : 'baseline';
+      const startDay = pendDate !== 'baseline' ? pendDate : (days[0] || '');
+      let pickYear = Math.min(2900, Math.max(1900, startDay ? Number(startDay.slice(0, 4)) : nowY));
+      let pickMonth = startDay ? Number(startDay.slice(5, 7)) : (new Date().getMonth() + 1);
 
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
@@ -6016,7 +6034,7 @@
       panel.className = 'modal-panel ref-panel';
       panel.innerHTML =
         '<div class="dp-head">数据参考值 <span class="dp-close" data-close="1">✕</span></div>' +
-        '<div class="ref-row"><label for="ref-date-select">初始数据</label><select id="ref-date-select" aria-label="选择初始数据"></select></div>' +
+        '<div class="ref-row"><select id="ref-date-select" aria-label="选择数据参考值"></select></div>' +
         '<p class="ref-summary" id="ref-summary"></p>' +
         '<div class="ref-row"><label>年月份</label><select id="ref-year" aria-label="选择年份"></select><select id="ref-month" aria-label="选择月份"></select></div>' +
         '<div class="dp-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>' +
@@ -6036,45 +6054,54 @@
         const b = state.logs[day] && state.logs[day].body;
         return (b && (b.weight !== undefined || b.bodyFat !== undefined)) ? b : null;
       };
+      const numTxt = (v, unit) => (v === undefined || v === null || v === '' || Number.isNaN(Number(v)))
+        ? '—' : formatNum(Number(v), 1) + unit;
 
-      // ① 初始数据：所有有身材记录的日期（新 → 旧）
-      selDate.innerHTML = days.length
-        ? days.slice().reverse().map(d => {
-            const b = state.logs[d].body || {};
-            const w = (b.weight !== undefined && b.weight !== null) ? formatNum(Number(b.weight), 1) + 'kg' : '—';
-            const f = (b.bodyFat !== undefined && b.bodyFat !== null) ? formatNum(Number(b.bodyFat), 1) + '%' : '—';
-            return `<option value="${d}"${d === pendDate ? ' selected' : ''}>${d} · ${w} / ${f}</option>`;
-          }).join('')
-        : '<option value="">暂无身材记录</option>';
-      if (days.length) selDate.value = (days.indexOf(pendDate) >= 0) ? pendDate : days[days.length - 1];
+      // ① 选项：第一项是「初始数据」（自动读取体重档案的初始数据），其后是所有有身材记录的日期（新 → 旧）
+      selDate.innerHTML =
+        '<option value="baseline">初始数据 · ' + numTxt(base0.weight, 'kg') + ' / ' + numTxt(base0.bodyFat, '%') + '</option>' +
+        days.slice().reverse().map(d => {
+          const b = state.logs[d].body || {};
+          return `<option value="${d}">${d} · ${numTxt(b.weight, 'kg')} / ${numTxt(b.bodyFat, '%')}</option>`;
+        }).join('');
+      selDate.value = pendDate;
+      // 日历上点到没有记录的日期时，补一个选项，保证下拉与选中状态一致
+      function ensureOption(day) {
+        if (selDate.querySelector('option[value="' + day + '"]')) return;
+        const opt = document.createElement('option');
+        opt.value = day;
+        opt.textContent = day + ' · 无记录';
+        selDate.insertBefore(opt, selDate.options[1] || null);
+      }
 
-      // ② 年月份
-      const recYears = days.map(d => Number(d.slice(0, 4)));
-      const yMin = Math.min(nowY - 1, ...(recYears.length ? recYears : [nowY]));
-      const yMax = Math.max(nowY + 1, ...(recYears.length ? recYears : [nowY]));
+      // ② 年月份：年份 1900 — 2900
       let yOpts = '';
-      for (let y = yMin; y <= yMax; y++) yOpts += `<option value="${y}"${y === pickYear ? ' selected' : ''}>${y}年</option>`;
+      for (let y = 1900; y <= 2900; y++) yOpts += `<option value="${y}"${y === pickYear ? ' selected' : ''}>${y}年</option>`;
       selYear.innerHTML = yOpts;
       let mOpts = '';
       for (let m = 1; m <= 12; m++) mOpts += `<option value="${m}"${m === pickMonth ? ' selected' : ''}>${m}月</option>`;
       selMonth.innerHTML = mOpts;
 
       function renderSummary() {
-        const b = bodyOf(pendDate);
-        if (!b) {
-          sumEl.innerHTML = '<b>' + formatDateCn(pendDate) + '</b> 没有身材记录，不能作为初始数据。请选带绿点的日期。';
-          okBtn.disabled = true;
-          return;
-        }
+        const isB = pendDate === 'baseline';
+        const b = isB ? (state.baseline || {}) : (bodyOf(pendDate) || {});
+        const title = isB ? '初始数据' : formatDateCn(pendDate);
         const parts = [];
         if (b.weight !== undefined && b.weight !== null) parts.push('体重 ' + formatNum(Number(b.weight), 1) + 'kg');
-        if (b.bodyFat !== undefined && b.bodyFat !== null) parts.push('体脂 ' + formatNum(Number(b.bodyFat), 1) + '%');
+        if (b.bodyFat !== undefined && b.bodyFat !== null) parts.push('体脂率 ' + formatNum(Number(b.bodyFat), 1) + '%');
         if (b.calf !== undefined && b.calf !== null && b.calf !== '') parts.push('小腿围 ' + formatNum(Number(b.calf), 1) + 'cm');
         if (b.thigh !== undefined && b.thigh !== null && b.thigh !== '') parts.push('大腿围 ' + formatNum(Number(b.thigh), 1) + 'cm');
         if (b.waist !== undefined && b.waist !== null && b.waist !== '') parts.push('腰围 ' + formatNum(Number(b.waist), 1) + 'cm');
         if (b.hip !== undefined && b.hip !== null && b.hip !== '') parts.push('臀围 ' + formatNum(Number(b.hip), 1) + 'cm');
-        sumEl.innerHTML = '<b>' + formatDateCn(pendDate) + '</b> ' + (parts.length ? parts.join(' · ') : '（该日只有日期，没有可用的数值）');
-        okBtn.disabled = !parts.length;
+        if (!parts.length) {
+          sumEl.innerHTML = '<b>' + title + '</b> ' + (isB
+            ? '还没有初始数据，请先到上面的「体重档案 · 初始数据（基线）」填写并保存。'
+            : '没有身材记录，不能作为数据参考值，请选带绿点的日期。');
+          okBtn.disabled = true;
+          return;
+        }
+        sumEl.innerHTML = '<b>' + title + '</b> ' + parts.join(' · ');
+        okBtn.disabled = false;
       }
 
       function renderGrid() {
@@ -6092,7 +6119,8 @@
         grid.querySelectorAll('.dp-day').forEach(btn => {
           btn.addEventListener('click', () => {
             pendDate = btn.dataset.day;
-            if (days.indexOf(pendDate) >= 0) selDate.value = pendDate;
+            ensureOption(pendDate);
+            selDate.value = pendDate;
             renderGrid();
             renderSummary();
           });
@@ -6103,10 +6131,17 @@
       renderSummary();
 
       selDate.addEventListener('change', () => {
-        if (!selDate.value) return;
-        pendDate = selDate.value;
-        pickYear = Number(pendDate.slice(0, 4));
-        pickMonth = Number(pendDate.slice(5, 7));
+        const v = selDate.value;
+        if (!v) return;
+        if (v === 'baseline') {
+          pendDate = 'baseline';
+          renderGrid();
+          renderSummary();
+          return;
+        }
+        pendDate = v;
+        pickYear = Number(v.slice(0, 4));
+        pickMonth = Number(v.slice(5, 7));
         if (selYear.querySelector('option[value="' + pickYear + '"]')) selYear.value = String(pickYear);
         selMonth.value = String(pickMonth);
         renderGrid();
@@ -6126,7 +6161,7 @@
         save();
         close();
         renderProgress();
-        toast('初始数据已设为 ' + formatDateCn(pendDate));
+        toast('数据参考值已设为 ' + (pendDate === 'baseline' ? '初始数据' : formatDateCn(pendDate)));
       });
     }
     function openDatePicker(monthDateStr) {
