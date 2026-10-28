@@ -927,7 +927,8 @@
     .cal-day.has-exercise { cursor: pointer; }
     .cal-day.has-exercise:active { transform: scale(0.96); }
     /* 日历月份导航（运动日历 / 热量日历共用） */
-    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+    .cal-nav-title { flex: 1 1 auto; text-align: center; font-size: 15px; font-weight: 600; color: #5A3A42; white-space: nowrap; }
     .cal-nav-left { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1 1 auto; }
     .cal-nav-btns { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
     .cal-nav-btn { background: rgba(214,138,166,0.16); border: 1px solid rgba(214,138,166,0.3); color: #b3537a; border-radius: 999px; font-size: 13px; font-weight: 700; padding: 5px 13px; cursor: pointer; }
@@ -1833,7 +1834,7 @@
           <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
         </div>
       </div>
-      <details class="panel section-details" id="body-stats-collapse" data-page-node-id="hLE4La2vfiVIdjxx6Hj5NH">
+      <details class="panel section-details" id="body-stats-collapse" open data-page-node-id="hLE4La2vfiVIdjxx6Hj5NH">
         <summary data-page-node-id="TxjrhQ5WnZpjZBLDBX6pWe">📐 身材记录 <small data-page-node-id="sqmHSNy256pcKHyAbD4GiK">点击展开 / 收起</small></summary>
         <div class="table-wrap" data-page-node-id="LczQn75vTOJshLsDEDFewh">
           <div class="row body-cal-toolbar" id="body-cal-toolbar" style="display:none;" data-page-node-id="bodyCalToolbar">
@@ -4023,10 +4024,9 @@
 
       let html = '<div class="cal-nav">'
         + '<button type="button" class="cal-nav-btn" data-cal-nav="prev">‹ 上月</button>'
-        + '<button type="button" class="cal-nav-btn cal-nav-today" data-cal-nav="today">今天</button>'
+        + '<div class="cal-nav-title">' + year + '年 ' + monthNames[month] + '</div>'
         + '<button type="button" class="cal-nav-btn" data-cal-nav="next">下月 ›</button>'
         + '</div>';
-      html += '<div class="cal-header">' + year + '年 ' + monthNames[month] + '</div>';
       html += '<div class="cal-weekdays">' + weekdays.map(w => '<div>' + w + '</div>').join('') + '</div>';
       html += '<div class="cal-days">';
       for (let i = 0; i < startWeekday; i++) html += '<div class="cal-day empty"></div>';
@@ -4048,10 +4048,8 @@
       el.querySelectorAll('[data-cal-nav]').forEach(btn => {
         btn.addEventListener('click', () => {
           const nav = btn.getAttribute('data-cal-nav');
-          const now = new Date();
           if (nav === 'prev') setViewMonth(viewYear, viewMonth - 1);
           else if (nav === 'next') setViewMonth(viewYear, viewMonth + 1);
-          else setViewMonth(now.getFullYear(), now.getMonth());
         });
       });
     }
@@ -4087,8 +4085,11 @@
       const startWeekday = firstDay.getDay();
       const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 
-      let html = '<div class="cal-nav">' + '<button type="button" class="cal-nav-btn" data-cal-nav="prev">‹ 上月</button>' + '<button type="button" class="cal-nav-btn cal-nav-today" data-cal-nav="today">今天</button>' + '<button type="button" class="cal-nav-btn" data-cal-nav="next">下月 ›</button>' + '</div>';
-      html += '<div class="cal-header">' + year + '年 ' + monthNames[month] + '</div>';
+      let html = '<div class="cal-nav">'
+        + '<button type="button" class="cal-nav-btn" data-cal-nav="prev">‹ 上月</button>'
+        + '<div class="cal-nav-title">' + year + '年 ' + monthNames[month] + '</div>'
+        + '<button type="button" class="cal-nav-btn" data-cal-nav="next">下月 ›</button>'
+        + '</div>';
       html += '<div class="cal-weekdays">' + weekdays.map(w => '<div>' + w + '</div>').join('') + '</div>';
       html += '<div class="cal-days">';
       for (let i = 0; i < startWeekday; i++) html += '<div class="cal-day empty"></div>';
@@ -4111,10 +4112,8 @@
       el.querySelectorAll('[data-cal-nav]').forEach(btn => {
         btn.addEventListener('click', () => {
           const nav = btn.getAttribute('data-cal-nav');
-          const now = new Date();
           if (nav === 'prev') setViewMonth(viewYear, viewMonth - 1);
           else if (nav === 'next') setViewMonth(viewYear, viewMonth + 1);
-          else setViewMonth(now.getFullYear(), now.getMonth());
         });
       });
       // 点击有记录的日期 → 弹出当日热量 / 营养素明细
@@ -5335,10 +5334,10 @@
       if (holder && toolbar && !toolbar.contains(holder)) toolbar.appendChild(holder);
       let html = '<div class="cal-nav">'
         + '<button type="button" class="cal-nav-btn" data-cal-nav="prev">‹ 上月</button>'
+        + '<div class="cal-nav-title">' + year + '年 ' + monthNames[month] + '</div>'
         + '<button type="button" class="cal-nav-btn" data-cal-nav="next">下月 ›</button>'
         + '</div>';
       html += '<div class="cal-metric-row" id="body-cal-slot"></div>';
-      html += '<div class="cal-header">' + year + '年 ' + monthNames[month] + '</div>';
       html += '<div class="cal-weekdays">' + weekdays.map(w => '<div>' + w + '</div>').join('') + '</div>';
       html += '<div class="cal-days">';
       for (let i = 0; i < startWeekday; i++) html += '<div class="cal-day empty"></div>';
@@ -5376,10 +5375,8 @@
       el.querySelectorAll('[data-cal-nav]').forEach(btn => {
         btn.addEventListener('click', () => {
           const nav = btn.getAttribute('data-cal-nav');
-          const now = new Date();
           if (nav === 'prev') setViewMonth(viewYear, viewMonth - 1);
           else if (nav === 'next') setViewMonth(viewYear, viewMonth + 1);
-          else setViewMonth(now.getFullYear(), now.getMonth());
         });
       });
       // 点击有记录的日期 → 弹出当日身材明细
