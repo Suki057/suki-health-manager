@@ -924,7 +924,19 @@
     .cal-badge { font-size: 9px; color: #7a3b5b; margin-top: 1px; white-space: nowrap; }
     .cal-day.has-exercise { cursor: pointer; }
     .cal-day.has-exercise:active { transform: scale(0.96); }
-    @media (max-width: 360px) { .cal-day { min-height: 38px; font-size: 12px; } .cal-badge { font-size: 8px; } }
+    /* 日历月份导航（运动日历 / 热量日历共用） */
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+    .cal-nav-btn { background: rgba(214,138,166,0.16); border: 1px solid rgba(214,138,166,0.3); color: #b3537a; border-radius: 999px; font-size: 13px; font-weight: 700; padding: 5px 13px; cursor: pointer; }
+    .cal-nav-btn:active { transform: scale(0.95); }
+    .cal-nav-today { background: #b3537a; color: #fff; border-color: #b3537a; }
+    /* 热量日历：有记录的日期显示当日热量缺口数值（不带单位） */
+    .cal-day.has-record { background: rgba(179,83,122,0.18); border-color: rgba(179,83,122,0.4); font-weight: 600; cursor: pointer; }
+    .cal-day.has-record:active { transform: scale(0.96); }
+    .cal-num { font-size: 11px; font-weight: 700; color: #b3537a; margin-top: 1px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .cal-num.neg { color: #2e8b57; }
+    /* 只读日期展示（联动展示月初 / 月末，不可手填） */
+    .readonly-date { background: rgba(255,255,255,0.6); color: #5A3A42; cursor: default; }
+    @media (max-width: 360px) { .cal-day { min-height: 38px; font-size: 12px; } .cal-badge, .cal-num { font-size: 9px; } .cal-nav-btn { padding: 4px 9px; font-size: 12px; } }
     /* 当日运动明细弹窗 */
     .day-ex-stats { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
     .day-ex-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.6); border: 1px solid rgba(214,138,166,0.18); }
@@ -1737,7 +1749,7 @@
           </form>
         </details>
       </div>
-      <details class="panel section-details" id="food-lib-collapse" open data-page-node-id="ddLiB52jF7enx4RWf8HCON">
+      <details class="panel section-details" id="food-lib-collapse" data-page-node-id="ddLiB52jF7enx4RWf8HCON">
         <summary data-page-node-id="krCniNSF2cFxX2BXLKCqHn">🍎 食物库清单 <small data-page-node-id="uOVcxoFeDsNrF2oj2u0D6E">点击展开 / 收起</small></summary>
         <div id="food-categories" data-page-node-id="kzqBIpUpTAIVWQiLFFhUtO"></div>
       </details>
@@ -1793,27 +1805,23 @@
     <!-- 统计 -->
     <section id="stats" class="tab-panel" data-page-node-id="OxvJg2lHmkG3bUw1LSWwCl">
       <div class="panel" data-page-node-id="cC4XMSdSVb6X577dQeZnc7">
-        <h2 data-page-node-id="dvgAOWwUFVIFuOc4LX8enD">📊 热量记录</h2>
+        <h2 data-page-node-id="dvgAOWwUFVIFuOc4LX8enD">📊 热量记录日历</h2>
         <div class="row stats-datebar" data-page-node-id="lK1lgJINsfpuEYgfE5DFgL">
           <div class="date-group" data-page-node-id="xyKu4Afc9Bgg5yBOyq0CPY">
-            <label for="stats-start" data-page-node-id="y3ZItodmkEOrGMXcqGQpSL">开始日期</label>
-            <span data-page-node-id="TtYCWp0mYWwLz8v2yEOA7G"></span>
-            <label for="stats-end" data-page-node-id="mngEVEvRVLN5iRHWZpP8tk">结束日期</label>
-            <input type="date" id="stats-start" data-page-node-id="ma7SlQlTH6aRfJNR3McHw0" />
+            <label data-page-node-id="y3ZItodmkEOrGMXcqGQpSL">开始日期</label>
+            <input type="date" id="stats-start" class="readonly-date" readonly data-page-node-id="ma7SlQlTH6aRfJNR3McHw0" />
             <span class="date-sep" data-page-node-id="sbKeJxktOfvMEmn1C8Jjjs">—</span>
-            <input type="date" id="stats-end" data-page-node-id="4ETazLGoe31pvB5yrOncV3" />
+            <label data-page-node-id="mngEVEvRVLN5iRHWZpP8tk">结束日期</label>
+            <input type="date" id="stats-end" class="readonly-date" readonly data-page-node-id="4ETazLGoe31pvB5yrOncV3" />
           </div>
           <div class="stats-actions" data-page-node-id="StatsActionsRow">
-            <button id="stats-load-btn" class="btn primary" data-page-node-id="HMP6d8pxPnQpOFXU0PMyfn">查看</button>
             <button id="stats-today-btn" class="btn secondary" data-page-node-id="AbT0dayBtnSuki057">🔙 回到今天</button>
             <button id="monthly-stats-btn" class="btn secondary" data-page-node-id="UJRjUFF4lGYFBCbw0sefLa">📅 月热量记录</button>
           </div>
         </div>
+        <p class="hint" style="margin:6px 0 0;">点击日历中的日期，可查看当日摄入 / 消耗 / 营养素明细</p>
         <div class="table-wrap" data-page-node-id="VFCMdKFL5IQuum3yP8RM9H">
-          <table id="stats-table" data-page-node-id="S4MNQfYk6qjRxoarwVi1FC">
-            <thead data-page-node-id="0QLH3NJKKj8tmOifcwFDpv"><tr data-page-node-id="5QUWyU5m3Z9Y57TJ1hpVc8"><th data-page-node-id="WVE3YCCA4CA3W325o30z2a">日期</th><th data-page-node-id="sJPPuxfZVLABUvebCDwAXl">摄入</th><th data-page-node-id="9TV8NpuDhQPpRjGZwY8UC9">消耗</th><th data-page-node-id="yDl0I09uFnr6kcQaDktvic">热量缺口</th><th data-page-node-id="YtGxASWQehdBrBMyZHocO3">蛋白质</th><th data-page-node-id="D9CwDQ4fkI4EAAD9BSKtjR">脂肪</th><th data-page-node-id="BJ9g2Wuj6iPRRZTad2JpTw">碳水</th><th data-page-node-id="0UsXP5dSivmfRoXElyGHSM">糖</th><th data-page-node-id="7yTWsq2H8hWoYuU4wrExP6">钠</th><th data-page-node-id="wz7y2JNuydR7MJL8SMFGIs">操作</th></tr></thead>
-            <tbody data-page-node-id="lhd53CJNYhm6PK6zjnL178"></tbody>
-          </table>
+          <div id="calorie-calendar" class="exercise-calendar" data-page-node-id="calorieCal"></div>
         </div>
       </div>
       <details class="panel section-details" id="body-stats-collapse" data-page-node-id="hLE4La2vfiVIdjxx6Hj5NH">
@@ -2066,6 +2074,28 @@
     </div>
   </div>
 
+  <!-- 当日热量 / 营养素明细弹窗（点击热量日历有记录的日期） -->
+  <div id="day-calories-modal" class="modal-overlay" style="display:none" data-page-node-id="dayCalModal">
+    <div class="modal-box" data-page-node-id="dayCalBox">
+      <h3 data-page-node-id="dayCalTitle">📊 当日热量明细</h3>
+      <p class="hint" data-page-node-id="dayCalDate">—</p>
+      <div class="day-ex-stats" data-page-node-id="dayCalStats">
+        <div class="day-ex-row"><span class="day-ex-label">🍽️ 摄入热量</span><span class="day-ex-value" id="day-cal-kcal" data-page-node-id="dayCalKcal">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">🔥 消耗热量</span><span class="day-ex-value" id="day-cal-burn" data-page-node-id="dayCalBurn">—</span></div>
+        <div class="day-ex-row day-ex-total"><span class="day-ex-label">⚖️ 热量缺口</span><span class="day-ex-value" id="day-cal-deficit" data-page-node-id="dayCalDeficit">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">🥩 蛋白质</span><span class="day-ex-value" id="day-cal-protein" data-page-node-id="dayCalProtein">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">🧈 脂肪</span><span class="day-ex-value" id="day-cal-fat" data-page-node-id="dayCalFat">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">🍚 碳水</span><span class="day-ex-value" id="day-cal-carbs" data-page-node-id="dayCalCarbs">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">🍬 糖</span><span class="day-ex-value" id="day-cal-sugar" data-page-node-id="dayCalSugar">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">🧂 钠</span><span class="day-ex-value" id="day-cal-sodium" data-page-node-id="dayCalSodium">—</span></div>
+      </div>
+      <div class="modal-actions" style="margin-top:14px;display:flex;gap:10px;" data-page-node-id="dayCalActions">
+        <button class="btn primary" id="day-calories-done" data-page-node-id="dayCalDone">完成</button>
+        <button class="btn danger" id="day-calories-delete" data-page-node-id="dayCalDelete">删除</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== 一次性激活授权码锁屏（放在脚本之前，确保 init 时 DOM 已就绪） ===== -->
   <div id="lock-screen" class="lock-screen">
     <div class="lock-card">
@@ -2090,6 +2120,9 @@
     var ACTIVATED_KEY = 'sukiAppActivated_v1';
     const STORAGE_KEY = 'dietTrackerData';
     let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, goalHistory: [], metabolism: {}, mealPeriods: [] };
+    // 全局「查看月份」：运动日历与热量记录共用，切换任一处的月份时联动
+    let viewYear = new Date().getFullYear();
+    let viewMonth = new Date().getMonth();
     const numericKeys = ['kcal', 'protein', 'sugar', 'fat', 'carbs', 'sodium'];
 
     function loadData() {
@@ -2381,11 +2414,18 @@
       // 已坚持次数：点击/键盘打开弹窗
       document.getElementById('persist-row').addEventListener('click', togglePersistPanel);
       document.getElementById('persist-row').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePersistPanel(); } });
-      ['custom-food-modal', 'custom-exercise-modal', 'day-exercise-modal'].forEach(id => {
+      ['custom-food-modal', 'custom-exercise-modal', 'day-exercise-modal', 'day-calories-modal'].forEach(id => {
         const ov = document.getElementById(id);
         ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
       });
       document.getElementById('day-exercise-close').addEventListener('click', () => { document.getElementById('day-exercise-modal').style.display = 'none'; });
+      document.getElementById('day-calories-done').addEventListener('click', () => { document.getElementById('day-calories-modal').style.display = 'none'; });
+      document.getElementById('day-calories-delete').addEventListener('click', async () => {
+        const m = document.getElementById('day-calories-modal');
+        const dateStr = m.dataset.date;
+        m.style.display = 'none';
+        if (dateStr) await deleteDayRecord(dateStr);
+      });
       ['cf-name', 'cf-portion', 'cf-kcal', 'cf-protein', 'cf-fat', 'cf-carbs', 'cf-sugar', 'cf-sodium'].forEach(id => {
         document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') saveCustomFood(); });
       });
@@ -3946,9 +3986,7 @@
     function renderExerciseCalendar() {
       const el = document.getElementById('exercise-calendar');
       if (!el) return;
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
+      const year = viewYear, month = viewMonth;
       const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
@@ -3956,7 +3994,12 @@
       const startWeekday = firstDay.getDay();
       const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 
-      let html = '<div class="cal-header">' + year + '年 ' + monthNames[month] + '</div>';
+      let html = '<div class="cal-nav">'
+        + '<button type="button" class="cal-nav-btn" data-cal-nav="prev">‹ 上月</button>'
+        + '<button type="button" class="cal-nav-btn cal-nav-today" data-cal-nav="today">今天</button>'
+        + '<button type="button" class="cal-nav-btn" data-cal-nav="next">下月 ›</button>'
+        + '</div>';
+      html += '<div class="cal-header">' + year + '年 ' + monthNames[month] + '</div>';
       html += '<div class="cal-weekdays">' + weekdays.map(w => '<div>' + w + '</div>').join('') + '</div>';
       html += '<div class="cal-days">';
       for (let i = 0; i < startWeekday; i++) html += '<div class="cal-day empty"></div>';
@@ -3974,6 +4017,93 @@
       el.querySelectorAll('.cal-day.has-exercise').forEach(cell => {
         cell.addEventListener('click', () => openDayExercisePopup(cell.getAttribute('data-date')));
       });
+      // 月份导航：切换处联动运动日历 + 热量记录
+      el.querySelectorAll('[data-cal-nav]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const nav = btn.getAttribute('data-cal-nav');
+          const now = new Date();
+          if (nav === 'prev') setViewMonth(viewYear, viewMonth - 1);
+          else if (nav === 'next') setViewMonth(viewYear, viewMonth + 1);
+          else setViewMonth(now.getFullYear(), now.getMonth());
+        });
+      });
+    }
+
+    // 统一切换查看月份：更新全局月份 + 热量记录区间 + 重渲染运动日历 / 热量日历 / 身材统计
+    function setViewMonth(y, m) {
+      if (m < 0) { y--; m = 11; }
+      else if (m > 11) { y++; m = 0; }
+      viewYear = y; viewMonth = m;
+      const first = new Date(y, m, 1);
+      const last = new Date(y, m + 1, 0);
+      const p2 = n => (n < 10 ? '0' + n : '' + n);
+      const fmtD = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+      const sEl = document.getElementById('stats-start');
+      const eEl = document.getElementById('stats-end');
+      if (sEl) sEl.value = fmtD(first);
+      if (eEl) eEl.value = fmtD(last);
+      renderExerciseCalendar();
+      renderCalorieCalendar();
+      renderBodyStats(fmtD(first), fmtD(last));
+      renderBodyChart();
+    }
+
+    // ==================== 热量记录日历 ====================
+    function renderCalorieCalendar() {
+      const el = document.getElementById('calorie-calendar');
+      if (!el) return;
+      const year = viewYear, month = viewMonth;
+      const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startWeekday = firstDay.getDay();
+      const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+
+      let html = '<div class="cal-header">' + year + '年 ' + monthNames[month] + '</div>';
+      html += '<div class="cal-weekdays">' + weekdays.map(w => '<div>' + w + '</div>').join('') + '</div>';
+      html += '<div class="cal-days">';
+      for (let i = 0; i < startWeekday; i++) html += '<div class="cal-day empty"></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = formatDateLocal(year, month, d);
+        const log = state.logs[dateStr];
+        const has = log && logHasContent(log);
+        if (has) {
+          const t = computeDayTotals(dateStr);
+          const deficit = Math.round((t.burn || 0) - (t.kcal || 0));
+          const neg = deficit < 0 ? ' neg' : '';
+          html += '<div class="cal-day has-record" data-date="' + dateStr + '"><span>' + d + '</span><span class="cal-num' + neg + '">' + formatNum(deficit, 0) + '</span></div>';
+        } else {
+          html += '<div class="cal-day"><span>' + d + '</span></div>';
+        }
+      }
+      html += '</div>';
+      el.innerHTML = html;
+      // 点击有记录的日期 → 弹出当日热量 / 营养素明细
+      el.querySelectorAll('.cal-day.has-record').forEach(cell => {
+        cell.addEventListener('click', () => openDayCaloriePopup(cell.getAttribute('data-date')));
+      });
+    }
+
+    // 弹出某天的热量 / 营养素明细
+    function openDayCaloriePopup(dateStr) {
+      const modal = document.getElementById('day-calories-modal');
+      if (!modal) return;
+      const t = computeDayTotals(dateStr);
+      const deficit = Math.round((t.burn || 0) - (t.kcal || 0));
+      const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+      const dateEl = modal.querySelector('[data-page-node-id="dayCalDate"]');
+      if (dateEl) dateEl.textContent = dateStr;
+      set('day-cal-kcal', formatNum(t.kcal, 0) + ' kcal');
+      set('day-cal-burn', formatNum(t.burn, 0) + ' kcal');
+      set('day-cal-deficit', formatNum(deficit, 0) + ' kcal');
+      set('day-cal-protein', formatNum(t.protein) + ' g');
+      set('day-cal-fat', formatNum(t.fat) + ' g');
+      set('day-cal-carbs', formatNum(t.carbs) + ' g');
+      set('day-cal-sugar', formatNum(t.sugar) + ' g');
+      set('day-cal-sodium', formatNum(t.sodium) + ' mg');
+      modal.dataset.date = dateStr;
+      modal.style.display = 'flex';
     }
 
     // 弹出某天的运动明细：有氧时长 / 无氧时长 / 总时长
@@ -4559,7 +4689,7 @@
 
     // ==================== 统计 ====================
     function setupStatsTab() {
-      // 默认区间：当年当月 1 号 ~ 当月最后一天；需要看某几天时可用日期框自选
+      // 默认区间：当年当月 1 号 ~ 当月最后一天；运动日历与热量记录共用「查看月份」
       const now = new Date();
       const y = now.getFullYear();
       const m = now.getMonth();
@@ -4567,9 +4697,9 @@
       const last = new Date(y, m + 1, 0);
       const p2 = n => (n < 10 ? '0' + n : '' + n);
       const fmtD = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+      viewYear = y; viewMonth = m;
       document.getElementById('stats-start').value = fmtD(first);
       document.getElementById('stats-end').value = fmtD(last);
-      document.getElementById('stats-load-btn').addEventListener('click', renderStats);
       document.getElementById('stats-today-btn').addEventListener('click', backToTodayRange);
       document.getElementById('monthly-stats-btn').addEventListener('click', renderMonthlyStats);
       document.getElementById('monthly-stats-close').addEventListener('click', () => {
@@ -4583,20 +4713,12 @@
       const bodyCollapse = document.getElementById('body-stats-collapse');
       if (bodyCollapse) bodyCollapse.addEventListener('toggle', () => { if (bodyCollapse.open) renderBodyChart(); });
     }
-    // 回到今天：把日期范围重置为当前月 1 号 ~ 月末，并立即刷新
+    // 回到今天：把查看月份重置为当前月，联动运动日历与热量记录
     function backToTodayRange() {
       const now = new Date();
-      const y = now.getFullYear();
-      const m = now.getMonth();
-      const first = new Date(y, m, 1);
-      const last = new Date(y, m + 1, 0);
-      const p2 = n => (n < 10 ? '0' + n : '' + n);
-      const fmtD = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
-      document.getElementById('stats-start').value = fmtD(first);
-      document.getElementById('stats-end').value = fmtD(last);
-      renderStats();
-      const ym = `${y}年${m + 1}月`;
-      toast('已回到今天：' + ym + ' 1 号 ~ ' + last.getDate() + ' 号');
+      setViewMonth(now.getFullYear(), now.getMonth());
+      const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      toast('已回到今天：' + now.getFullYear() + '年' + (now.getMonth() + 1) + '月 1 号 ~ ' + last.getDate() + ' 号');
     }
     // 月热量记录：按月份自动汇总
     function renderMonthlyStats() {
@@ -4858,37 +4980,10 @@
     }
 
     function renderStats() {
+      // 热量记录改为整月日历视图（基于全局 view 月份，stats-start/end 已为整月）
+      renderCalorieCalendar();
       const start = document.getElementById('stats-start').value;
       const end = document.getElementById('stats-end').value;
-      const tbody = document.querySelector('#stats-table tbody');
-      tbody.innerHTML = '';
-      if (!start || !end) { renderBodyStats(start, end); renderBodyChart(); return; }
-      const dates = Object.keys(state.logs).filter(d => d >= start && d <= end).sort((a, b) => b.localeCompare(a));
-      if (dates.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">该区间没有记录</td></tr>';
-        renderBodyStats(start, end);
-        renderBodyChart();
-        return;
-      }
-      dates.forEach(day => {
-        const t = computeDayTotals(day);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${day}</td>
-          <td class="number">${formatNum(t.kcal, 0)}</td>
-          <td class="number">${formatNum(t.burn, 0)}</td>
-          <td class="number deficit">${formatNum(t.burn - t.kcal, 0)}</td>
-          <td class="number">${formatNum(t.protein)}</td>
-          <td class="number">${formatNum(t.fat)}</td>
-          <td class="number">${formatNum(t.carbs)}</td>
-          <td class="number">${formatNum(t.sugar)}</td>
-          <td class="number">${formatNum(t.sodium)}</td>
-          <td class="actions-col"><button class="btn tiny danger" data-del-day="${day}">删除</button></td>`;
-        tbody.appendChild(tr);
-      });
-      tbody.querySelectorAll('[data-del-day]').forEach(btn => {
-        btn.addEventListener('click', () => deleteDayRecord(btn.dataset.delDay));
-      });
       renderBodyStats(start, end);
       renderBodyChart();
     }
