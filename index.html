@@ -938,7 +938,7 @@
     .persist-row:focus-visible { outline: 2px solid rgba(214,138,166,0.5); outline-offset: 2px; }
     .persist-label { font-size: 14.5px; font-weight: 600; color: #5A3A42; }
     .persist-count { font-size: 20px; font-weight: 800; color: #b3537a; font-variant-numeric: tabular-nums; }
-    .persist-total { font-size: 16px; font-weight: 700; color: #5A3A42; margin: 6px 0 14px; }
+    .persist-total { font-size: 12px; font-weight: 700; color: #5A3A42; margin: 6px 0 14px; line-height: 1.6; }
     .persist-months { margin-bottom: 16px; }
     .persist-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; color: #3d3a36; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.18); border-radius: 10px; overflow: hidden; }
     .persist-table col.c-month { width: 40%; }
@@ -4040,7 +4040,7 @@
         const { total, totalAer, totalAna, months } = computePersistStats();
         const totalEl = document.getElementById('persist-total');
         const monthsEl = document.getElementById('persist-months');
-        if (totalEl) totalEl.textContent = '有氧时长「分」：' + formatNum(totalAer, 0) + '，无氧时长「分」：' + formatNum(totalAna, 0);
+        if (totalEl) totalEl.innerHTML = '有氧时长「分」：' + formatNum(totalAer, 0) + '<br>无氧时长「分」：' + formatNum(totalAna, 0);
         // 有运动的月份 + 各月坚持次数 + 各月有氧/无氧时长
         if (monthsEl) {
           const keys = Object.keys(months).sort();
