@@ -1840,7 +1840,7 @@
           <div class="row body-cal-toolbar" id="body-cal-toolbar" style="display:none;" data-page-node-id="bodyCalToolbar">
             <div class="field small" id="body-cal-metric-holder" style="margin:0;" data-page-node-id="bodyCalField">
               <label style="display:none" data-page-node-id="bodyCalLbl">显示指标</label>
-              <select id="body-cal-metric" style="font-size:11px;padding:4px 9px;border-radius:9px;" data-page-node-id="bodyCalSel">
+              <select id="body-cal-metric" style="font-size:7px;width:175px;padding:4px 8px;border-radius:9px;" data-page-node-id="bodyCalSel">
                 <option value="combo" data-page-node-id="bodyCalCombo">体重&amp;体脂「kg&amp;%」</option>
                 <option value="calf" data-page-node-id="bodyCalCalf">小腿围「cm」</option>
                 <option value="thigh" data-page-node-id="bodyCalThigh">大腿围「cm」</option>
@@ -2527,10 +2527,9 @@
       renderBaseline();
       renderSplash();
       renderBodyStats();
-      // 保存后自动清空输入框，方便录入下一天的新数据
-      BODY_FIELDS.forEach(([inputId]) => { const el = document.getElementById(inputId); if (el) el.value = ''; });
+      // 保存后保留输入框里的数值，方便发现错了直接改完再存（新的数值覆盖当天旧值）
       const hint = document.getElementById('body-saved-hint');
-      if (hint) hint.textContent = '已保存 ' + day + ' 的身材数据，输入框已清空，可录入下一天。';
+      if (hint) hint.textContent = '已保存 ' + day + ' 的身材数据；如需修改，直接改数值后再点保存即可覆盖，次日 0 点自动清空。';
       toast('身材数据已保存（' + day + '）');
     }
 
@@ -3085,8 +3084,13 @@
       enter.addEventListener('click', () => splash.classList.add('hidden'));
     }
 
+    // 「体重记录」输入框当前对应的日期 / 上次已知的“今天”，用于次日 0 点自动清空
+    let bodyFormDay = null;
+    let lastKnownToday = getTodayStr();
+
     function renderBody() {
       const day = getCurrentDate();
+      bodyFormDay = day;
       const body = (state.logs[day] && state.logs[day].body) || {};
       BODY_FIELDS.forEach(([inputId, key]) => {
         const el = document.getElementById(inputId);
@@ -3099,6 +3103,25 @@
         hint.textContent = '';
       }
     }
+
+    // 跨天检测：过了 0 点（或第二天重新打开 App）自动把日期切到今天并清空输入框，等待录入新一天数据
+    function bodyDayRollover() {
+      const today = getTodayStr();
+      if (today === lastKnownToday) return;
+      const prev = lastKnownToday;
+      lastKnownToday = today;
+      const picker = document.getElementById('date-picker');
+      if (picker && picker.value === prev) {
+        picker.value = today;
+        renderToday();
+        renderBody();
+        if (typeof renderBodyStats === 'function') renderBodyStats();
+        const hint = document.getElementById('body-saved-hint');
+        if (hint) hint.textContent = '新的一天开始啦，可录入今天的身材数据。';
+      }
+    }
+    setInterval(bodyDayRollover, 20000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) bodyDayRollover(); });
 
     function addFoodEntry() {
       const id = document.getElementById('food-selected-id').value;
@@ -5357,7 +5380,7 @@
           const lastV = prevValMap[dateStr];
           let face = '';
           if (curV !== undefined && curV !== null && lastV !== null && lastV !== undefined && curV !== lastV) {
-            face = curV < lastV ? '😊' : '😫';
+            face = curV < lastV ? '🌹' : '😫';
           }
           html += '<div class="cal-day has-body" data-date="' + dateStr + '">'
             + (face ? '<span class="cal-face">' + face + '</span>' : '')
@@ -5598,8 +5621,12 @@
         if (!dates.length) return null;
         return state.logs[dates[dates.length - 1]].body.weight;
       }
-      function loadMetabolismMonth(ym) {
-        const m = (state.metabolismByMonth && state.metabolismByMonth[ym]) || state.metabolism || {};
+      function loadMetabolismMonth(ym, isSwitch) {
+        // 只读该月份自己的存档；旧版单一 metabolism 仅在完全没有分月数据时才兜底
+        // （此前 fallback 到 state.metabolism 会让新月份直接沿用上个月体重，导致换月体重不变）
+        const byMonth = (state.metabolismByMonth && state.metabolismByMonth[ym]) ? state.metabolismByMonth[ym] : null;
+        const hasByMonth = !!(state.metabolismByMonth && Object.keys(state.metabolismByMonth).length);
+        const m = byMonth || ((!hasByMonth && state.metabolism) ? state.metabolism : {});
         if (m.gender) {
           const el = document.querySelector('input[name="metabolism-gender"][value="' + m.gender + '"]');
           if (el) el.checked = true;
@@ -5609,11 +5636,13 @@
           if (el) el.checked = true;
         }
         if (m.age !== undefined) inputs.age.value = m.age;
-        // 换月时：本月还没存过体重，自动带入上一个月最后一次录入的体重
-        if (m.weight !== undefined && m.weight !== null) {
+        // 体重：手动换月时一律带入「该月之前最后一次录入的体重」；首次进入优先显示该月存档
+        const carried = getCarryWeight(ym);
+        if (isSwitch && carried !== null) {
+          inputs.weight.value = carried;
+        } else if (m.weight !== undefined && m.weight !== null) {
           inputs.weight.value = m.weight;
         } else {
-          const carried = getCarryWeight(ym);
           inputs.weight.value = (carried !== null ? carried : '');
         }
         if (m.height !== undefined) inputs.height.value = m.height;
@@ -5623,9 +5652,9 @@
       }
       if (mmEl) {
         mmEl.value = getTodayStr().slice(0, 7);
-        mmEl.addEventListener('change', () => loadMetabolismMonth(mmEl.value));
+        mmEl.addEventListener('change', () => loadMetabolismMonth(mmEl.value, true));
       }
-      loadMetabolismMonth(getTodayStr().slice(0, 7));
+      loadMetabolismMonth(getTodayStr().slice(0, 7), false);
     }
 
     // 当前「代谢测试」表单选中的年月
