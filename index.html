@@ -827,15 +827,16 @@
       margin-bottom: 6px;
     }
     .form-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-start; margin-top: 4px; }
-    /* 每日营养目标：蛋白质/碳水 一行（输入框为原 72px 的 1.5 倍 = 108px），脂肪/糖/钠含量 一行；标题在上、输入框在下 */
+    /* 每日营养目标：蛋白质/碳水 一行（输入框为原 72px 的 1.5 倍 = 108px），脂肪/糖/钠含量 一行（脂肪输入框同为 108px）；标题在上、输入框在下 */
     .goal-nutrient-grid { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px; }
     .goal-row { display: grid; justify-content: start; align-items: start; gap: 12px 20px; }
     .goal-row-a { grid-template-columns: repeat(2, auto); }
-    .goal-row-b { grid-template-columns: repeat(3, auto); }
+    .goal-row-b { grid-template-columns: repeat(3, auto); gap: 12px; }
     .goal-row .field { min-width: 0; flex: 0 0 auto; }
     .goal-row .field label { white-space: nowrap; }
     .goal-row .field input { width: 72px; max-width: 100%; }
     .goal-row-a .field input { width: 108px; }
+    .goal-row-b .field:first-child input { width: 108px; }
     /* 「围度数据」展开态高亮 */
     #body-girth-toggle.active { background: #b3537a; color: #fff; border-color: #b3537a; }
     /* 饮食记录行内编辑：份量变成可输入数字框 */
