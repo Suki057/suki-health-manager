@@ -953,6 +953,8 @@
     .cal-metric-row .field.small { display: inline-flex; align-items: center; margin: 0; }
     /* 身材日历：比上次下降 🌹 / 上升 🥀 的浅表情底纹（20% 透明，不挡数值） */
     .cal-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 26px; line-height: 1; opacity: 0.2; pointer-events: none; z-index: 0; }
+    /* 上升 🥀 用灰色（灰度滤镜），透明度与下降 🌹 一致，同样不挡数值 */
+    .cal-face.up { filter: grayscale(1); }
     .cal-day.has-body > span:not(.cal-face) { position: relative; z-index: 1; }
     .body-cal-toolbar .field.small { display: inline-flex; align-items: center; gap: 8px; }
     .body-cal-toolbar label { font-size: 12px; color: var(--muted); font-weight: 600; }
@@ -2652,8 +2654,23 @@
       '目标是一天一天的记录走出来的，方向对了，剩下的只是继续走。',
       '身体从不辜负认真记录的人，下一段路依旧值得期待。',
       '今天的达成，是过去很多次“再坚持一下”攒出来的结果。下一个目标，同样拿得下。',
-      '你不需要一次变成理想的样子，你只需要像现在这样，一次次抵达。'
+      '你不需要一次变成理想的样子，你只需要像现在这样，一次次抵达。',
+      '稳定比猛烈更有力量，你已经找到自己的节奏了，继续往前。',
+      '被你认真对待的每一天，都在悄悄变成你想要的样子。',
+      '达成不是终点，是你下一次相信自己的一点底气。',
+      '把注意力放在能做到的小事上——你就是靠这个走到今天的。',
+      '你已经比开始那天强很多了，下一个小目标，慢慢走也能到。'
     ];
+    // 随机抽一句，且不与上一次重复（每次都能看到不一样的语录）
+    let lastSoupIdx = -1;
+    function pickSoup() {
+      const n = CONGRATS_SOUP.length;
+      if (n <= 1) return CONGRATS_SOUP[0] || '';
+      let i = Math.floor(Math.random() * n);
+      if (i === lastSoupIdx) i = (lastSoupIdx + 1 + Math.floor(Math.random() * (n - 1))) % n;
+      lastSoupIdx = i;
+      return CONGRATS_SOUP[i];
+    }
     // 取「某天所在月份」的那条目标；同月多条时取达成日期最靠后的那条
     function getMonthGoal(day) {
       const ym = String(day).slice(0, 7);
@@ -2677,7 +2694,8 @@
       set('congrats-emoji', emoji);
       set('congrats-title', title);
       set('congrats-msg', msgHtml);
-      set('congrats-next', nextText || '');
+      const nx = document.getElementById('congrats-next');
+      if (nx) { nx.innerHTML = nextText || ''; nx.style.display = nextText ? '' : 'none'; }
       modal.style.display = 'flex';
     }
     function maybeCongratsGoal(body, day) {
@@ -2690,21 +2708,19 @@
       const wOk = (wT != null && wV != null && wV <= wT);
       const fOk = (fT != null && fV != null && fV <= fT);
       if (!wOk && !fOk) return;
-      const next = getNextGoal(day);
-      let nextText;
-      if (next) {
-        const bits = [];
-        if (next.targetWeight != null) bits.push(formatNum(next.targetWeight) + ' kg');
-        if (next.targetBodyFat != null) bits.push(formatNum(next.targetBodyFat) + ' %');
-        nextText = '下一个目标：' + escapeHtml(next.targetDate) + (bits.length ? ' · ' + bits.join(' / ') : '') + '，接着往前走吧。';
-      } else {
-        nextText = '还没有下一个目标，可以去「管理进度」给自己定一个新目标。';
-      }
+      // 两个都达成：只给鸡汤 + 下一个目标；只达成一个：不提示下一个目标
       if (wOk && fOk) {
-        const soup = CONGRATS_SOUP[Math.floor(Math.random() * CONGRATS_SOUP.length)];
-        showCongrats('🏆', '双目标达成！',
-          '体重 ' + formatNum(wV) + ' kg（目标 ' + formatNum(wT) + ' kg）、体脂率 ' + formatNum(fV) + ' %（目标 ' + formatNum(fT) + ' %）都达成了。<br>' + soup,
-          nextText);
+        const next = getNextGoal(day);
+        let nextText;
+        if (next) {
+          const bits = [];
+          if (next.targetWeight != null) bits.push(formatNum(next.targetWeight) + ' kg');
+          if (next.targetBodyFat != null) bits.push(formatNum(next.targetBodyFat) + ' %');
+          nextText = '下一个目标：' + escapeHtml(next.targetDate) + (bits.length ? ' · ' + bits.join(' / ') : '') + '，接着往前走吧。';
+        } else {
+          nextText = '还没有下一个目标，可以去「管理进度」给自己定一个新目标。';
+        }
+        showCongrats('🏆', '双目标达成！', pickSoup(), nextText);
         return;
       }
       if (wOk) {
@@ -2712,14 +2728,14 @@
           ? '体脂率 ' + formatNum(fV) + ' %，距离目标 ' + formatNum(fT) + ' % 还差 ' + formatNum(fV - fT) + ' %，仍需努力。'
           : '这次没记体脂率，下次一起量一下更有参考价值。';
         showCongrats('⚖️', '恭喜体重已经达成！',
-          '体重 ' + formatNum(wV) + ' kg 已达成本月目标 ' + formatNum(wT) + ' kg。<br>' + tail, nextText);
+          '体重 ' + formatNum(wV) + ' kg 已达成本月目标 ' + formatNum(wT) + ' kg。<br>' + tail, '');
         return;
       }
       const tail = (wT != null && wV != null)
         ? '体重 ' + formatNum(wV) + ' kg，距离目标 ' + formatNum(wT) + ' kg 还差 ' + formatNum(wV - wT) + ' kg，仍需努力。'
         : '这次没记体重，下次一起量一下更有参考价值。';
       showCongrats('💧', '恭喜体脂率已经达成！',
-        '体脂率 ' + formatNum(fV) + ' % 已达成本月目标 ' + formatNum(fT) + ' %。<br>' + tail, nextText);
+        '体脂率 ' + formatNum(fV) + ' % 已达成本月目标 ' + formatNum(fT) + ' %。<br>' + tail, '');
     }
 
     // ===== 身材 CSV 导入 =====
@@ -5629,7 +5645,7 @@
           } else {
             nums = '<span class="cal-num">' + formatNum(b[metric]) + '</span>';
           }
-          // 比上一次记录下降 → 🌹，上升 → 🥀（20% 透明做底纹）
+          // 比上一次记录下降 → 🌹（红），上升 → 🥀（灰，up 类）；均 20% 透明做底纹
           const curV = pickVal(b);
           const lastV = prevValMap[dateStr];
           let face = '';
@@ -5637,7 +5653,7 @@
             face = curV < lastV ? '🌹' : '🥀';
           }
           html += '<div class="cal-day has-body" data-date="' + dateStr + '">'
-            + (face ? '<span class="cal-face">' + face + '</span>' : '')
+            + (face ? '<span class="cal-face' + (face === '🥀' ? ' up' : '') + '">' + face + '</span>' : '')
             + '<span>' + d + '</span>' + nums + '</div>';
         } else {
           html += '<div class="cal-day"><span>' + d + '</span></div>';
