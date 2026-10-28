@@ -1365,8 +1365,8 @@
     <div class="splash-cards" id="splash-cards" data-page-node-id="E3qRi2x8cRJ7D7O0oC0jBB">
       <div class="splash-card" data-page-node-id="spCurWCard"><div class="num" id="sp-cur-weight" data-page-node-id="spCurWN">—</div><div class="lbl" data-page-node-id="spCurWL">现体重 (kg)</div></div>
       <div class="splash-card" data-page-node-id="spLostCard"><div class="num" id="sp-lost" data-page-node-id="spLostN">—</div><div class="lbl" data-page-node-id="spLostL">体重已降 (kg)</div></div>
-      <div class="splash-card" data-page-node-id="fuGESDW1kkJxjis2qB2Dq8"><div class="num" id="sp-kg" data-page-node-id="L9ySnXiEQc2Yaf44tDUhr0">—</div><div class="lbl" data-page-node-id="o7dhDZY6YfrgaNYQ6YGQs0">距目标体重</div></div>
-      <div class="splash-card" data-page-node-id="HjXgc1qpKlpVQtQYsviDhx"><div class="num" id="sp-fat" data-page-node-id="HIeAHrSA54G6RKysv2ilZt">—</div><div class="lbl" data-page-node-id="QAGOhUrSvSUxsf0Oo7i3P0">体脂可降</div></div>
+      <div class="splash-card" data-page-node-id="fuGESDW1kkJxjis2qB2Dq8"><div class="num" id="sp-kg" data-page-node-id="L9ySnXiEQc2Yaf44tDUhr0">—</div><div class="lbl" id="sp-kg-lbl" data-page-node-id="o7dhDZY6YfrgaNYQ6YGQs0">距目标体重</div></div>
+      <div class="splash-card" data-page-node-id="HjXgc1qpKlpVQtQYsviDhx"><div class="num" id="sp-fat" data-page-node-id="HIeAHrSA54G6RKysv2ilZt">—</div><div class="lbl" id="sp-fat-lbl" data-page-node-id="QAGOhUrSvSUxsf0Oo7i3P0">体脂可降</div></div>
       <div class="splash-card" data-page-node-id="kWdVfGZbiif6vGTguAQSlG"><div class="num" id="sp-kcal" data-page-node-id="S7dE55DPnf95AmLYbdXbnZ">—</div><div class="lbl" id="sp-kcal-lbl" data-page-node-id="ilICgGsa2yEflAbo2Hzvr6">今日还需摄入</div></div>
       <div class="splash-card" data-page-node-id="urvPACEBnWXJFvrrfxsnhv"><div class="num" id="sp-protein" data-page-node-id="8gyhDgkOEP9DIPjHT4mUVQ">—</div><div class="lbl" id="sp-protein-lbl" data-page-node-id="t00HplljKXwjMcAiXDyJoZ">今日已摄入蛋白</div></div>
     </div>
@@ -2888,15 +2888,48 @@
       const curWEl = document.getElementById('sp-cur-weight');
       const lostEl = document.getElementById('sp-lost');
 
-      if (tg.targetWeight && curWeight) {
-        const d = curWeight - tg.targetWeight;
-        kgEl.innerHTML = formatNum(Math.abs(d)) + '<small>kg</small>';
-      } else { kgEl.textContent = '—'; }
+      const kgLblEl = document.getElementById('sp-kg-lbl');
+      const fatLblEl = document.getElementById('sp-fat-lbl');
+      // 对标目标所在月份（开屏对标月）；体重/体脂读取该月最近一次身材记录（当月无记录时退回最近一次）
+      const tgMonth = (activeGoalIdx >= 0 && state.goalHistory[activeGoalIdx] && state.goalHistory[activeGoalIdx].targetDate)
+        ? String(state.goalHistory[activeGoalIdx].targetDate).slice(0, 7) : '';
+      let monthBody = null;
+      if (tgMonth) {
+        monthBody = getLatestBodyInMonth(tgMonth);
+        if (!monthBody) monthBody = getLatestBody() || null;
+      } else {
+        monthBody = getLatestBody() || null;
+      }
+      const monthWeight = (monthBody && monthBody.weight !== undefined && monthBody.weight !== null) ? monthBody.weight : null;
+      const monthFat = (monthBody && monthBody.bodyFat !== undefined && monthBody.bodyFat !== null) ? monthBody.bodyFat : null;
 
-      if (tg.targetBodyFat && curFat) {
-        const d = curFat - tg.targetBodyFat;
-        fatEl.innerHTML = formatNum(Math.abs(d)) + '<small>%</small>';
-      } else { fatEl.textContent = '—'; }
+      if (tg.targetWeight && monthWeight) {
+        const d = monthWeight - tg.targetWeight; // 当月当日体重 - 当月目标体重
+        if (d > 0) {
+          if (kgLblEl) kgLblEl.textContent = '距目标体重';
+          kgEl.innerHTML = formatNum(d) + '<small>kg</small>';
+        } else {
+          if (kgLblEl) kgLblEl.textContent = '已超目标体重';
+          kgEl.innerHTML = formatNum(-d) + '<small>kg</small>';
+        }
+      } else {
+        kgEl.textContent = '—';
+        if (kgLblEl) kgLblEl.textContent = '距目标体重';
+      }
+
+      if (tg.targetBodyFat && monthFat) {
+        const d = monthFat - tg.targetBodyFat; // 当月当日体脂率 - 当月目标体脂率
+        if (d > 0) {
+          if (fatLblEl) fatLblEl.textContent = '体脂可降';
+          fatEl.innerHTML = formatNum(d) + '<small>%</small>';
+        } else {
+          if (fatLblEl) fatLblEl.textContent = '已超目标体脂';
+          fatEl.innerHTML = formatNum(-d) + '<small>%</small>';
+        }
+      } else {
+        fatEl.textContent = '—';
+        if (fatLblEl) fatLblEl.textContent = '体脂可降';
+      }
 
       // 现体重：取最近一次身材记录（没每天称重时也显示上次记录）
       if (curWEl) curWEl.textContent = (curWeight !== null && curWeight !== undefined) ? formatNum(curWeight, 1) : '—';
