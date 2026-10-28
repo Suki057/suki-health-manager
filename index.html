@@ -1395,6 +1395,17 @@
     .target-box summary { cursor: pointer; font-weight: 700; font-size: 14px; outline: none; }
     /* 目标管理输入控件统一内边距/字号，日期框与数字框同宽、不超出边框 */
     .target-box .field input { width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 16px; }
+    /* 月热量记录（5 列）：表头不逐字折行，列宽不够时整表左右滑动 */
+    #monthly-stats-table th, #monthly-stats-table td { white-space: nowrap; }
+    #monthly-stats-table th { font-size: 12px; padding: 8px 5px; line-height: 1.25; }
+    #monthly-stats-table td { padding-left: 5px; padding-right: 5px; }
+    /* 目标体重 / 目标体脂率：两个标题并排同一行，输入框缩到原来的 1/4（约 72px） */
+    .target-box .target-row {
+      grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 10px; align-items: end;
+    }
+    .target-box .target-row .field { min-width: 0; }
+    .target-box .target-row .field input { width: 72px; max-width: 100%; }
     /* 日期框原生最小宽度会撑破网格/超出边框，强制可收缩并与数字框等长等宽 */
     .target-box .field input[type="date"] {
       min-width: 0;
@@ -1851,8 +1862,10 @@
             <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">输入你在某天想要达成的体重与体脂率🏃并为之努力。此数据可用于开屏提醒努力进度。</p>
             <div class="form-grid" data-page-node-id="yoEjPKu395qEDmZgzIBwUm">
               <div class="field" data-page-node-id="tgtDateF"><label data-page-node-id="tgtDateL">达到目标日期</label><input type="date" id="target-date" data-page-node-id="tgtDateI" /></div>
-              <div class="field" data-page-node-id="GEB6lJjFkupB4bArur2cOb"><label data-page-node-id="ictECLXnpHgTmyZDSUqIx7">目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" data-page-node-id="RL4xvs1seZhUJBLgHeoEoK" /></div>
-              <div class="field" data-page-node-id="t4doNpIZ5jDcbunDANEbmF"><label data-page-node-id="4TSEg5QtruidZ7QQSrudBz">目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" data-page-node-id="wVJikT3JofFvCcJlcpaSBB" /></div>
+              <div class="target-row" data-page-node-id="targetRow">
+                <div class="field" data-page-node-id="GEB6lJjFkupB4bArur2cOb"><label data-page-node-id="ictECLXnpHgTmyZDSUqIx7">目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" data-page-node-id="RL4xvs1seZhUJBLgHeoEoK" /></div>
+                <div class="field" data-page-node-id="t4doNpIZ5jDcbunDANEbmF"><label data-page-node-id="4TSEg5QtruidZ7QQSrudBz">目标体脂率 (%)</label><input type="number" id="target-fat" min="0" step="0.1" placeholder="如 22" data-page-node-id="wVJikT3JofFvCcJlcpaSBB" /></div>
+              </div>
               <div class="form-actions" data-page-node-id="uPv4HEBuOt2WhdYYDkcMZt">
                 <button type="button" class="btn secondary" id="target-save-btn" data-page-node-id="KRDKWcBtRK80OxHa6pNfDb">保存目标管理</button>
               </div>
@@ -1923,14 +1936,14 @@
           <div class="field" data-page-node-id="goalKcalGapField"><label data-page-node-id="goalKcalGapLabel">📉热量缺口（kcal）<span class="auto-badge" data-page-node-id="goalGapAuto">自动</span></label><input type="text" id="goal-kcal-gap" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 热量摄入需求（当月日均缺口；摄入被最低标准兜住时按实际差值显示）" data-page-node-id="goalKcalGapInput" /></div>
           <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal）<span class="auto-badge" data-page-node-id="goalDynAuto">自动</span></label><input type="number" id="goal-dynamic-burn" class="auto-readonly" readonly placeholder="自动读取" title="自动读取「代谢测试」里该月的 TDEE" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
+            <div class="goal-row goal-row-b" data-page-node-id="goalRowB">
+              <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><span class="goal-fixed-box fx-sugar" id="goal-sugar-fixed" data-page-node-id="goalSugarFixed" title="固定参考区间，不需要填写">25-50</span></div>
+              <div class="field" data-page-node-id="FXxJIiI4rREeU7MeEiRAzY"><label data-page-node-id="r4D4YgArBro2ScbSOQA1cr">钠含量 (mg)</label><span class="goal-fixed-box fx-sodium" id="goal-sodium-fixed" data-page-node-id="goalSodiumFixed" title="固定参考区间，不需要填写">2000-2300</span></div>
+            </div>
             <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
               <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)<span class="auto-badge" data-page-node-id="goalProteinAuto">自动</span></label><input type="text" id="goal-protein" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：瘦体重 LBM × 蛋白质系数区间（减脂期见系数表；维持期整体下调 0.2）" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
               <div class="field" data-page-node-id="YfpwQLOcPeRlHkn6ylUmE2"><label data-page-node-id="TEGERcnV0ikDazvhffHVHd">碳水 (g)<span class="auto-badge" data-page-node-id="goalCarbsAuto">自动</span></label><input type="text" id="goal-carbs" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：瘦体重 LBM × 碳水系数区间（按性别与活动档位）" data-page-node-id="E0svl6NVSik6sTB25vFe6u" /></div>
               <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)<span class="auto-badge" data-page-node-id="goalFatAuto">自动</span></label><input type="text" id="goal-fat" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：瘦体重 LBM × 脂肪系数区间（按性别与活动档位）" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
-            </div>
-            <div class="goal-row goal-row-b" data-page-node-id="goalRowB">
-              <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><span class="goal-fixed-box fx-sugar" id="goal-sugar-fixed" data-page-node-id="goalSugarFixed" title="固定参考区间，不需要填写">25-50</span></div>
-              <div class="field" data-page-node-id="FXxJIiI4rREeU7MeEiRAzY"><label data-page-node-id="r4D4YgArBro2ScbSOQA1cr">钠含量 (mg)</label><span class="goal-fixed-box fx-sodium" id="goal-sodium-fixed" data-page-node-id="goalSodiumFixed" title="固定参考区间，不需要填写">2000-2300</span></div>
             </div>
           </div>
         </div>
@@ -2273,11 +2286,11 @@
   <div id="monthly-stats-modal" class="modal-overlay" style="display:none" data-page-node-id="LnQZJmvyzs9i6njmfByHuL">
     <div class="modal-box" data-page-node-id="LHzX79JEI9gEeVrHfRxITW">
       <h3 data-page-node-id="k6byDfjrUlmmhZXxX1tz8j">📅 月热量记录</h3>
-      <p class="hint" data-page-node-id="yIsjNDj9sCDXVhR4WuGgvC">自动汇总「热量记录」里每个月的 摄入 / 消耗 / 缺口 之和。</p>
+      <p class="hint" data-page-node-id="yIsjNDj9sCDXVhR4WuGgvC">自动汇总「热量记录」里每个月的 摄入 / 消耗 / 缺口 之和（表格可左右滑动查看）。</p>
       <div class="table-wrap" data-page-node-id="RZ9dpnsjgcMg3HXNeQCKq7">
         <table id="monthly-stats-table" data-page-node-id="3Y6mOPXp7Y4eCWlvYSzICC">
           <thead data-page-node-id="Hd95E8MXsc8CnEvBC87BhI">
-            <tr data-page-node-id="zvRpDnZuEMLaa4iNy7CCLq"><th data-page-node-id="bHrSadelg3UHRoDENc0geE">月份</th><th data-page-node-id="dfgrWwp3KhMRds5UTlBVWC">月摄入热量</th><th data-page-node-id="c4ryBp7xVXgy78gWqBVwBb">月消耗热量</th><th data-page-node-id="rBjAd0gT3NFU4gc5jrRMCU">月热量缺口</th></tr>
+            <tr data-page-node-id="zvRpDnZuEMLaa4iNy7CCLq"><th data-page-node-id="bHrSadelg3UHRoDENc0geE">月份</th><th data-page-node-id="dfgrWwp3KhMRds5UTlBVWC">月摄入<br>热量</th><th data-page-node-id="c4ryBp7xVXgy78gWqBVwBb">月消耗<br>热量</th><th data-page-node-id="rBjAd0gT3NFU4gc5jrRMCU">月热量<br>缺口</th><th data-page-node-id="mthDailyGap">日均<br>热量缺口</th></tr>
           </thead>
           <tbody data-page-node-id="Y9Ajqs2D1rGXbWhgNV2yhY"></tbody>
         </table>
@@ -5153,6 +5166,19 @@
       });
       return { total, totalAer, totalAna, months };
     }
+    // 有氧 / 无氧「已记录的全部数据」累计消耗（kcal）
+    function computeExerciseKcalTotals() {
+      let aer = 0, ana = 0;
+      Object.keys(state.logs || {}).forEach(dateStr => {
+        const log = state.logs[dateStr];
+        if (!log || !log.exercises || !log.exercises.length) return;
+        log.exercises.forEach(e => {
+          const k = Number(computeExerciseKcal(e)) || 0;
+          if (getExerciseType(e) === 'aer') aer += k; else ana += k;
+        });
+      });
+      return { aer: Math.round(aer), ana: Math.round(ana) };
+    }
     function renderPersistCount() {
       const el = document.getElementById('persist-count');
       if (!el) return;
@@ -5166,18 +5192,12 @@
         const { total, totalAer, totalAna, months } = computePersistStats();
         const totalEl = document.getElementById('persist-total');
         const monthsEl = document.getElementById('persist-months');
-        // 总时长按「界面上显示的整数」参与计算，避免显示 849 而月均按 848.5 算出 282.8
-        const monthCount = Object.keys(months).length;
-        const aerTotal = Math.round(totalAer);
-        const anaTotal = Math.round(totalAna);
-        const aerAvg = monthCount > 0 ? ceil1(aerTotal / monthCount) : 0;
-        const anaAvg = monthCount > 0 ? ceil1(anaTotal / monthCount) : 0;
+        // 汇总区只保留「已记录的全部数据」累计消耗：有氧一行、无氧一行
+        const burnTotals = computeExerciseKcalTotals();
         if (totalEl) {
           totalEl.innerHTML =
-              '<div class="persist-sum-row"><span>有氧总时长「分」：' + aerTotal + '</span>'
-            + '<span>月均有氧「分」：' + formatNum(aerAvg, 1) + '</span></div>'
-            + '<div class="persist-sum-row"><span>无氧总时长「分」：' + anaTotal + '</span>'
-            + '<span>月均无氧「分」：' + formatNum(anaAvg, 1) + '</span></div>';
+              '<div class="persist-sum-row"><span>有氧总消耗（kcal）：' + formatNum(burnTotals.aer, 0) + '</span></div>'
+            + '<div class="persist-sum-row"><span>无氧总消耗（kcal）：' + formatNum(burnTotals.ana, 0) + '</span></div>';
         }
         // 有运动的月份 + 各月坚持次数 + 各月有氧/无氧时长
         if (monthsEl) {
@@ -5736,19 +5756,23 @@
       });
       const keys = Object.keys(months).sort((a, b) => b.localeCompare(a)); // 最新月份在顶部
       if (keys.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">还没有任何记录</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">还没有任何记录</td></tr>';
       } else {
         keys.forEach(key => {
           const kcal = months[key].kcal;
           const burn = months[key].burn;
           const deficit = burn - kcal;
           const [yy, mm] = key.split('-');
+          // 日均热量缺口 = 月热量缺口 ÷ 当月天数（如 9 月 30 天、月缺口 9000 → 300kcal）
+          const daysInMonth = new Date(Number(yy), Number(mm), 0).getDate();
+          const dailyGap = deficit / daysInMonth;
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${yy}年${mm}月</td>
             <td class="number">${formatNum(kcal, 0)}</td>
             <td class="number">${formatNum(burn, 0)}</td>
-            <td class="number deficit">${formatNum(deficit, 0)}</td>`;
+            <td class="number deficit">${formatNum(deficit, 0)}</td>
+            <td class="number deficit">${formatNum(dailyGap, 0)}</td>`;
           tbody.appendChild(tr);
         });
       }
