@@ -602,10 +602,14 @@
       text-overflow: ellipsis;
       box-sizing: border-box;
     }
-    /* 今日记录：饮食/运动录入框（小长框）整体收小，与卡片边缘协调 */
-    #today .two-col .field input,
-    #today .two-col .field select { padding: 9px 12px; font-size: 16px; }
-    #today .two-col .row .btn.primary { padding: 8px 14px; font-size: 13px; }
+    /* 饮食/运动录入框（小长框）整体收小，与卡片边缘协调 */
+    .entry-stack { display: block; }
+    #today .entry-stack .field input,
+    #today .entry-stack .field select,
+    #calories .exercise-entry .field input,
+    #calories .exercise-entry .field select { padding: 9px 12px; font-size: 16px; }
+    #today .entry-stack .row .btn.primary,
+    #calories .exercise-entry .row .btn.primary { padding: 8px 14px; font-size: 13px; }
     #diet-table th,
     #diet-table td { padding: 9px 11px; font-size: 13px; }
     input[type="date"], input[type="text"], input[type="number"], select {
@@ -1444,6 +1448,8 @@
             <div class="field" data-page-node-id="aAwmasYSIJ0Nu23NW8VSSZ"><label data-page-node-id="ayCFHXSEkEykwG5OgVoiS2">大腿围 (cm)</label><input type="number" id="body-thigh" min="0" step="0.1" placeholder="如 52" data-page-node-id="ZLoGapLnmTTD0UCtadlcah" /></div>
             <div class="field" data-page-node-id="k8v6NiraqdfMU0TZeTgAP1"><label data-page-node-id="vHyNyNnOX3PXtV4MSJDU2E">腰围 (cm)</label><input type="number" id="body-waist" min="0" step="0.1" placeholder="如 68" data-page-node-id="DST4eP6fRfdUli3RCgxnfp" /></div>
             <div class="field" data-page-node-id="s6E5f0G85pmveSDELIwyKv"><label data-page-node-id="wK47n7yOrFXrxjfXtah8T5">臀围 (cm)</label><input type="number" id="body-hip" min="0" step="0.1" placeholder="如 92" data-page-node-id="TMJ45OG6Y7SG4a19FOzicA" /></div>
+            <div class="field" data-page-node-id="bodyBicepField"><label data-page-node-id="bodyBicepLbl">上臂围 (cm)</label><input type="number" id="body-bicep" min="0" step="0.1" placeholder="如 28" data-page-node-id="bodyBicepInput" /></div>
+            <div class="field" data-page-node-id="bodyChestField"><label data-page-node-id="bodyChestLbl">胸围 (cm)</label><input type="number" id="body-chest" min="0" step="0.1" placeholder="如 86" data-page-node-id="bodyChestInput" /></div>
           </div>
           <p class="hint" id="body-saved-hint" data-page-node-id="7YYv1CMhDg9gSGH83oYcfQ"></p>
         </details>
@@ -1461,6 +1467,8 @@
                 <option value="thigh" data-page-node-id="bodyCalThigh">大腿围「cm」</option>
                 <option value="waist" data-page-node-id="bodyCalWaist">腰围「cm」</option>
                 <option value="hip" data-page-node-id="bodyCalHip">臀围「cm」</option>
+                <option value="bicep" data-page-node-id="bodyCalBicep">上臂围「cm」</option>
+                <option value="chest" data-page-node-id="bodyCalChest">胸围「cm」</option>
               </select>
             </div>
           </div>
@@ -1468,13 +1476,13 @@
         </div>
         <div class="row" style="margin-top:12px;gap:12px;align-items:center;flex-wrap:wrap;" data-page-node-id="SeHsCDx3GxY5nu4zuqOORG">
           <button type="button" class="btn secondary" id="body-csv-import-btn" data-page-node-id="6SXLqsWQvI2gH1tURaDXyh">📥 导入体重/体脂 CSV</button>
-          <span class="hint" style="margin:0;flex:1;min-width:220px;" data-page-node-id="TpYGPfoYWjIGGaECyB10wK">CSV 首行表头含「日期、体重、体脂率」即可（列顺序不限，也支持小腿围/大腿围/腰围/臀围）。日期支持 2026-08-01 或 8/1 格式。</span>
+          <span class="hint" style="margin:0;flex:1;min-width:220px;" data-page-node-id="TpYGPfoYWjIGGaECyB10wK">CSV 首行表头含「日期、体重、体脂率」即可（列顺序不限，也支持小腿围/大腿围/腰围/臀围/上臂围/胸围）。日期支持 2026-08-01 或 8/1 格式。</span>
         </div>
         <input type="file" id="body-csv-file" accept=".csv,text/csv" style="display:none" data-page-node-id="Zqh8a5WuigLZIfVQwgflNp" />
       </details>
     </section>
 
-    <!-- 今日记录 -->
+    <!-- 饮食记录 -->
     <section id="today" class="tab-panel active" data-page-node-id="5RjfiB5dVrWN2mnITSRNKt">
       <div class="lp-hero" data-page-node-id="9qpJdA8Q2CdvIN0Olmszr0">
         <svg viewBox="0 0 600 210" class="lp-art" role="img" aria-label="小王子与他的玫瑰" data-page-node-id="FDwuYeEb6pDEAby1JJ9Q6r">
@@ -1544,7 +1552,7 @@
         <button id="today-btn" class="btn secondary" data-page-node-id="RzJCRRIGxeBNIUE8dQHE66">回到今天</button>
       </div>
 
-      <div class="two-col" data-page-node-id="IDvqkg09aLySY8IFwbfD0I">
+      <div class="entry-stack" data-page-node-id="IDvqkg09aLySY8IFwbfD0I">
         <div class="panel" data-page-node-id="m9EzFl2p3XN3PDNFQpESje">
           <h2 data-page-node-id="eIJjSdqQMHP3licOxGzcMJ">🍱 饮食记录</h2>
           <div class="row autocomplete-row meal-food-stack" data-page-node-id="yDNIDvUrrO0DHtXX8h7Bm7">
@@ -1577,29 +1585,6 @@
           </div>
         </div>
 
-        <div class="panel" data-page-node-id="vtM7HrJnhfmWqkRJBK3gNf">
-          <h2 data-page-node-id="nwBiuMn30GSOwPMDppuMzD">🏃 运动记录</h2>
-          <div class="row autocomplete-row" data-page-node-id="0KsKORUR9yShFFPxjvKZS5">
-            <div class="field autocomplete" data-page-node-id="CB8ZeuZVFFlK0ncuqX4gcK">
-              <label data-page-node-id="FUKrf7x4eOOwOMD1wMmKBO">运动 / 视频</label>
-              <input type="text" id="exercise-search" placeholder="输入运动名称" autocomplete="off" data-page-node-id="DiUk4l581RrmO0aVDse8xd" />
-              <input type="hidden" id="exercise-selected-id" data-page-node-id="PW6IMBtCRqw5HnupGkPABC" />
-              <input type="hidden" id="exercise-base-duration" data-page-node-id="UK3tetX81Q8VEwa5sSnESD" />
-              <input type="hidden" id="exercise-base-kcal" data-page-node-id="6Caadswqzucc2ojOJnYxEX" />
-              <ul id="exercise-suggestions" class="suggestions" data-page-node-id="kkSRkpnr8MlHlagDKR32Hc"></ul>
-            </div>
-            <div class="field small" data-page-node-id="N1gRRkE7CnrXYcgDRmpKOK">
-              <label data-page-node-id="6wyA88XUeHF7Ps86f6CLgP">时长 (分)</label>
-              <input type="number" id="exercise-duration" placeholder="30" min="0" step="1" data-page-node-id="P7g23aCHjFmze7OGm2tIIw" />
-            </div>
-            <div class="field small" data-page-node-id="fWlw9PGwLNnpCatX1aG7m7">
-              <label data-page-node-id="AMJ9c3IAe9ZE46r8zqub7C">热量 (kcal)</label>
-              <input type="number" id="exercise-kcal" placeholder="0" min="0" step="1" data-page-node-id="zXf3U9D0pgogcKvBGBRyRR" />
-            </div>
-            <button id="add-exercise-btn" class="btn primary" data-page-node-id="bvBAbybN3yL6HQfDCQTHtm">添加</button>
-            <button id="custom-exercise-btn" class="btn secondary" data-page-node-id="udNIbR3u1tp6jmoCwns8O9">另外添加</button>
-          </div>
-        </div>
       </div>
 
       <div class="summary-grid" data-page-node-id="pleqIAXfLQ2Ahxr1M2FWzM">
@@ -1623,18 +1608,43 @@
 
     </section>
 
-    <!-- 热量明细表 -->
+    <!-- 运动记录 -->
     <section id="calories" class="tab-panel" data-page-node-id="C7mGlv0VQQlKBY4v0f7ZaC">
       <div class="date-bar" data-page-node-id="BaLSfuNENMP5uZeexKmd9H">
         <input type="date" id="cal-date-picker" data-page-node-id="9vTyDPqYFBjDajuUpbfkz8" />
         <button id="cal-today-btn" class="btn secondary" data-page-node-id="hWZGot20qHTYqdJwVphEJx">回到今天</button>
       </div>
-      <details class="panel meal-ai-panel" id="meal-ai-panel" data-page-node-id="WoGFLxC56O5nPs0meX36MR">
-        <summary data-page-node-id="uGFXeZurP2huERNWoFkFwJ"><h2>🤖 AI 进餐分析 <span class="meal-ai-caret" id="meal-ai-caret">▾</span></h2></summary>
-        <div id="meal-ai" class="meal-ai-body" data-page-node-id="WPpVet2VAJAt1JeC5Hj7hV">
-          <p class="empty-state" data-page-node-id="Bx1iVo1WxxByQfEuScGhDD">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>
+      <div class="panel exercise-entry" data-page-node-id="vtM7HrJnhfmWqkRJBK3gNf">
+        <h2 data-page-node-id="nwBiuMn30GSOwPMDppuMzD">🏃 运动记录</h2>
+        <div class="row autocomplete-row" data-page-node-id="0KsKORUR9yShFFPxjvKZS5">
+          <div class="field autocomplete" data-page-node-id="CB8ZeuZVFFlK0ncuqX4gcK">
+            <label data-page-node-id="FUKrf7x4eOOwOMD1wMmKBO">运动 / 视频</label>
+            <input type="text" id="exercise-search" placeholder="输入运动名称" autocomplete="off" data-page-node-id="DiUk4l581RrmO0aVDse8xd" />
+            <input type="hidden" id="exercise-selected-id" data-page-node-id="PW6IMBtCRqw5HnupGkPABC" />
+            <input type="hidden" id="exercise-base-duration" data-page-node-id="UK3tetX81Q8VEwa5sSnESD" />
+            <input type="hidden" id="exercise-base-kcal" data-page-node-id="6Caadswqzucc2ojOJnYxEX" />
+            <ul id="exercise-suggestions" class="suggestions" data-page-node-id="kkSRkpnr8MlHlagDKR32Hc"></ul>
+          </div>
+          <div class="field small" data-page-node-id="N1gRRkE7CnrXYcgDRmpKOK">
+            <label data-page-node-id="6wyA88XUeHF7Ps86f6CLgP">时长 (分)</label>
+            <input type="number" id="exercise-duration" placeholder="30" min="0" step="1" data-page-node-id="P7g23aCHjFmze7OGm2tIIw" />
+          </div>
+          <div class="field small" data-page-node-id="fWlw9PGwLNnpCatX1aG7m7">
+            <label data-page-node-id="AMJ9c3IAe9ZE46r8zqub7C">热量 (kcal)</label>
+            <input type="number" id="exercise-kcal" placeholder="0" min="0" step="1" data-page-node-id="zXf3U9D0pgogcKvBGBRyRR" />
+          </div>
+          <button id="add-exercise-btn" class="btn primary" data-page-node-id="bvBAbybN3yL6HQfDCQTHtm">添加</button>
+          <button id="custom-exercise-btn" class="btn secondary" data-page-node-id="udNIbR3u1tp6jmoCwns8O9">另外添加</button>
         </div>
-      </details>
+      </div>
+
+      <!-- 运动明细 -->
+      <div class="panel" data-page-node-id="whvZKvdDOHZVm51wMoJp1G">
+        <h2 data-page-node-id="JQqkZerARcUF2Z2tC5q5ak">🏃 运动明细 <small data-page-node-id="ntaPRmuNzcERNXKnsg7lb5">已记录的运动与消耗</small></h2>
+        <div class="exercise-list" id="exercise-list" data-page-node-id="CgXHbLDtVu1XT4hft1QLwq"></div>
+      </div>
+
+      <!-- 运动日历 -->
       <div class="panel" data-page-node-id="opZy3ON8FFjM9wHPaUHexk">
         <h2 data-page-node-id="t3nBfMgkXds6mmikJlz4Jg">📅 运动日历 <small data-page-node-id="J4Q5nyHaSotabWSIGjYmRL">当月运动打卡</small></h2>
         <div id="exercise-calendar" class="exercise-calendar" data-page-node-id="UCM1XcwonZI2VGA04y6CbS">
@@ -1648,11 +1658,6 @@
           <div class="persist-total" id="persist-total" data-page-node-id="persistTotal1"></div>
           <div class="persist-months" id="persist-months" data-page-node-id="persistMonths1"></div>
         </div>
-      </div>
-
-      <div class="panel" data-page-node-id="whvZKvdDOHZVm51wMoJp1G">
-        <h2 data-page-node-id="JQqkZerARcUF2Z2tC5q5ak">🏃 运动明细 <small data-page-node-id="ntaPRmuNzcERNXKnsg7lb5">已记录的运动与消耗</small></h2>
-        <div class="exercise-list" id="exercise-list" data-page-node-id="CgXHbLDtVu1XT4hft1QLwq"></div>
       </div>
 
     </section>
@@ -1873,6 +1878,13 @@
           </table>
         </div>
       </div>
+      <details class="panel meal-ai-panel" id="meal-ai-panel" data-page-node-id="WoGFLxC56O5nPs0meX36MR">
+        <summary data-page-node-id="uGFXeZurP2huERNWoFkFwJ"><h2>🤖 AI 进餐分析 <span class="meal-ai-caret" id="meal-ai-caret">▾</span></h2></summary>
+        <div id="meal-ai" class="meal-ai-body" data-page-node-id="WPpVet2VAJAt1JeC5Hj7hV">
+          <p class="empty-state" data-page-node-id="Bx1iVo1WxxByQfEuScGhDD">记录饮食后，这里会按进餐时段分析是否利于减脂瘦身，并评估运动是否合理。</p>
+        </div>
+      </details>
+
     </section>
 
     <!-- 回收站 -->
@@ -1981,9 +1993,9 @@
 
   <nav class="tabs bottom-nav" data-page-node-id="VE15T0jAXcTWixC7vXYmsz">
     <button class="tab-btn" data-tab="body" data-page-node-id="bodyTabBtnSuki057">身材记录</button>
-    <button class="tab-btn active" data-tab="today" data-page-node-id="jkjVp7gbqcnmGrlqDZd1fD">今日记录</button>
+    <button class="tab-btn active" data-tab="today" data-page-node-id="jkjVp7gbqcnmGrlqDZd1fD">饮食记录</button>
     <button class="tab-btn" data-tab="stats" data-page-node-id="Su3YIVQoyoZxGk0mzBUzRD">热量记录</button>
-    <button class="tab-btn" data-tab="calories" data-page-node-id="dSxN72OWOiN6SgxGqx6XqW">热量明细表</button>
+    <button class="tab-btn" data-tab="calories" data-page-node-id="dSxN72OWOiN6SgxGqx6XqW">运动记录</button>
     <button class="tab-btn" data-tab="progress" data-page-node-id="FuO1xvDOKSI4huGHRdhUGL">管理进度</button>
     <button class="tab-btn" data-tab="data" data-page-node-id="NQFFjGhBOaZgW9H5FTThGw">数据</button>
     <button class="tab-btn" data-tab="food-review" data-page-node-id="06mkWV7sIxIHFWmFAkFj4e">复盘记录</button>
@@ -2129,6 +2141,8 @@
         <div class="day-ex-row"><span class="day-ex-label">🦵 大腿围</span><span class="day-ex-value" id="day-body-thigh" data-page-node-id="dayBodyThigh">—</span></div>
         <div class="day-ex-row"><span class="day-ex-label">📏 腰围</span><span class="day-ex-value" id="day-body-waist" data-page-node-id="dayBodyWaist">—</span></div>
         <div class="day-ex-row"><span class="day-ex-label">🍑 臀围</span><span class="day-ex-value" id="day-body-hip" data-page-node-id="dayBodyHip">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">💪 上臂围</span><span class="day-ex-value" id="day-body-bicep" data-page-node-id="dayBodyBicep">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">👚 胸围</span><span class="day-ex-value" id="day-body-chest" data-page-node-id="dayBodyChest">—</span></div>
       </div>
       <div class="modal-actions" style="margin-top:14px;display:flex;gap:10px;" data-page-node-id="dayBodyActions">
         <button class="btn primary" id="day-body-done" data-page-node-id="dayBodyDone">完成</button>
@@ -2381,7 +2395,7 @@
       updateScrollHint();
     }
 
-    // ==================== 今日记录 ====================
+    // ==================== 饮食记录 ====================
     function setupTodayTab() {
       const datePicker = document.getElementById('date-picker');
       datePicker.value = getTodayStr();
@@ -2400,7 +2414,7 @@
         renderBody();
       });
 
-      // 各页签里的日期框（热量明细表 / 热量记录-饮食明细 / 身材记录）与主日期框双向同步
+      // 各页签里的日期框（运动记录 / 饮食记录-饮食明细 / 身材记录）与主日期框双向同步
       const MIRROR_PICKERS = [
         ['cal-date-picker', 'cal-today-btn'],
         ['diet-date-picker', 'diet-today-btn'],
@@ -2548,6 +2562,8 @@
       ['body-thigh', 'thigh'],
       ['body-waist', 'waist'],
       ['body-hip', 'hip'],
+      ['body-bicep', 'bicep'],
+      ['body-chest', 'chest'],
     ];
 
     function saveBodyEntry() {
@@ -2626,6 +2642,8 @@
       if (/体脂|bodyfat/.test(n)) return 'bodyFat';
       if (/小腿|calf/.test(n)) return 'calf';
       if (/大腿|thigh/.test(n)) return 'thigh';
+      if (/上臂|臂围|bicep|arm/.test(n)) return 'bicep';
+      if (/胸|chest|bust/.test(n)) return 'chest';
       if (/腰/.test(n)) return 'waist';
       if (/臀|hip/.test(n)) return 'hip';
       return null;
@@ -4241,6 +4259,8 @@
       set('day-body-thigh', fmt(b.thigh, 'cm'));
       set('day-body-waist', fmt(b.waist, 'cm'));
       set('day-body-hip', fmt(b.hip, 'cm'));
+      set('day-body-bicep', fmt(b.bicep, 'cm'));
+      set('day-body-chest', fmt(b.chest, 'cm'));
       modal.dataset.date = dateStr;
       modal.style.display = 'flex';
     }
@@ -5248,8 +5268,8 @@
           const parts = [];
           if (b.weight !== undefined && b.weight !== null) parts.push('体重 ' + formatNum(b.weight) + 'kg');
           if (b.bodyFat !== undefined && b.bodyFat !== null) parts.push('体脂 ' + formatNum(b.bodyFat) + '%');
-          ['calf', 'thigh', 'waist', 'hip'].forEach(k => {
-            const nm = { calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围' }[k];
+          ['calf', 'thigh', 'waist', 'hip', 'bicep', 'chest'].forEach(k => {
+            const nm = { calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围', bicep: '上臂围', chest: '胸围' }[k];
             if (b[k] !== undefined && b[k] !== null) parts.push(nm + ' ' + formatNum(b[k]) + 'cm');
           });
           summary = item.date + ' · ' + (parts.join(' / ') || '（空）');
@@ -5376,10 +5396,11 @@
       return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    const BODY_KEYS = ['weight', 'bodyFat', 'calf', 'thigh', 'waist', 'hip'];
+    const BODY_KEYS = ['weight', 'bodyFat', 'calf', 'thigh', 'waist', 'hip', 'bicep', 'chest'];
     const BODY_LABELS = {
       weight: '体重 (kg)', bodyFat: '体脂率 (%)', calf: '小腿围 (cm)',
-      thigh: '大腿围 (cm)', waist: '腰围 (cm)', hip: '臀围 (cm)'
+      thigh: '大腿围 (cm)', waist: '腰围 (cm)', hip: '臀围 (cm)',
+      bicep: '上臂围 (cm)', chest: '胸围 (cm)'
     };
 
     // 身材记录改为整月日历（指标选择器 + 月历，按全局 view 月份渲染）
@@ -5574,7 +5595,7 @@
         loadSampleData();
         save();
         renderAll();
-        toast('已载入示例数据，去“今日记录”试试吧');
+        toast('已载入示例数据，去“饮食记录”试试吧');
       });
 
       document.getElementById('clear-diet-btn').addEventListener('click', async () => {
