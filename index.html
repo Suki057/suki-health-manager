@@ -1106,6 +1106,11 @@
     .data-actions.main-actions .btn { padding: 7px 13px; font-size: 12.5px; border-radius: 10px; }
     /* 代谢测试 */
     .metabolism-grid .field.full-width { grid-column: 1 / -1; }
+    /* 年龄 / 体重 / 身高：三个标题并排一行，输入框缩短为原来的 1/4，标题在上、输入框在下 */
+    .metabolism-grid .met-anthropo { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, auto)); justify-content: start; align-items: end; gap: 10px 18px; }
+    .met-anthropo .field { min-width: 0; }
+    .met-anthropo .field label { white-space: nowrap; }
+    .met-anthropo .field input { width: 72px; max-width: 100%; }
     .radio-row { display: grid; gap: 10px; }
     .radio-row.gender-row { grid-template-columns: repeat(2, 78px); justify-content: start; }
     .radio-row.activity-row { grid-template-columns: repeat(3, 1fr); }
@@ -1522,9 +1527,11 @@
               <label class="radio-chip" data-page-node-id="6CPMYPG0AL4Mgu7DVCFkXh"><input type="radio" name="metabolism-gender" value="male" data-page-node-id="2FF85v12z3AEsG5EMNt3FX"><span data-page-node-id="YQwxihpPaieNwgdxNUx8N2">男性</span></label>
             </div>
           </div>
-          <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">年龄</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" data-page-node-id="WfmX7oKp0nf856PsxY0dBn" /></div>
-          <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重 (kg)</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
-          <div class="field" data-page-node-id="mJSxqe1Q1tdEg84BpaYCvb"><label data-page-node-id="PXkPZIPCbx5vXWpk2SlsOm">身高 (cm)</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" data-page-node-id="u6eQVEIPEHbpcYMrRQNePc" /></div>
+          <div class="met-anthropo" data-page-node-id="metAnthropoRow">
+            <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">年龄「岁」</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" data-page-node-id="WfmX7oKp0nf856PsxY0dBn" /></div>
+            <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重「kg」</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
+            <div class="field" data-page-node-id="mJSxqe1Q1tdEg84BpaYCvb"><label data-page-node-id="PXkPZIPCbx5vXWpk2SlsOm">身高「cm」</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" data-page-node-id="u6eQVEIPEHbpcYMrRQNePc" /></div>
+          </div>
           <div class="field full-width" data-page-node-id="B25iOBbVfWUUrgTzTGNUD6"><label data-page-node-id="ROPBxK1PVkAEgIDdkfDiFw">日常活动量</label>
             <div class="radio-row activity-row" data-page-node-id="6a0v820ETCWPr6cewdtfjn">
               <label class="radio-chip" data-page-node-id="8JoF6JDrq7Vri1a53IYLVc"><input type="radio" name="metabolism-activity" value="1.2" checked data-page-node-id="ObFsjVQsVNtCwfrKT72zGd"><span data-page-node-id="ujxOUthxEaJtgntCpU0WJ8">久坐不运动</span></label>
