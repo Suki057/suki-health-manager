@@ -3602,8 +3602,16 @@
       const todaysLog = state.logs[today];
       const hasInput = !!(todaysLog && todaysLog.foods && todaysLog.foods.length > 0);
       if (gk) {
-        // 今日还需摄入 = 目标热量(取区间中点) - 当日摄入热量；超出目标则为负数
-        const net = gk.mid - totals.kcal;
+        // 今日还需摄入 = 目标热量 - 当日摄入热量；超出目标则为负数
+        // 目标热量默认取「热量摄入需求」；若该值低于「标准摄入热量」（女 1200 / 男 1500），改按标准摄入热量算，避免长期低于健康下限
+        const stdNum = Number(g.kcalStd);
+        let stdKcal = (isFinite(stdNum) && stdNum > 0) ? stdNum : null;
+        if (stdKcal === null) {
+          const met = computeMetabolismForMonth(String(today).slice(0, 7));
+          if (met) stdKcal = (met.gender === 'male') ? 1500 : 1200;
+        }
+        const targetKcal = (stdKcal !== null && gk.mid < stdKcal) ? stdKcal : gk.mid;
+        const net = targetKcal - totals.kcal;
         kcalEl.innerHTML = formatNum(net) + '<small>kcal</small>';
       } else { kcalEl.textContent = '—'; }
 
