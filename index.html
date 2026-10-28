@@ -922,7 +922,16 @@
     .cal-day.empty { background: transparent; border-color: transparent; }
     .cal-day.has-exercise { background: rgba(214,138,166,0.22); border-color: rgba(214,138,166,0.4); font-weight: 600; }
     .cal-badge { font-size: 9px; color: #7a3b5b; margin-top: 1px; white-space: nowrap; }
+    .cal-day.has-exercise { cursor: pointer; }
+    .cal-day.has-exercise:active { transform: scale(0.96); }
     @media (max-width: 360px) { .cal-day { min-height: 38px; font-size: 12px; } .cal-badge { font-size: 8px; } }
+    /* 当日运动明细弹窗 */
+    .day-ex-stats { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .day-ex-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.6); border: 1px solid rgba(214,138,166,0.18); }
+    .day-ex-label { font-size: 14px; font-weight: 600; color: #5A3A42; }
+    .day-ex-value { font-size: 16px; font-weight: 800; color: #b3537a; font-variant-numeric: tabular-nums; }
+    .day-ex-row.day-ex-total { background: rgba(214,138,166,0.16); border-color: rgba(214,138,166,0.4); }
+    .day-ex-row.day-ex-total .day-ex-value { color: #5A3A42; }
     /* 已坚持次数 */
     .persist-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: rgba(214,138,166,0.14); border: 1px solid rgba(214,138,166,0.22); cursor: pointer; transition: background .15s; }
     .persist-row:active { background: rgba(214,138,166,0.24); }
@@ -932,12 +941,14 @@
     .persist-total { font-size: 16px; font-weight: 700; color: #5A3A42; margin: 6px 0 14px; }
     .persist-months { margin-bottom: 16px; }
     .persist-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; color: #3d3a36; background: rgba(255,255,255,0.5); border: 1px solid rgba(214,138,166,0.18); border-radius: 10px; overflow: hidden; }
-    .persist-table col.c-month { width: 62%; }
-    .persist-table col.c-count { width: 38%; }
-    .persist-table th { text-align: left; padding: 8px 12px; font-size: 12.5px; font-weight: 700; color: #5A3A42; background: rgba(214,138,166,0.18); border-bottom: 1px solid rgba(214,138,166,0.22); }
-    .persist-table td { padding: 9px 12px; border-bottom: 1px solid rgba(214,138,166,0.12); word-break: break-word; }
+    .persist-table col.c-month { width: 40%; }
+    .persist-table col.c-count { width: 20%; }
+    .persist-table col.c-aer { width: 20%; }
+    .persist-table col.c-ana { width: 20%; }
+    .persist-table th { text-align: left; padding: 8px 8px; font-size: 12px; font-weight: 700; color: #5A3A42; background: rgba(214,138,166,0.18); border-bottom: 1px solid rgba(214,138,166,0.22); white-space: nowrap; }
+    .persist-table td { padding: 9px 8px; border-bottom: 1px solid rgba(214,138,166,0.12); word-break: break-word; font-variant-numeric: tabular-nums; }
     .persist-table tr:last-child td { border-bottom: none; }
-    .persist-table .c-count { text-align: right; font-weight: 700; color: #b3537a; font-variant-numeric: tabular-nums; }
+    .persist-table .c-count, .persist-table .c-aer, .persist-table .c-ana { text-align: right; font-weight: 700; color: #b3537a; }
     .persist-section-title { font-size: 13px; font-weight: 700; color: #5A3A42; margin: 2px 0 8px; }
     /* 内联展开面板：直接显示在运动日历「已坚持次数」下方，不弹窗、不滚动 */
     .persist-caret { display: inline-block; margin-left: 4px; font-size: 12px; color: #b3537a; transition: transform .2s; }
@@ -1207,12 +1218,12 @@
     }
     /* 达成目标数据表：每条目标（体重/体脂率）分组，标签行含「状态」标题，数值左对齐，右侧虚线状态框（自动判定完成/未完成） */
     .gdt-metric { margin: 10px 0 4px; }
-    .gdt-metric-head { display: flex; align-items: center; justify-content: space-between; }
-    .gdt-group-label { font-size: 13px; font-weight: 700; color: #5A3A42; }
-    .gdt-status-text { font-size: 13px; font-weight: 700; color: #b3537a; display: inline-block; width: 104px; min-width: 104px; text-align: right; }
-    .gdt-day-value { flex: 0 0 auto; min-width: 104px; font-size: 15px; font-weight: 700; color: #b3537a; font-variant-numeric: tabular-nums; padding: 2px 0; text-align: right; }
-    .gdt-metric-body { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; }
-    .gdt-group-value { flex: 0 0 auto; min-width: 96px; font-size: 15px; font-weight: 700; color: #3d3a36; font-variant-numeric: tabular-nums; padding: 2px 0; }
+    .gdt-metric-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; }
+    .gdt-group-label { font-size: 13px; font-weight: 700; color: #5A3A42; white-space: nowrap; }
+    .gdt-status-text { font-size: 13px; font-weight: 700; color: #b3537a; display: inline-block; width: 104px; min-width: 104px; text-align: right; white-space: nowrap; flex: 0 0 auto; }
+    .gdt-day-value { flex: 0 0 auto; min-width: 104px; font-size: 15px; font-weight: 700; color: #b3537a; font-variant-numeric: tabular-nums; padding: 2px 0; text-align: right; white-space: nowrap; }
+    .gdt-metric-body { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; flex-wrap: nowrap; }
+    .gdt-group-value { flex: 0 0 auto; min-width: 96px; font-size: 15px; font-weight: 700; color: #3d3a36; font-variant-numeric: tabular-nums; padding: 2px 0; white-space: nowrap; }
     .gdt-status-auto {
       width: 96px; box-sizing: border-box; padding: 7px 10px; font-size: 13px; text-align: center;
       border: 1px solid rgba(61, 58, 54, 0.2); border-left: 3px dashed #b3537a; border-radius: 8px; background: #fff; color: #3d3a36;
@@ -1249,7 +1260,7 @@
     /* 已过去的月份：达成→绿色，未达成→灰色；当前/未来月保持中性 */
     .gdt-card.gdt-done { background: rgba(31, 138, 76, 0.10); border-color: rgba(31, 138, 76, 0.5); }
     .gdt-card.gdt-missed { background: rgba(122, 122, 122, 0.10); border-color: rgba(122, 122, 122, 0.42); opacity: 0.8; }
-    .gdt-card.gdt-missed .gdt-date, .gdt-card.gdt-missed .gdt-group-label { color: #6b6b6b; }
+    .gdt-card.gdt-missed .gdt-date, .gdt-card.gdt-missed .gdt-group-label, .gdt-card.gdt-missed .gdt-status-text, .gdt-card.gdt-missed .gdt-day-value { color: #6b6b6b; }
     /* 开屏对标（当前/最近目标）月份高亮 */
     .gdt-card.gdt-current { border-color: #b3537a; box-shadow: 0 0 0 2px rgba(179, 83, 122, 0.18); }
     .gdt-current-badge { display: inline-block; margin-left: 8px; padding: 1px 8px; font-size: 11px; font-weight: 700; color: #fff; background: #b3537a; border-radius: 999px; vertical-align: middle; }
@@ -2039,6 +2050,22 @@
     </div>
   </div>
 
+  <!-- 当日运动明细弹窗（点击运动日历有运动的日期） -->
+  <div id="day-exercise-modal" class="modal-overlay" style="display:none" data-page-node-id="dayExModal">
+    <div class="modal-box" data-page-node-id="dayExBox">
+      <h3 data-page-node-id="dayExTitle">📅 当日运动明细</h3>
+      <p class="hint" data-page-node-id="dayExDate">—</p>
+      <div class="day-ex-stats" data-page-node-id="dayExStats">
+        <div class="day-ex-row"><span class="day-ex-label">🏃 有氧时长</span><span class="day-ex-value" id="day-aer-min" data-page-node-id="dayAer">—</span></div>
+        <div class="day-ex-row"><span class="day-ex-label">💪 无氧时长</span><span class="day-ex-value" id="day-ana-min" data-page-node-id="dayAna">—</span></div>
+        <div class="day-ex-row day-ex-total"><span class="day-ex-label">⏱️ 运动总时长</span><span class="day-ex-value" id="day-total-min" data-page-node-id="dayTotal">—</span></div>
+      </div>
+      <div class="modal-actions" style="margin-top:14px;" data-page-node-id="dayExActions">
+        <button class="btn secondary" id="day-exercise-close" data-page-node-id="dayExClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== 一次性激活授权码锁屏（放在脚本之前，确保 init 时 DOM 已就绪） ===== -->
   <div id="lock-screen" class="lock-screen">
     <div class="lock-card">
@@ -2354,10 +2381,11 @@
       // 已坚持次数：点击/键盘打开弹窗
       document.getElementById('persist-row').addEventListener('click', togglePersistPanel);
       document.getElementById('persist-row').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePersistPanel(); } });
-      ['custom-food-modal', 'custom-exercise-modal'].forEach(id => {
+      ['custom-food-modal', 'custom-exercise-modal', 'day-exercise-modal'].forEach(id => {
         const ov = document.getElementById(id);
         ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
       });
+      document.getElementById('day-exercise-close').addEventListener('click', () => { document.getElementById('day-exercise-modal').style.display = 'none'; });
       ['cf-name', 'cf-portion', 'cf-kcal', 'cf-protein', 'cf-fat', 'cf-carbs', 'cf-sugar', 'cf-sodium'].forEach(id => {
         document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') saveCustomFood(); });
       });
@@ -3936,10 +3964,39 @@
         const hasExercise = (state.logs[dateStr] && state.logs[dateStr].exercises && state.logs[dateStr].exercises.length > 0);
         const cls = hasExercise ? 'cal-day has-exercise' : 'cal-day';
         const badge = hasExercise ? '<span class="cal-badge">已运动</span>' : '';
-        html += '<div class="' + cls + '"><span>' + d + '</span>' + badge + '</div>';
+        const dataAttr = hasExercise ? ' data-date="' + dateStr + '"' : '';
+        html += '<div class="' + cls + '"' + dataAttr + '><span>' + d + '</span>' + badge + '</div>';
       }
       html += '</div>';
       el.innerHTML = html;
+      // 点击有运动的日期 → 弹出当日运动明细
+      el.querySelectorAll('.cal-day.has-exercise').forEach(cell => {
+        cell.addEventListener('click', () => openDayExercisePopup(cell.getAttribute('data-date')));
+      });
+    }
+
+    // 弹出某天的运动明细：有氧时长 / 无氧时长 / 总时长
+    function openDayExercisePopup(dateStr) {
+      const modal = document.getElementById('day-exercise-modal');
+      if (!modal) return;
+      const log = state.logs[dateStr];
+      let aer = 0, ana = 0;
+      if (log && log.exercises) {
+        log.exercises.forEach(e => {
+          const dur = Number(e.durationMin) || 0;
+          if (getExerciseType(e) === 'aer') aer += dur; else ana += dur;
+        });
+      }
+      const total = aer + ana;
+      const dateEl = modal.querySelector('[data-page-node-id="dayExDate"]');
+      if (dateEl) dateEl.textContent = dateStr + ' · 共 ' + (log && log.exercises ? log.exercises.length : 0) + ' 项运动';
+      const aerEl = document.getElementById('day-aer-min');
+      const anaEl = document.getElementById('day-ana-min');
+      const totalEl = document.getElementById('day-total-min');
+      if (aerEl) aerEl.textContent = formatNum(aer, 0) + ' 分';
+      if (anaEl) anaEl.textContent = formatNum(ana, 0) + ' 分';
+      if (totalEl) totalEl.textContent = formatNum(total, 0) + ' 分';
+      modal.style.display = 'flex';
     }
 
     // ==================== 已坚持次数 ====================
@@ -3949,19 +4006,25 @@
       const lib = state.exercises.find(x => x.id === entry.exerciseId);
       return lib ? (lib.type || 'ana') : 'ana';
     }
-    // 统计所有「有运动记录」的日期：总次数 + 每月次数
+    // 统计所有「有运动记录」的日期：总次数 + 每月次数 + 每月有氧/无氧时长
     function computePersistStats() {
-      let total = 0;
+      let total = 0, totalAer = 0, totalAna = 0;
       const months = {};
       Object.keys(state.logs || {}).forEach(dateStr => {
         const log = state.logs[dateStr];
         if (log && log.exercises && log.exercises.length > 0) {
-          total++;
           const m = dateStr.slice(0, 7); // YYYY-MM
-          months[m] = (months[m] || 0) + 1;
+          if (!months[m]) months[m] = { count: 0, aer: 0, ana: 0 };
+          months[m].count++;
+          total++;
+          log.exercises.forEach(e => {
+            const dur = Number(e.durationMin) || 0;
+            if (getExerciseType(e) === 'aer') { months[m].aer += dur; totalAer += dur; }
+            else { months[m].ana += dur; totalAna += dur; }
+          });
         }
       });
-      return { total, months };
+      return { total, totalAer, totalAna, months };
     }
     function renderPersistCount() {
       const el = document.getElementById('persist-count');
@@ -3973,22 +4036,26 @@
       const row = document.getElementById('persist-row');
       if (!panel) return;
       if (panel.style.display === 'none' || !panel.style.display) {
-        const { total, months } = computePersistStats();
+        const { total, totalAer, totalAna, months } = computePersistStats();
         const totalEl = document.getElementById('persist-total');
         const monthsEl = document.getElementById('persist-months');
-        if (totalEl) totalEl.textContent = '总共坚持 ' + total + ' 次';
-        // 有运动的月份 + 各月坚持次数
+        if (totalEl) totalEl.textContent = '总共坚持 ' + total + ' 次 · 有氧 ' + formatNum(totalAer, 0) + ' 分 · 无氧 ' + formatNum(totalAna, 0) + ' 分';
+        // 有运动的月份 + 各月坚持次数 + 各月有氧/无氧时长
         if (monthsEl) {
           const keys = Object.keys(months).sort();
           if (keys.length === 0) {
             monthsEl.innerHTML = '<p class="empty-state">还没有运动记录</p>';
           } else {
             let h = '<table class="persist-table">'
-                  + '<colgroup><col class="c-month"><col class="c-count"></colgroup>'
-                  + '<thead><tr><th>运动月份</th><th class="c-count">已坚持次数</th></tr></thead><tbody>';
+                  + '<colgroup><col class="c-month"><col class="c-count"><col class="c-aer"><col class="c-ana"></colgroup>'
+                  + '<thead><tr><th>运动月份</th><th class="c-count">已坚持次数</th><th class="c-aer">有氧时长</th><th class="c-ana">无氧时长</th></tr></thead><tbody>';
             keys.forEach(k => {
               const parts = k.split('-');
-              h += '<tr><td>' + parts[0] + '年' + Number(parts[1]) + '月</td><td class="c-count">' + months[k] + ' 次</td></tr>';
+              const mm = months[k];
+              h += '<tr><td>' + parts[0] + '年' + Number(parts[1]) + '月</td>'
+                 + '<td class="c-count">' + mm.count + ' 次</td>'
+                 + '<td class="c-aer">' + formatNum(mm.aer, 0) + ' 分</td>'
+                 + '<td class="c-ana">' + formatNum(mm.ana, 0) + ' 分</td></tr>';
             });
             h += '</tbody></table>';
             monthsEl.innerHTML = h;
