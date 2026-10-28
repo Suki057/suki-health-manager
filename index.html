@@ -1166,13 +1166,13 @@
       font-size: 12.5px; padding: 0 6px;
     }
     .ref-opt.is-off select { opacity: 0.55; }
+    /* 年份 / 月份拆成两个下拉，各占一半宽度 */
+    .ref-ym-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; min-width: 0; }
+    .ref-ym-pair select { width: 100%; }
     @media (max-width: 360px) {
       .ref-opt { grid-template-columns: 18px minmax(0, 1fr); gap: 6px 8px; }
-      .ref-opt select { grid-column: 1 / -1; }
-    }
-    @media (max-width: 360px) {
-      .ref-opt { grid-template-columns: 18px minmax(0, 1fr); gap: 6px 8px; }
-      .ref-opt select { grid-column: 1 / -1; }
+      .ref-opt > select, .ref-opt .ref-ym-pair { grid-column: 1 / -1; }
+      .ref-ym-pair select { grid-column: auto; }
     }
     #ref-cal-wrap { margin-top: 8px; }
     #ref-cal-wrap[hidden] { display: none; }
@@ -6043,7 +6043,7 @@
         </tr>
       `).join('');
     }
-    // 「数据参考值」弹窗：☑ 初始数据（只含体重档案的初始数据）/ ☑ 选择日期（年+月合并下拉 + 日历）
+    // 「数据参考值」弹窗：☑ 初始数据（只含体重档案的初始数据）/ ☑ 选择日期（年份 + 月份两个下拉 + 日历）
     function openProgressRef() {
       const days = getBodyRecordDays();
       const cur = getProgressRefDate();            // 'baseline' 或 'YYYY-MM-DD'
@@ -6061,13 +6061,11 @@
       const panel = document.createElement('div');
       panel.className = 'modal-panel ref-panel';
 
-      // 年 + 月合并成一个下拉（1900-01 … 2900-12）
-      const ymOpts = [];
-      for (let y = 1900; y <= 2900; y++) {
-        for (let m = 1; m <= 12; m++) {
-          ymOpts.push('<option value="' + y + '-' + String(m).padStart(2, '0') + '">' + y + '年' + m + '月</option>');
-        }
-      }
+      // 年份 1900-2900 一个下拉、月份 1-12 一个下拉，分开选不会卡
+      let yearOpts = '';
+      for (let y = 1900; y <= 2900; y++) yearOpts += '<option value="' + y + '">' + y + '年</option>';
+      let monthOpts = '';
+      for (let m = 1; m <= 12; m++) monthOpts += '<option value="' + m + '">' + m + '月</option>';
 
       panel.innerHTML =
         '<div class="dp-head">数据参考值 <span class="dp-close" data-close="1">✕</span></div>' +
@@ -6079,7 +6077,10 @@
         '<div class="ref-opt is-off" id="ref-opt-date">' +
           '<input type="checkbox" class="ref-chk" id="ref-chk-date" aria-label="选择日期" />' +
           '<label class="ref-opt-label" for="ref-chk-date">选择日期</label>' +
-          '<select id="ref-ym" aria-label="选择年月"></select>' +
+          '<span class="ref-ym-pair">' +
+            '<select id="ref-year" aria-label="选择年份"></select>' +
+            '<select id="ref-month" aria-label="选择月份"></select>' +
+          '</span>' +
         '</div>' +
         '<p class="ref-summary" id="ref-summary"></p>' +
         '<div id="ref-cal-wrap" hidden>' +
@@ -6095,7 +6096,8 @@
       const chkBase = panel.querySelector('#ref-chk-base');
       const chkDate = panel.querySelector('#ref-chk-date');
       const selDate = panel.querySelector('#ref-date-select');
-      const selYm = panel.querySelector('#ref-ym');
+      const selYear = panel.querySelector('#ref-year');
+      const selMonth = panel.querySelector('#ref-month');
       const calWrap = panel.querySelector('#ref-cal-wrap');
       const grid = panel.querySelector('#ref-grid');
       const sumEl = panel.querySelector('#ref-summary');
@@ -6122,9 +6124,11 @@
       // ① 初始数据：只有「体重档案的初始数据」这一个选项
       selDate.innerHTML = '<option value="baseline">初始数据 · ' + numTxt(base0.weight, 'kg') + ' / ' + numTxt(base0.bodyFat, '%') + '</option>';
       selDate.value = 'baseline';
-      // ② 选择日期：年 + 月合并
-      selYm.innerHTML = ymOpts.join('');
-      selYm.value = pickYear + '-' + String(pickMonth).padStart(2, '0');
+      // ② 选择日期：年份、月份各一个下拉
+      selYear.innerHTML = yearOpts;
+      selMonth.innerHTML = monthOpts;
+      selYear.value = String(pickYear);
+      selMonth.value = String(pickMonth);
 
       function renderSummary() {
         if (mode === 'none') {
@@ -6186,6 +6190,12 @@
         rowBase.classList.toggle('is-off', mode !== 'baseline');
         rowDate.classList.toggle('is-off', mode !== 'date');
         calWrap.hidden = mode !== 'date';
+        if (mode === 'date' && pendDate) {
+          pickYear = Number(pendDate.slice(0, 4)) || pickYear;
+          pickMonth = Number(pendDate.slice(5, 7)) || pickMonth;
+          selYear.value = String(pickYear);
+          selMonth.value = String(pickMonth);
+        }
         renderSummary();
       }
 
@@ -6198,14 +6208,18 @@
         if (mode === 'date') renderGrid();
         syncUI();
       });
-      selYm.addEventListener('change', () => {
-        const v = String(selYm.value || '').split('-');
-        pickYear = Number(v[0]) || pickYear;
-        pickMonth = Number(v[1]) || pickMonth;
-        if (pendDate && pendDate.slice(0, 7) !== v[0] + '-' + v[1]) pendDate = '';
+      const onYmChange = () => {
+        const y = Number(selYear.value) || pickYear;
+        const m = Number(selMonth.value) || pickMonth;
+        pickYear = y;
+        pickMonth = m;
+        const ym = y + '-' + String(m).padStart(2, '0');
+        if (pendDate && pendDate.slice(0, 7) !== ym) pendDate = '';
         renderGrid();
         renderSummary();
-      });
+      };
+      selYear.addEventListener('change', onYmChange);
+      selMonth.addEventListener('change', onYmChange);
 
       renderGrid();
       syncUI();
