@@ -1294,6 +1294,12 @@
       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
     }
     .baseline-box summary { cursor: pointer; font-weight: 700; font-size: 14px; outline: none; }
+    /* 初始数据（基线）：每行 3 个，列宽等分 → 输入框约为原来的 1/3，标题与输入框左对齐 */
+    .base-grid { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px; }
+    .base-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; align-items: start; }
+    .base-row .field { min-width: 0; }
+    .base-row .field label { white-space: nowrap; font-size: 11.5px; letter-spacing: 0; }
+    .base-row .field input { width: 100%; min-width: 0; box-sizing: border-box; text-align: left; }
     .baseline-compare { margin-top: 16px; }
     .baseline-compare table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .baseline-compare th, .baseline-compare td { padding: 8px 10px; text-align: center; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
@@ -1749,18 +1755,28 @@
         </div>
       </div>
       <div class="panel" data-page-node-id="VYeCZFZvjXTeIapFySYb49">
-        <h2 data-page-node-id="JBN4ydwC03GdXJUkGvD1Gq">📊 体重档案 <small data-page-node-id="D0LpB8UvE4pGutEwZEv4tk">基线 · 目标 · 记录</small></h2>
+        <h2 data-page-node-id="JBN4ydwC03GdXJUkGvD1Gq">📊 体重档案</h2>
         <div class="baseline-box" data-page-node-id="tTNz4H4Uj7g46TpUituANp">
           <details data-page-node-id="xSn10CNNIphp8U7k5JVfD7">
-            <summary data-page-node-id="oPAdr3AeUbSMiymTd2njUD">🎯 初始基线（对比参考）· 点击设置</summary>
-            <p class="hint" data-page-node-id="tuhNGiOl8cN6ELmewgjhVF">填写你开始记录时的初始体重与各围度，之后每次录入都会显示与初始值的对比（变化量）。</p>
+            <summary data-page-node-id="oPAdr3AeUbSMiymTd2njUD">🎯 初始数据（基线）</summary>
+            <p class="hint" data-page-node-id="tuhNGiOl8cN6ELmewgjhVF">填写下面数据作为基线，用数据记录你管理期的身体变化🧘</p>
             <div class="form-grid" data-page-node-id="0AL9jYBHHxlcuXuLMlahRj">
-              <div class="field" data-page-node-id="p5bcmpPDp30gCAIW4SMGBy"><label data-page-node-id="4h8kZiPmwJeAHrHDANssI3">体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" data-page-node-id="xCR7xeUortb9VK3QNuyRis" /></div>
-              <div class="field" data-page-node-id="lGWOUaktWt7MlUAYQ4P27k"><label data-page-node-id="1Ud13EHCpkqK68qHC0WBFc">体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" data-page-node-id="JF8ndqRKv0YABpJJ3cSxG9" /></div>
-              <div class="field" data-page-node-id="cNv5YYckh1qk4A8R62SwHf"><label data-page-node-id="wKdQ3por4E9WjuKujzoF9L">小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" data-page-node-id="aW4x575BTvoFxDEAqCdIuJ" /></div>
-              <div class="field" data-page-node-id="j5pg75W5PQ5A72MAC0j8Jb"><label data-page-node-id="e7F3RRLgPKrRcQ41WKtJDV">大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" data-page-node-id="hmJ68HWuOkOFauTvBLVD9B" /></div>
-              <div class="field" data-page-node-id="xoyCRWP67i1pOPyRdqqULO"><label data-page-node-id="Wx6XuhEF4D5zW4kD2vPGUW">腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" data-page-node-id="vpwZPhBiFAxsB7U6toyrVo" /></div>
-              <div class="field" data-page-node-id="0LbtCrYyO6dxGtXNqJC81i"><label data-page-node-id="7E0ZWrB3hndYk8ylJotHV6">臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" data-page-node-id="A8E15PIWdQcdtUciWVByYN" /></div>
+              <div class="base-grid" data-page-node-id="baseGrid1">
+                <div class="base-row" data-page-node-id="baseRow1">
+                  <div class="field" data-page-node-id="p5bcmpPDp30gCAIW4SMGBy"><label data-page-node-id="4h8kZiPmwJeAHrHDANssI3">体重 (kg)</label><input type="number" id="base-weight" min="0" step="0.1" placeholder="如 58" data-page-node-id="xCR7xeUortb9VK3QNuyRis" /></div>
+                  <div class="field" data-page-node-id="lGWOUaktWt7MlUAYQ4P27k"><label data-page-node-id="1Ud13EHCpkqK68qHC0WBFc">体脂率 (%)</label><input type="number" id="base-fat" min="0" step="0.1" placeholder="如 26" data-page-node-id="JF8ndqRKv0YABpJJ3cSxG9" /></div>
+                  <div class="field" data-page-node-id="cNv5YYckh1qk4A8R62SwHf"><label data-page-node-id="wKdQ3por4E9WjuKujzoF9L">小腿围 (cm)</label><input type="number" id="base-calf" min="0" step="0.1" placeholder="如 37" data-page-node-id="aW4x575BTvoFxDEAqCdIuJ" /></div>
+                </div>
+                <div class="base-row" data-page-node-id="baseRow2">
+                  <div class="field" data-page-node-id="j5pg75W5PQ5A72MAC0j8Jb"><label data-page-node-id="e7F3RRLgPKrRcQ41WKtJDV">大腿围 (cm)</label><input type="number" id="base-thigh" min="0" step="0.1" placeholder="如 53" data-page-node-id="hmJ68HWuOkOFauTvBLVD9B" /></div>
+                  <div class="field" data-page-node-id="xoyCRWP67i1pOPyRdqqULO"><label data-page-node-id="Wx6XuhEF4D5zW4kD2vPGUW">腰围 (cm)</label><input type="number" id="base-waist" min="0" step="0.1" placeholder="如 70" data-page-node-id="vpwZPhBiFAxsB7U6toyrVo" /></div>
+                </div>
+                <div class="base-row" data-page-node-id="baseRow3">
+                  <div class="field" data-page-node-id="0LbtCrYyO6dxGtXNqJC81i"><label data-page-node-id="7E0ZWrB3hndYk8ylJotHV6">臀围 (cm)</label><input type="number" id="base-hip" min="0" step="0.1" placeholder="如 94" data-page-node-id="A8E15PIWdQcdtUciWVByYN" /></div>
+                  <div class="field" data-page-node-id="baseBicepF"><label data-page-node-id="baseBicepL">上臂围 (cm)</label><input type="number" id="base-bicep" min="0" step="0.1" placeholder="如 27" data-page-node-id="baseBicepI" /></div>
+                  <div class="field" data-page-node-id="baseChestF"><label data-page-node-id="baseChestL">胸围 (cm)</label><input type="number" id="base-chest" min="0" step="0.1" placeholder="如 86" data-page-node-id="baseChestI" /></div>
+                </div>
+              </div>
               <div class="form-actions" data-page-node-id="2XrXbovYCmUQ5mSwqKvXMp">
                 <button type="button" class="btn secondary" id="base-save-btn" data-page-node-id="hH1ZlEgMax27LXdqKtGdrf">保存初始基线</button>
               </div>
@@ -1771,7 +1787,7 @@
         <div class="target-box" data-page-node-id="ahoGLnVHgIONYde5It3ZfC">
           <details data-page-node-id="8wjs5pN4os33sUpWKs60w8">
             <summary data-page-node-id="mf7ZDmko4RDh4aSrrZMlRb">🎯 身体目标数值</summary>
-            <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">填写想达成的体重与体脂率，并选择达成时间。数据会在开屏做提醒显示。</p>
+            <p class="hint" data-page-node-id="SnGPBvj4FUku8eoNINsqTF">输入你在某天想要达成的体重与体脂率🏃并为之努力。此数据可用于开屏提醒努力进度。</p>
             <div class="form-grid" data-page-node-id="yoEjPKu395qEDmZgzIBwUm">
               <div class="field" data-page-node-id="tgtDateF"><label data-page-node-id="tgtDateL">达到目标日期</label><input type="date" id="target-date" data-page-node-id="tgtDateI" /></div>
               <div class="field" data-page-node-id="GEB6lJjFkupB4bArur2cOb"><label data-page-node-id="ictECLXnpHgTmyZDSUqIx7">目标体重 (kg)</label><input type="number" id="target-weight" min="0" step="0.1" placeholder="如 52" data-page-node-id="RL4xvs1seZhUJBLgHeoEoK" /></div>
@@ -1791,7 +1807,7 @@
 
       <details class="panel section-details" style="margin-top:0;margin-bottom:0;" data-page-node-id="NErM1OM31Ak81qglvBdlj4">
         <summary data-page-node-id="L1vSK7s5WSZKcHVp31nQNW">🧬 代谢测试 <small data-page-node-id="x77bKotMGUiS1Q9yy5YAkP">估算基础代谢与每日总消耗</small></summary>
-        <p class="hint" data-page-node-id="M4GhXhsOhLDinfQsfjBof1">完善下面数据，自动计算出BMR以及不同强度身体活动所对应的TDEE。『体重不同的月份，动态消耗也不同』</p>
+        <p class="hint" data-page-node-id="M4GhXhsOhLDinfQsfjBof1">📝完善下面数据，自动计算出BMR以及不同强度身体活动所对应的TDEE🔥『体重不同的月份，动态消耗也不同』</p>
         <div class="form-grid metabolism-grid" data-page-node-id="67slXbJOyckrqn8Sramhr5">
           <div class="field month-field" data-page-node-id="gtAigRHWxpf4BQSphHA4eF"><label data-page-node-id="yFE5WwbVIYyFLn69RjYldd">测试生效年月</label><input type="month" id="metabolism-month" data-page-node-id="pccTH40TJIGvNtZpEKrK27" /></div>
           <div class="met-anthropo" data-page-node-id="metAnthropoRow">
@@ -3032,6 +3048,8 @@
       ['base-thigh', 'thigh'],
       ['base-waist', 'waist'],
       ['base-hip', 'hip'],
+      ['base-bicep', 'bicep'],
+      ['base-chest', 'chest'],
     ];
 
     function saveBaseline() {
@@ -3045,8 +3063,8 @@
       state.baseline = b;
       save();
       renderBaseline();
-      const labels = { weight: '体重', bodyFat: '体脂率', calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围' };
-      const units = { weight: 'kg', bodyFat: '%', calf: 'cm', thigh: 'cm', waist: 'cm', hip: 'cm' };
+      const labels = { weight: '体重', bodyFat: '体脂率', calf: '小腿围', thigh: '大腿围', waist: '腰围', hip: '臀围', bicep: '上臂围', chest: '胸围' };
+      const units = { weight: 'kg', bodyFat: '%', calf: 'cm', thigh: 'cm', waist: 'cm', hip: 'cm', bicep: 'cm', chest: 'cm' };
       const parts = [];
       for (const k in b) parts.push(labels[k] + ' ' + formatNum(b[k]) + units[k]);
       document.getElementById('base-hint').textContent = '初始基线已保存：' + parts.join('，') + '。';
