@@ -827,11 +827,15 @@
       margin-bottom: 6px;
     }
     .form-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-start; margin-top: 4px; }
-    /* 每日营养目标：蛋白质/碳水/脂肪 一行，糖/钠含量 一行；标题在上、输入框在下，宽度缩短为原来的 1/4 */
-    .goal-nutrient-grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, auto)); justify-content: start; align-items: start; gap: 12px 18px; }
-    .goal-nutrient-grid .field { min-width: 0; flex: 0 0 auto; }
-    .goal-nutrient-grid .field label { white-space: nowrap; }
-    .goal-nutrient-grid .field input { width: 72px; max-width: 100%; }
+    /* 每日营养目标：蛋白质/碳水 一行（输入框为原 72px 的 1.5 倍 = 108px），脂肪/糖/钠含量 一行；标题在上、输入框在下 */
+    .goal-nutrient-grid { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px; }
+    .goal-row { display: grid; justify-content: start; align-items: start; gap: 12px 20px; }
+    .goal-row-a { grid-template-columns: repeat(2, auto); }
+    .goal-row-b { grid-template-columns: repeat(3, auto); }
+    .goal-row .field { min-width: 0; flex: 0 0 auto; }
+    .goal-row .field label { white-space: nowrap; }
+    .goal-row .field input { width: 72px; max-width: 100%; }
+    .goal-row-a .field input { width: 108px; }
     /* 「围度数据」展开态高亮 */
     #body-girth-toggle.active { background: #b3537a; color: #fff; border-color: #b3537a; }
     /* 饮食记录行内编辑：份量变成可输入数字框 */
@@ -1124,6 +1128,9 @@
     .radio-chip input { margin: 0 0 6px; accent-color: #D68AA6; flex-shrink: 0; width: 18px; height: 18px; }
     .radio-chip span { display: inline-block; }
     .radio-chip.checked { background: linear-gradient(135deg, rgba(233,214,228,0.72), rgba(245,242,234,0.55)); border-color: rgba(214,138,166,0.65); box-shadow: 0 2px 8px rgba(214,138,166,0.12); font-weight: 600; }
+    /* 活动量选项：高度改为按内容收紧（比原来的正方形矮一点），上下留白均匀，文字不贴边 */
+    .activity-row .radio-chip { aspect-ratio: auto; height: 78px; padding: 8px 4px; }
+    .activity-row .radio-chip .chip-main { font-size: 12px; white-space: nowrap; }
     .activity-row .radio-chip span { font-size: 12.5px; line-height: 1.3; }
     .activity-row .radio-chip span.chip-txt { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; }
     .activity-row .radio-chip span.chip-txt .chip-sub { font-size: 10px; line-height: 1.2; opacity: 0.72; font-weight: 400; }
@@ -1523,19 +1530,19 @@
       </div>
       <details class="panel section-details" style="margin-top:0;margin-bottom:0;" data-page-node-id="NErM1OM31Ak81qglvBdlj4">
         <summary data-page-node-id="L1vSK7s5WSZKcHVp31nQNW">🧬 代谢测试 <small data-page-node-id="x77bKotMGUiS1Q9yy5YAkP">估算基础代谢与每日总消耗</small></summary>
-        <p class="hint" data-page-node-id="M4GhXhsOhLDinfQsfjBof1">输入性别、年龄、体重、身高，自动按 Mifflin-St Jeor 公式计算 BMR，再结合活动量估算 TDEE。计算结果按「测试生效年月」写入对应月份的每日动态消耗（体重不同月份，动态消耗也不同）。</p>
+        <p class="hint" data-page-node-id="M4GhXhsOhLDinfQsfjBof1">完善下面数据，自动计算出BMR以及不同强度身体活动所对应的TDEE。『体重不同的月份，动态消耗也不同』</p>
         <div class="form-grid metabolism-grid" data-page-node-id="67slXbJOyckrqn8Sramhr5">
           <div class="field month-field" data-page-node-id="gtAigRHWxpf4BQSphHA4eF"><label data-page-node-id="yFE5WwbVIYyFLn69RjYldd">测试生效年月</label><input type="month" id="metabolism-month" data-page-node-id="pccTH40TJIGvNtZpEKrK27" /></div>
+          <div class="met-anthropo" data-page-node-id="metAnthropoRow">
+            <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">年龄「岁」</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" data-page-node-id="WfmX7oKp0nf856PsxY0dBn" /></div>
+            <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重「kg」</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
+            <div class="field" data-page-node-id="mJSxqe1Q1tdEg84BpaYCvb"><label data-page-node-id="PXkPZIPCbx5vXWpk2SlsOm">身高「cm」</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" data-page-node-id="u6eQVEIPEHbpcYMrRQNePc" /></div>
+          </div>
           <div class="field" data-page-node-id="1B5OfrPIeuiNpfHRm3nge3"><label data-page-node-id="TH6ylw0BlkUXFdtDVzwps6">性别</label>
             <div class="radio-row gender-row" data-page-node-id="XQ5q4kIpEqhqoX4c49Cufd">
               <label class="radio-chip" data-page-node-id="tiSZfGAUY8BTnRDY9Zubil"><input type="radio" name="metabolism-gender" value="female" checked data-page-node-id="JbrWRE4Rp9kyeitEFdGAJq"><span data-page-node-id="a96HqtztjRTbRbyojBsCIc">女性</span></label>
               <label class="radio-chip" data-page-node-id="6CPMYPG0AL4Mgu7DVCFkXh"><input type="radio" name="metabolism-gender" value="male" data-page-node-id="2FF85v12z3AEsG5EMNt3FX"><span data-page-node-id="YQwxihpPaieNwgdxNUx8N2">男性</span></label>
             </div>
-          </div>
-          <div class="met-anthropo" data-page-node-id="metAnthropoRow">
-            <div class="field" data-page-node-id="Sdj9INDm6MPu0Ke5vNAhd7"><label data-page-node-id="SPuHmD5Hfyq0jktLwLQISA">年龄「岁」</label><input type="number" id="metabolism-age" min="1" max="120" placeholder="如 25" data-page-node-id="WfmX7oKp0nf856PsxY0dBn" /></div>
-            <div class="field" data-page-node-id="gwyglJ194khs7aii6OIIFE"><label data-page-node-id="CBHRt5PEjuy25pBduqL9bh">体重「kg」</label><input type="number" id="metabolism-weight" min="1" step="0.1" placeholder="如 55" data-page-node-id="8e2BGSHSBSpl21Zc6cna9G" /></div>
-            <div class="field" data-page-node-id="mJSxqe1Q1tdEg84BpaYCvb"><label data-page-node-id="PXkPZIPCbx5vXWpk2SlsOm">身高「cm」</label><input type="number" id="metabolism-height" min="1" step="0.1" placeholder="如 165" data-page-node-id="u6eQVEIPEHbpcYMrRQNePc" /></div>
           </div>
           <div class="field full-width" data-page-node-id="B25iOBbVfWUUrgTzTGNUD6"><label data-page-node-id="ROPBxK1PVkAEgIDdkfDiFw">日常活动量</label>
             <div class="radio-row activity-row" data-page-node-id="6a0v820ETCWPr6cewdtfjn">
@@ -1567,11 +1574,15 @@
           <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">每日目标摄入热量（kcal）</label><input type="text" id="goal-kcal" inputmode="text" placeholder="如 1500 或 1400-1600" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
           <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">每日动态消耗 (kcal)</label><input type="number" id="goal-dynamic-burn" min="0" step="1" placeholder="如 300" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
-            <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
-            <div class="field" data-page-node-id="YfpwQLOcPeRlHkn6ylUmE2"><label data-page-node-id="TEGERcnV0ikDazvhffHVHd">碳水 (g)</label><input type="text" id="goal-carbs" inputmode="text" placeholder="如 180" data-page-node-id="E0svl6NVSik6sTB25vFe6u" /></div>
-            <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)</label><input type="text" id="goal-fat" inputmode="text" placeholder="如 50" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
-            <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><input type="text" id="goal-sugar" inputmode="text" placeholder="如 50" data-page-node-id="IFMwoFjrxz1o6uueUU81C9" /></div>
-            <div class="field" data-page-node-id="FXxJIiI4rREeU7MeEiRAzY"><label data-page-node-id="r4D4YgArBro2ScbSOQA1cr">钠含量 (mg)</label><input type="text" id="goal-sodium" inputmode="text" placeholder="如 2000" data-page-node-id="nN6ckiYnnZpHeQcHfE2fSS" /></div>
+            <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
+              <div class="field" data-page-node-id="K1lyq9hbqaf4W5plOuePXl"><label data-page-node-id="nYlMAnBGfVEYq1wbd1utWl">蛋白质 (g)</label><input type="text" id="goal-protein" inputmode="text" placeholder="如 90" data-page-node-id="9h2koO7kljucSrGmoxmQ8S" /></div>
+              <div class="field" data-page-node-id="YfpwQLOcPeRlHkn6ylUmE2"><label data-page-node-id="TEGERcnV0ikDazvhffHVHd">碳水 (g)</label><input type="text" id="goal-carbs" inputmode="text" placeholder="如 180" data-page-node-id="E0svl6NVSik6sTB25vFe6u" /></div>
+            </div>
+            <div class="goal-row goal-row-b" data-page-node-id="goalRowB">
+              <div class="field" data-page-node-id="yqghR9T6JCFwmhcdNFT5H7"><label data-page-node-id="QvA3HD5FcMpYQXUg64cBKP">脂肪 (g)</label><input type="text" id="goal-fat" inputmode="text" placeholder="如 50" data-page-node-id="p3fdh0AfbJUyesnIu0Xs2W" /></div>
+              <div class="field" data-page-node-id="DmU8PhftnvuP16shJ010fe"><label data-page-node-id="XEjmpWWBOaRhtlxlDDl6T6">糖 (g)</label><input type="text" id="goal-sugar" inputmode="text" placeholder="如 50" data-page-node-id="IFMwoFjrxz1o6uueUU81C9" /></div>
+              <div class="field" data-page-node-id="FXxJIiI4rREeU7MeEiRAzY"><label data-page-node-id="r4D4YgArBro2ScbSOQA1cr">钠含量 (mg)</label><input type="text" id="goal-sodium" inputmode="text" placeholder="如 2000" data-page-node-id="nN6ckiYnnZpHeQcHfE2fSS" /></div>
+            </div>
           </div>
           <div class="form-actions" data-page-node-id="kxYkspxBfzpMAZg8rbNAqS">
             <button type="button" class="btn primary" id="goal-save-btn" data-page-node-id="OYdGQ6Eiy8UlVwuJXHbYHs">保存目标</button>
