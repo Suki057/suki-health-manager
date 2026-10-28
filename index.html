@@ -562,19 +562,19 @@
     .date-bar .btn { flex: 0 0 auto; }
     .date-bar label { font-weight: 600; font-size: 14px; }
     /* 统计页日期栏：标签并排，输入框同高同行，结束日期框固定为红框长度 */
-    #stats-start { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 128px; }
-    #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 145px; margin-left: -10px; }
+    #stats-start { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 150px; box-sizing: border-box; }
+    #stats-end { padding: 4px 8px; font-size: 12px; border-radius: 9px; width: 150px; margin-left: 0; box-sizing: border-box; }
     .date-group {
       display: grid;
-      grid-template-columns: auto 24px 1fr;
+      grid-template-columns: auto 1fr;
       grid-template-rows: auto auto;
-      gap: 4px 8px;
+      gap: 6px 16px;
       align-items: center;
       flex: 1 1 auto;
       min-width: 0;
     }
     .date-group label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
-    .date-sep { color: var(--muted); font-size: 15px; user-select: none; }
+    .date-sep { display: none; }
     .stats-datebar {
       gap: 10px;
       flex-wrap: nowrap;
@@ -1805,7 +1805,7 @@
     <!-- 统计 -->
     <section id="stats" class="tab-panel" data-page-node-id="OxvJg2lHmkG3bUw1LSWwCl">
       <div class="panel" data-page-node-id="cC4XMSdSVb6X577dQeZnc7">
-        <h2 data-page-node-id="dvgAOWwUFVIFuOc4LX8enD">📊 热量记录日历</h2>
+        <h2 data-page-node-id="dvgAOWwUFVIFuOc4LX8enD">📊 热量日历</h2>
         <div class="row stats-datebar" data-page-node-id="lK1lgJINsfpuEYgfE5DFgL">
           <div class="date-group" data-page-node-id="xyKu4Afc9Bgg5yBOyq0CPY">
             <label data-page-node-id="y3ZItodmkEOrGMXcqGQpSL">开始日期</label>
@@ -2333,9 +2333,16 @@
     function setupTodayTab() {
       const datePicker = document.getElementById('date-picker');
       datePicker.value = getTodayStr();
-      datePicker.addEventListener('change', () => { renderToday(); renderBody(); });
+      // 改日期 → 其他板块（运动日历 / 热量日历 / 身材统计）同步到对应月份
+      const syncViewToDate = v => {
+        if (!v) return;
+        const p = v.split('-');
+        if (p.length === 3) setViewMonth(Number(p[0]), Number(p[1]) - 1);
+      };
+      datePicker.addEventListener('change', () => { syncViewToDate(datePicker.value); renderToday(); renderBody(); });
       document.getElementById('today-btn').addEventListener('click', () => {
         datePicker.value = getTodayStr();
+        syncViewToDate(datePicker.value);
         renderToday();
         renderBody();
       });
@@ -2345,12 +2352,14 @@
         calDatePicker.value = datePicker.value;
         calDatePicker.addEventListener('change', () => {
           datePicker.value = calDatePicker.value;
+          syncViewToDate(datePicker.value);
           renderToday();
           renderBody();
         });
         document.getElementById('cal-today-btn').addEventListener('click', () => {
           calDatePicker.value = getTodayStr();
           datePicker.value = getTodayStr();
+          syncViewToDate(datePicker.value);
           renderToday();
           renderBody();
         });
