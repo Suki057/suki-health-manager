@@ -897,16 +897,20 @@
       margin-bottom: 6px;
     }
     .form-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-start; margin-top: 4px; }
-    /* 每日营养目标：蛋白质/碳水/脂肪 并排一行（框宽 54px = 原 72px 的 3/4）；
-       糖 / 钠含量为固定区间、不需要填写（糖框 108px = 原 1.5 倍，钠框 144px = 原 2 倍） */
+    /* 每日营养目标：蛋白质/碳水/脂肪 并排一行，三个框等分整行宽度、高度与「糖」框一致（38px）；
+       糖 / 钠含量为固定区间、不需要填写（糖框 108px、钠框 144px） */
     .goal-nutrient-grid { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px; }
     .goal-row { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; gap: 12px 14px; }
     .goal-row .field { min-width: 0; flex: 0 0 auto; }
     .goal-row .field label { white-space: nowrap; }
     .goal-row .field input { width: 54px; max-width: 100%; height: 38px; box-sizing: border-box; padding: 0 5px; text-align: center; }
-    /* 框只有 54px：填区间（如 85-95 / 160-180）时自动缩字号，保证完整显示不被截断 */
-    .goal-row .field input.goal-fit-s { font-size: 13px !important; letter-spacing: -0.02em; }
-    .goal-row .field input.goal-fit-xs { font-size: 11px !important; letter-spacing: -0.04em; padding-left: 3px; padding-right: 3px; }
+    /* 三框一行：等分整行宽度（390 屏每个约 87px，观感与「糖」框一致），高度 38px 对齐糖框 */
+    .goal-row-a { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; width: 100%; }
+    .goal-row-a .field { width: 100%; }
+    .goal-row-a .field input { width: 100%; font-size: 13px; padding: 0 4px; }
+    /* 区间值比较长（如 220-280 / 100-160）时自动缩字号，保证完整显示不被截断 */
+    .goal-row .field input.goal-fit-s { font-size: 11.5px !important; letter-spacing: -0.02em; }
+    .goal-row .field input.goal-fit-xs { font-size: 10.5px !important; letter-spacing: -0.04em; padding-left: 2px; padding-right: 2px; }
     .goal-fixed-box {
       display: inline-flex; align-items: center; justify-content: center;
       height: 38px; padding: 0 8px; box-sizing: border-box;
@@ -1896,6 +1900,7 @@
         <div class="form-grid" data-page-node-id="qYELEw5Tc2rJX1gvmieXKh">
           <div class="field month-field" data-page-node-id="6fiMz53udzQIwCpTZDsK4M"><label data-page-node-id="VCuxThHGDPTwrhMETyTlAT">目标生效年月</label><input type="month" id="goal-month" data-page-node-id="a5KaQ4SRu0ScQAf9fsPwXY" /></div>
           <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">🍽️热量摄入需求（kcal/日）<span class="auto-badge" data-page-node-id="goalKcalAuto">自动</span></label><input type="text" id="goal-kcal" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：TDEE − 本月需减脂肪折算的日均热量缺口" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
+          <div class="field" data-page-node-id="goalKcalGapField"><label data-page-node-id="goalKcalGapLabel">📉热量缺口（kcal/日）<span class="auto-badge" data-page-node-id="goalGapAuto">自动</span></label><input type="text" id="goal-kcal-gap" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 热量摄入需求（当月日均缺口；摄入被最低标准兜住时按实际差值显示）" data-page-node-id="goalKcalGapInput" /></div>
           <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal/日）<span class="auto-badge" data-page-node-id="goalDynAuto">自动</span></label><input type="number" id="goal-dynamic-burn" class="auto-readonly" readonly placeholder="自动读取" title="自动读取「代谢测试」里该月的 TDEE" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
             <div class="goal-row goal-row-a" data-page-node-id="goalRowA">
@@ -4327,40 +4332,16 @@
       };
     }
 
-    // 计算说明文案（按 Suki 指定的叙述顺序：需求 → 折算热量 → 日均缺口 → 摄入需求 → 下限警告）
+    // 说明文案：只有「按目标算出的摄入低于最低标准」时才出红字，其余解释性大段已删掉
     function buildAutoGoalHint(r, ym) {
-      const parts = String(ym).split('-');
-      const ymText = parts[0] + '年' + Number(parts[1]) + '月';
       if (!r || !r.ok) {
         return '<span class="gah-warn">还缺「代谢测试」（出生年份 / 身高 / 体重），填好后这里会自动算出热量摄入需求。</span>';
       }
-      const met = r.met;
-      let t = '';
-      if (r.mode === 'fat' || r.mode === 'weight') {
-        const gain = r.fatDiff < 0;
-        const word = gain ? '增脂' : '减脂';
-        const gapWord = gain ? '盈余' : '缺口';
-        const diffKg = formatNum(Math.abs(r.fatDiff), 2);
-        const totalKcal = formatNum(Math.abs(r.kcalTotal), 0);
-        const perDay = formatNum(Math.abs(r.deficitPerDay), 0);
-        t += '根据 ' + ymText + ' 的身材管理需求，需' + word + '：' + diffKg + 'kg ≈ ' + totalKcal + 'kcal，当月日均热量' + gapWord + '为：' + totalKcal + 'kcal/' + r.days + '=' + perDay + 'kcal';
-        if (r.mode === 'weight') {
-          t += '<br><span class="gah-warn">缺月初或目标体脂率，暂按体重差粗估（会把缺口算偏大）。</span>';
-        }
-        t += '<br>因此当月日均热量摄入需求为：动态消耗-日均热量' + gapWord + '=' + met.tdee + (gain ? '+' : '-') + perDay + '=<b>' + r.intakeRaw + '</b>kcal';
-      } else {
-        t += '根据 ' + ymText + ' 的身材管理需求，还缺「月初身体数据」或「目标体重 / 体脂率」，先按维持期处理：当月日均热量摄入需求=动态消耗=<b>' + met.tdee + '</b>kcal';
-      }
-      if (r.floored) {
-        const std = met.gender === 'male' ? '男性' : '女性';
-        t += '<br><span class="gah-warn">⚠️ 按目标算出的 ' + r.intakeRaw + 'kcal 低于' + std + '标准 ' + r.floor
-          + 'kcal，热量摄入需求已默认为 ' + r.intake + 'kcal。</span>';
-        if (r.floor < met.bmr) {
-          t += '<br><span class="gah-warn">（' + r.floor + 'kcal 也低于你的基础代谢 ' + met.bmr
-            + 'kcal，长期低于基础代谢容易掉肌肉、代谢下降，建议把目标周期拉长或把目标调缓。）</span>';
-        }
-      }
-      return t;
+      if (!r.floored) return '';
+      const std = r.met.gender === 'male' ? '男性' : '女性';
+      return '<span class="gah-warn">⚠️ 按目标算出的 ' + r.intakeRaw + 'kcal 低于' + std + '标准 ' + r.floor
+        + ' kcal，若长期低于标准热量摄入会伤害身体，发生不同的生理反应。</span>'
+        + '<br>❗️为保持健康的饮食与身体管理，请按照最低标准的摄入需求进食🍚 可进行适当的有氧/无氧运动增加热量消耗 🏃享受长期主义对身心带来的满足感';
     }
 
     // 把 TDEE / 摄入需求 / 三大营养素区间写回只读框（并按月存档，供 AI 分析与热量缺口使用）
@@ -4369,12 +4350,16 @@
       const ym = getCurrentGoalMonth();
       const kcalEl = document.getElementById('goal-kcal');
       const dynEl = document.getElementById('goal-dynamic-burn');
+      const gapEl = document.getElementById('goal-kcal-gap');
       const hintEl = document.getElementById('goal-auto-hint');
       const macroHintEl = document.getElementById('goal-macro-hint');
       if (!kcalEl || !dynEl) return;
       const met = computeMetabolismForMonth(ym);
       const r = computeAutoKcalTarget(ym);
       dynEl.value = met ? String(met.tdee) : '';
+      // 热量缺口 = 动态消耗 − 热量摄入需求（摄入被最低标准兜住时，按实际差值显示，保证「摄入 + 缺口 = 消耗」）
+      const kcalGap = (met && r.ok) ? (met.tdee - r.intake) : null;
+      if (gapEl) gapEl.value = (kcalGap === null) ? '' : String(kcalGap);
       if (!state.goalsByMonth) state.goalsByMonth = {};
       if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
       const g = state.goalsByMonth[ym];
@@ -4384,6 +4369,7 @@
         kcalEl.value = String(r.intake);
         if (String(g.kcal) !== String(r.intake)) { g.kcal = String(r.intake); dirty = true; }
       }
+      if (kcalGap !== null && String(g.kcalGap) !== String(kcalGap)) { g.kcalGap = kcalGap; dirty = true; }
       // 三大营养素 = LBM × 系数区间（自动、不可手填）
       const macro = computeAutoMacros(ym);
       if (macro.ok) {
@@ -4399,7 +4385,10 @@
         if (ym === getTodayStr().slice(0, 7)) syncCurrentGoals();
         save();
       }
-      if (hintEl) hintEl.innerHTML = buildAutoGoalHint(r, ym);
+      if (hintEl) {
+        hintEl.innerHTML = buildAutoGoalHint(r, ym);
+        hintEl.hidden = !hintEl.textContent.trim();
+      }
       if (macroHintEl) macroHintEl.innerHTML = buildMacroHint(macro, ym);
     }
     // 从目标对象中挑出「目标管理」的体重/体脂（这两项不随年月版本化）
@@ -6744,6 +6733,11 @@
         const raw = String(kcalEl.value || '').trim();
         if (parseGoal(raw)) g.kcal = raw; else delete g.kcal;
       }
+      const gapEl = document.getElementById('goal-kcal-gap');
+      if (gapEl) {
+        const v = parseFloat(String(gapEl.value || '').trim());
+        if (!Number.isNaN(v)) g.kcalGap = v; else delete g.kcalGap;
+      }
       Object.keys(GOAL_FIXED).forEach(k => { g[k] = GOAL_FIXED[k]; });
       state.goalsByMonth[ym] = g;
       syncCurrentGoals();
@@ -6774,8 +6768,8 @@
       // 三个框统一字号（取最长内容那档），避免同行大小不一
       const maxLen = Math.max.apply(null, els.map(el => String(el.value || '').length));
       els.forEach(el => {
-        el.classList.toggle('goal-fit-s', maxLen >= 4 && maxLen < 6);
-        el.classList.toggle('goal-fit-xs', maxLen >= 6);
+        el.classList.toggle('goal-fit-s', maxLen >= 7 && maxLen < 8);
+        el.classList.toggle('goal-fit-xs', maxLen >= 8);
       });
     }
     function renderGoals() {
