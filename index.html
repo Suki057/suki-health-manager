@@ -1120,6 +1120,30 @@
     #progress-thead th.col-date { cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
     #progress-thead th.col-date:hover, #progress-thead th.col-date:active { color: #b3537a; }
     #progress-thead th.col-date::after { content: "▾"; font-size: 9px; margin-left: 3px; opacity: 0.5; }
+    /* 管理进度 · 数据参考值 */
+    .panel h2.progress-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .ref-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 999px;
+      border: 1px solid rgba(179, 83, 122, 0.34);
+      background: rgba(255, 255, 255, 0.78);
+      color: #8a4a63; font-size: 12px; font-weight: 600; line-height: 1.5;
+      cursor: pointer; vertical-align: middle; -webkit-tap-highlight-color: transparent;
+    }
+    .ref-btn:hover, .ref-btn:active { background: rgba(214, 138, 166, 0.24); border-color: rgba(179, 83, 122, 0.52); }
+    .ref-panel { width: min(342px, 92vw); }
+    .ref-row { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; }
+    .ref-row > label { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: #7a5560; white-space: nowrap; }
+    .ref-row select {
+      flex: 1 1 auto; min-width: 0; height: 32px;
+      border: 1px solid rgba(61, 58, 54, 0.16); border-radius: 9px;
+      background: rgba(255, 255, 255, 0.92); color: #3d3a36;
+      font-size: 12.5px; padding: 0 6px;
+    }
+    .ref-summary { margin: 8px 0 10px; font-size: 11.5px; line-height: 1.55; color: #7a5560; }
+    .ref-summary b { color: #b3537a; font-weight: 700; }
+    .ref-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; }
+    .ref-actions .btn[disabled] { opacity: 0.45; pointer-events: none; }
     .modal-panel {
       background: rgba(224, 232, 238, 0.96);
       backdrop-filter: blur(30px);
@@ -1952,7 +1976,8 @@
       </details>
 
       <div class="panel" data-page-node-id="2kipOSRGJLCUNDSEExq6XB">
-        <h2 data-page-node-id="3LXp6Sa1Jk9LE8KripzMM9">📈 管理进度 <small data-page-node-id="tTKVUgWYyqMOaEEnf2Alji">体重 · 体脂 · 减重进度</small><span id="progress-year-badge" class="year-badge" data-page-node-id="DXsDYt4bRqoa5y7oC305Kx">2026年</span><span class="year-note" data-page-node-id="yNnote2026">点击表格中的日期可选择年份</span></h2>
+        <h2 class="progress-head" data-page-node-id="3LXp6Sa1Jk9LE8KripzMM9">📈 管理进度 <button type="button" class="ref-btn" id="progress-ref-btn" data-page-node-id="progressRefBtn">📅 数据参考值</button></h2>
+        <p class="hint" id="progress-ref-note" data-page-node-id="progressRefNote"></p>
         <div class="progress-table-wrap" id="progress-table-wrap" data-page-node-id="HOq24FEK4fiWVycb3K4VPC">
           <table id="progress-table" class="progress-table" data-page-node-id="NRErrAmHNCaUgaIY8i3x5v">
             <thead id="progress-thead" data-page-node-id="WywBzaycwoDU4aVfhXEkO9">
@@ -5789,14 +5814,42 @@
     }
 
     // ==================== 管理进度 ====================
-    let progressYear = new Date().getFullYear();
     let progressColDay = {}; // 某列(月末日期串) -> 选中的当日日期串；无则取月末数据
-    function getProgressDates(year) {
-      if (year === 2026) {
-        return ['2026-07-31', '2026-08-31', '2026-09-30', '2026-10-31', '2026-11-30', '2026-12-31'];
-      }
+    // 有身材记录（体重 / 体脂）的日期，升序
+    function getBodyRecordDays() {
+      return Object.keys(state.logs || {})
+        .filter(d => {
+          const b = state.logs[d] && state.logs[d].body;
+          return b && (b.weight !== undefined || b.bodyFat !== undefined);
+        })
+        .sort();
+    }
+    // 表格参考的初始数据日期：优先用户所选，其次最早一条身材记录
+    function getProgressRefDate() {
+      const saved = state.progressRefDate;
+      if (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved)) return saved;
+      const days = getBodyRecordDays();
+      return days.length ? days[0] : '';
+    }
+    // 初始数据（体重 / 体脂 / 围度）：取所选日期的身材记录，没有则退回「初始数据（基线）」
+    function getProgressBase() {
+      const refDate = getProgressRefDate();
+      const body = (refDate && state.logs[refDate] && state.logs[refDate].body) || null;
+      const src = body || state.baseline || {};
+      const num = (v) => (v === undefined || v === null || v === '' || Number.isNaN(Number(v))) ? undefined : Number(v);
+      return {
+        date: refDate, fromBody: !!body,
+        weight: num(src.weight), bodyFat: num(src.bodyFat),
+        calf: num(src.calf), thigh: num(src.thigh), waist: num(src.waist), hip: num(src.hip)
+      };
+    }
+    // 表格列：初始数据所在月「之后」的每个月月末（同一年，最多到 12 月）
+    function getProgressDates() {
+      const refDate = getProgressRefDate();
+      const year = refDate ? Number(refDate.slice(0, 4)) : new Date().getFullYear();
+      const startMonth = refDate ? Number(refDate.slice(5, 7)) + 1 : 1;
       const dates = [];
-      for (let m = 1; m <= 12; m++) {
+      for (let m = startMonth; m <= 12; m++) {
         const lastDay = new Date(year, m, 0).getDate();
         dates.push(`${year}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`);
       }
@@ -5805,6 +5858,24 @@
     function formatMonthHeader(dateStr) {
       const [y, m, d] = dateStr.split('-').map(Number);
       return `${m}月${d}日`;
+    }
+    function formatDateCn(dateStr) {
+      const [y, m, d] = String(dateStr).split('-').map(Number);
+      return `${y}年${m}月${d}日`;
+    }
+    // 标题下方一行说明：初始数据是谁 + 表格显示到哪
+    function renderProgressRefNote(dates, base) {
+      const el = document.getElementById('progress-ref-note');
+      if (!el) return;
+      const parts = [];
+      if (base.weight !== undefined) parts.push('体重 ' + formatNum(base.weight, 1) + 'kg');
+      if (base.bodyFat !== undefined) parts.push('体脂 ' + formatNum(base.bodyFat, 1) + '%');
+      if (base.calf !== undefined) parts.push('小腿围 ' + formatNum(base.calf, 1) + 'cm');
+      const line1 = '初始数据：' + (base.date ? formatDateCn(base.date) : '基线') + (parts.length ? '（' + parts.join(' · ') + '）' : '');
+      const line2 = dates.length
+        ? '表格显示：' + formatMonthHeader(dates[0]) + (dates.length > 1 ? ' — ' + formatMonthHeader(dates[dates.length - 1]) : '')
+        : '表格显示：无（初始数据在 12 月，没有更晚的月份）';
+      el.innerHTML = line1 + '<br>' + line2;
     }
     function getBodyAtEndOfMonth(dateStr) {
       // 找当月最后一天及之前最近一条身材记录
@@ -5836,30 +5907,22 @@
     function renderProgress() {
       const tbody = document.getElementById('progress-table-body');
       const thead = document.getElementById('progress-thead');
-      const yearBadge = document.getElementById('progress-year-badge');
       if (!tbody || !thead) return;
-      const base = state.baseline || {};
+      const base = getProgressBase();
       const goals = state.goals || {};
       const baseWeight = base.weight;
       const baseFat = base.bodyFat;
       const targetWeight = goals.targetWeight;
       const targetFat = goals.targetBodyFat;
 
-      if (yearBadge) yearBadge.textContent = progressYear + '年';
+      const dates = getProgressDates();
+      renderProgressRefNote(dates, base);
 
-      const dates = getProgressDates(progressYear);
-
-      // 渲染表头
+      // 渲染表头：列 = 初始数据所在月之后的每个月月末
       thead.innerHTML = `
         <tr>
           <th class="row-header year-header">
             <span class="year-label">日期</span>
-            <select id="progress-year" class="year-select" aria-label="选择年份">
-              ${Array.from({ length: 101 }, (_, i) => {
-                const y = 2026 + i;
-                return `<option value="${y}" ${y === progressYear ? 'selected' : ''}>${y}年</option>`;
-              }).join('')}
-            </select>
           </th>
           ${dates.map(d => {
             const eff = progressColDay[d];
@@ -5868,15 +5931,6 @@
           }).join('')}
         </tr>
       `;
-      // 重新绑定年份选择事件
-      const newYearSelect = document.getElementById('progress-year');
-      if (newYearSelect) {
-        newYearSelect.addEventListener('change', e => {
-          progressYear = parseInt(e.target.value, 10);
-          progressColDay = {};
-          renderProgress();
-        });
-      }
       // 日期列点击 -> 弹出当月日期选择
       thead.querySelectorAll('th.col-date').forEach(th => {
         th.addEventListener('click', () => openDatePicker(th.dataset.colDate));
@@ -5918,6 +5972,11 @@
       };
       const cls = (v) => (v === 0 || v === null || v === undefined || Number.isNaN(v)) ? 'number zero' : 'number';
 
+      if (!dates.length) {
+        tbody.innerHTML = '<tr><td class="empty-state" colspan="1">初始数据在 12 月，没有更晚的月份可显示。<br>点击「数据参考值」换一个更早的日期即可。</td></tr>';
+        return;
+      }
+
       const rows = [
         { name: '现体重', unit: 'kg', values: cols.map(c => ({ text: fmt(c.weight, 1), cls: cls(c.weight) })) },
         { name: '现体脂率', unit: '%', values: cols.map(c => ({ text: fmt(c.fat, 1), cls: cls(c.fat) })) },
@@ -5935,6 +5994,134 @@
           ${r.values.map(v => `<td class="${v.cls}">${v.text}</td>`).join('')}
         </tr>
       `).join('');
+    }
+    // 「数据参考值」弹窗：① 初始数据 ② 年月份 ③ 日历
+    function openProgressRef() {
+      const days = getBodyRecordDays();
+      const cur = getProgressRefDate() || getTodayStr();
+      const nowY = new Date().getFullYear();
+      let pendDate = cur;
+      let pickYear = Number(cur.slice(0, 4)) || nowY;
+      let pickMonth = Number(cur.slice(5, 7)) || (new Date().getMonth() + 1);
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      const panel = document.createElement('div');
+      panel.className = 'modal-panel ref-panel';
+      panel.innerHTML =
+        '<div class="dp-head">数据参考值 <span class="dp-close" data-close="1">✕</span></div>' +
+        '<div class="ref-row"><label for="ref-date-select">初始数据</label><select id="ref-date-select" aria-label="选择初始数据"></select></div>' +
+        '<p class="ref-summary" id="ref-summary"></p>' +
+        '<div class="ref-row"><label>年月份</label><select id="ref-year" aria-label="选择年份"></select><select id="ref-month" aria-label="选择月份"></select></div>' +
+        '<div class="dp-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>' +
+        '<div class="dp-grid" id="ref-grid"></div>' +
+        '<div class="ref-actions"><button type="button" class="btn secondary" data-cancel="1">取消</button><button type="button" class="btn primary" id="ref-ok">确定</button></div>';
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+
+      const selDate = panel.querySelector('#ref-date-select');
+      const selYear = panel.querySelector('#ref-year');
+      const selMonth = panel.querySelector('#ref-month');
+      const grid = panel.querySelector('#ref-grid');
+      const sumEl = panel.querySelector('#ref-summary');
+      const okBtn = panel.querySelector('#ref-ok');
+
+      const bodyOf = (day) => {
+        const b = state.logs[day] && state.logs[day].body;
+        return (b && (b.weight !== undefined || b.bodyFat !== undefined)) ? b : null;
+      };
+
+      // ① 初始数据：所有有身材记录的日期（新 → 旧）
+      selDate.innerHTML = days.length
+        ? days.slice().reverse().map(d => {
+            const b = state.logs[d].body || {};
+            const w = (b.weight !== undefined && b.weight !== null) ? formatNum(Number(b.weight), 1) + 'kg' : '—';
+            const f = (b.bodyFat !== undefined && b.bodyFat !== null) ? formatNum(Number(b.bodyFat), 1) + '%' : '—';
+            return `<option value="${d}"${d === pendDate ? ' selected' : ''}>${d} · ${w} / ${f}</option>`;
+          }).join('')
+        : '<option value="">暂无身材记录</option>';
+      if (days.length) selDate.value = (days.indexOf(pendDate) >= 0) ? pendDate : days[days.length - 1];
+
+      // ② 年月份
+      const recYears = days.map(d => Number(d.slice(0, 4)));
+      const yMin = Math.min(nowY - 1, ...(recYears.length ? recYears : [nowY]));
+      const yMax = Math.max(nowY + 1, ...(recYears.length ? recYears : [nowY]));
+      let yOpts = '';
+      for (let y = yMin; y <= yMax; y++) yOpts += `<option value="${y}"${y === pickYear ? ' selected' : ''}>${y}年</option>`;
+      selYear.innerHTML = yOpts;
+      let mOpts = '';
+      for (let m = 1; m <= 12; m++) mOpts += `<option value="${m}"${m === pickMonth ? ' selected' : ''}>${m}月</option>`;
+      selMonth.innerHTML = mOpts;
+
+      function renderSummary() {
+        const b = bodyOf(pendDate);
+        if (!b) {
+          sumEl.innerHTML = '<b>' + formatDateCn(pendDate) + '</b> 没有身材记录，不能作为初始数据。请选带绿点的日期。';
+          okBtn.disabled = true;
+          return;
+        }
+        const parts = [];
+        if (b.weight !== undefined && b.weight !== null) parts.push('体重 ' + formatNum(Number(b.weight), 1) + 'kg');
+        if (b.bodyFat !== undefined && b.bodyFat !== null) parts.push('体脂 ' + formatNum(Number(b.bodyFat), 1) + '%');
+        if (b.calf !== undefined && b.calf !== null && b.calf !== '') parts.push('小腿围 ' + formatNum(Number(b.calf), 1) + 'cm');
+        if (b.thigh !== undefined && b.thigh !== null && b.thigh !== '') parts.push('大腿围 ' + formatNum(Number(b.thigh), 1) + 'cm');
+        if (b.waist !== undefined && b.waist !== null && b.waist !== '') parts.push('腰围 ' + formatNum(Number(b.waist), 1) + 'cm');
+        if (b.hip !== undefined && b.hip !== null && b.hip !== '') parts.push('臀围 ' + formatNum(Number(b.hip), 1) + 'cm');
+        sumEl.innerHTML = '<b>' + formatDateCn(pendDate) + '</b> ' + (parts.length ? parts.join(' · ') : '（该日只有日期，没有可用的数值）');
+        okBtn.disabled = !parts.length;
+      }
+
+      function renderGrid() {
+        const firstDow = new Date(pickYear, pickMonth - 1, 1).getDay();
+        const lastDay = new Date(pickYear, pickMonth, 0).getDate();
+        let cells = '';
+        for (let i = 0; i < firstDow; i++) cells += '<span class="dp-empty"></span>';
+        for (let d = 1; d <= lastDay; d++) {
+          const dayStr = `${pickYear}-${String(pickMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const sel = (dayStr === pendDate) ? ' selected' : '';
+          const has = bodyOf(dayStr) ? ' has-data' : '';
+          cells += `<button type="button" class="dp-day${sel}${has}" data-day="${dayStr}">${d}</button>`;
+        }
+        grid.innerHTML = cells;
+        grid.querySelectorAll('.dp-day').forEach(btn => {
+          btn.addEventListener('click', () => {
+            pendDate = btn.dataset.day;
+            if (days.indexOf(pendDate) >= 0) selDate.value = pendDate;
+            renderGrid();
+            renderSummary();
+          });
+        });
+      }
+
+      renderGrid();
+      renderSummary();
+
+      selDate.addEventListener('change', () => {
+        if (!selDate.value) return;
+        pendDate = selDate.value;
+        pickYear = Number(pendDate.slice(0, 4));
+        pickMonth = Number(pendDate.slice(5, 7));
+        if (selYear.querySelector('option[value="' + pickYear + '"]')) selYear.value = String(pickYear);
+        selMonth.value = String(pickMonth);
+        renderGrid();
+        renderSummary();
+      });
+      selYear.addEventListener('change', () => { pickYear = Number(selYear.value); renderGrid(); });
+      selMonth.addEventListener('change', () => { pickMonth = Number(selMonth.value); renderGrid(); });
+
+      const close = () => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); };
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.dataset.close || e.target.dataset.cancel) close();
+      });
+      okBtn.addEventListener('click', () => {
+        if (okBtn.disabled) return;
+        state.progressRefDate = pendDate;
+        progressColDay = {};
+        save();
+        close();
+        renderProgress();
+        toast('初始数据已设为 ' + formatDateCn(pendDate));
+      });
     }
     function openDatePicker(monthDateStr) {
       const [y, m] = monthDateStr.split('-').map(Number);
@@ -5981,6 +6168,11 @@
       if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
     }
     function setupProgressTab() {
+      const refBtn = document.getElementById('progress-ref-btn');
+      if (refBtn && !refBtn.dataset.bound) {
+        refBtn.dataset.bound = '1';
+        refBtn.addEventListener('click', (e) => { e.preventDefault(); openProgressRef(); });
+      }
       renderProgress();
       // 表格区域拖动滚动
       const wrap = document.getElementById('progress-table-wrap');
