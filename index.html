@@ -967,6 +967,9 @@
     /* 热量缺口 + 动态消耗：沿用上面两列等分，方框尺寸与「热量摄入需求 / 标准摄入热量」完全一致；
        标题强制单行，保证两个标题在同一水平线上 */
     .goal-kcal-row.goal-kcal-pair .field label { white-space: nowrap; }
+    /* 🪤月热量缺口需求：单独整行（数字较长），标签单行时不再预留两行高度，避免标签与方框之间空出大缝 */
+    .goal-kcal-row.goal-kcal-single { grid-template-columns: minmax(0, 1fr); }
+    .goal-kcal-row.goal-kcal-single .field label { min-height: 0; }
     @media (max-width: 360px) {
       .goal-kcal-row { gap: 10px 6px; }
       .goal-kcal-row .field input { font-size: 13px; }
@@ -2053,6 +2056,9 @@
           <div class="goal-kcal-row goal-kcal-pair" data-page-node-id="goalKcalPairRow">
             <div class="field" data-page-node-id="goalKcalGapField"><label data-page-node-id="goalKcalGapLabel">📉热量缺口（kcal）<span class="auto-badge" data-page-node-id="goalGapAuto">自动</span></label><input type="text" id="goal-kcal-gap" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 热量摄入需求（当月日均缺口；摄入被最低标准兜住时按实际差值显示）" data-page-node-id="goalKcalGapInput" /></div>
             <div class="field" data-page-node-id="7w5f6xbx4wi41lpGtDWMAC"><label data-page-node-id="oqBE24igrpAYOwNaJZowU1">🔥动态消耗（kcal）<span class="auto-badge" data-page-node-id="goalDynAuto">自动</span></label><input type="number" id="goal-dynamic-burn" class="auto-readonly" readonly placeholder="自动读取" title="自动读取「代谢测试」里该月的 TDEE" data-page-node-id="rtsGZAaaTIbnm0039B1a6s" /></div>
+          </div>
+          <div class="goal-kcal-row goal-kcal-single" data-page-node-id="goalMonthGapRow">
+            <div class="field" data-page-node-id="goalMonthGapField"><label data-page-node-id="goalMonthGapLabel">🪤月热量缺口需求（kcal）<span class="auto-badge" data-page-node-id="goalMonthGapAuto">自动</span></label><input type="text" id="goal-kcal-gap-month" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：热量缺口 × 当月天数" data-page-node-id="goalMonthGapInput" /></div>
           </div>
           <div class="goal-nutrient-grid" data-page-node-id="goalNutrientGrid">
             <div class="goal-row goal-row-b" data-page-node-id="goalRowB">
@@ -4477,11 +4483,11 @@
         return '<span class="gah-warn">还缺「代谢测试」（出生年份 / 身高 / 体重），填好后这里会自动算出热量摄入需求。</span>';
       }
       if (r.intakeRaw >= r.floor) return '';
-      const std = r.met.gender === 'male' ? '男性' : '女性';
-      return '<span class="gah-warn">⚠️ 按目标算出的 ' + r.intakeRaw + 'kcal低于' + std + '标准 ' + r.floor
-        + ' kcal，若长期低于标准热量摄入会伤害身体，发生不同的生理反应，同时也难以达到想要的减脂/减重效果。</span>'
-        + '<br>❗️为保持健康的饮食与身体管理，请按照最低标准的摄入需求进食🍚&nbsp;&nbsp;可进行适当的有氧/无氧运动增加热量消耗 🏃 完成每日热量缺口的目标。'
-        + '<br>欲速则不达 ❤️请享受长期主义对身心带来的满足感';
+      return '<span class="gah-warn">⚠️ 日常摄入热量不推荐长期低于标准❗️长期低于基线 ' + r.floor
+        + ' kcal 会对身体造成伤害，同时难以达到理想减脂&amp;减重效果。</span>'
+        + '<br>📖每日摄入热量要符合标准基线 ' + r.floor
+        + ' kcal，若当日动态消耗-热量摄入基线的差值低于所需热量缺口，可适当增加#运动 完成当日缺口需求。'
+        + '<br>欲速则不达🤔请保持并享受长期主义～投身于建造自己的身体堡垒🏯';
     }
 
     // 把 TDEE / 摄入需求 / 三大营养素区间写回只读框（并按月存档，供 AI 分析与热量缺口使用）
@@ -4491,6 +4497,7 @@
       const kcalEl = document.getElementById('goal-kcal');
       const dynEl = document.getElementById('goal-dynamic-burn');
       const gapEl = document.getElementById('goal-kcal-gap');
+      const gapMonthEl = document.getElementById('goal-kcal-gap-month');
       const stdEl = document.getElementById('goal-std-kcal');
       const hintEl = document.getElementById('goal-auto-hint');
       if (!kcalEl || !dynEl) return;
@@ -4506,6 +4513,10 @@
       const intakeVal = r.ok ? r.intakeRaw : null;
       const kcalGap = (met && intakeVal !== null) ? (met.tdee - intakeVal) : null;
       if (gapEl) gapEl.value = (kcalGap === null) ? '' : String(kcalGap);
+      // 🪤月热量缺口需求 = 热量缺口 × 当月天数（整月累计需要创造的缺口）
+      const monthDays = getMonthDays(ym) || 0;
+      const kcalGapMonth = (kcalGap === null || !monthDays) ? null : Math.round(kcalGap * monthDays);
+      if (gapMonthEl) gapMonthEl.value = (kcalGapMonth === null) ? '' : String(kcalGapMonth);
       if (!state.goalsByMonth) state.goalsByMonth = {};
       if (!state.goalsByMonth[ym]) state.goalsByMonth[ym] = {};
       const g = state.goalsByMonth[ym];
@@ -4516,6 +4527,7 @@
         if (String(g.kcal) !== String(intakeVal)) { g.kcal = String(intakeVal); dirty = true; }
       }
       if (kcalGap !== null && String(g.kcalGap) !== String(kcalGap)) { g.kcalGap = kcalGap; dirty = true; }
+      if (kcalGapMonth !== null && String(g.kcalGapMonth) !== String(kcalGapMonth)) { g.kcalGapMonth = kcalGapMonth; dirty = true; }
       if (r.ok && String(g.kcalStd) !== String(r.floor)) { g.kcalStd = r.floor; dirty = true; }
       // 三大营养素 = LBM × 系数区间（自动、不可手填）
       const macro = computeAutoMacros(ym);
