@@ -2566,9 +2566,13 @@
           f.baseGrams = fix.baseGrams;
         }
       });
-      // 迁移：娃娃菜钠含量订正（100g 钠 250 → 19.3 mg）
+      // 迁移：娃娃菜钠含量订正（100g 真实值 19.3 mg；早期误录为 250，也可能存在其它异常值）
+      // 只订正明显异常（空 / 0 / ≥100mg）的数据，避免覆盖用户自己手填的合理值
       state.foods.forEach(f => {
-        if (f.name === '娃娃菜' && Number(f.sodium) === 250) f.sodium = 19.3;
+        if (f.name === '娃娃菜') {
+          const s = Number(f.sodium);
+          if (!Number.isFinite(s) || s === 0 || s >= 100) f.sodium = 19.3;
+        }
       });
       if (!Array.isArray(state.exercises)) state.exercises = [];
       state.exercises.forEach(x => { if (!x.type) x.type = 'ana'; });
