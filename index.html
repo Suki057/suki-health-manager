@@ -819,7 +819,8 @@
       border-radius: 999px; padding: 7px 13px; font-size: 13px; font-family: inherit; cursor: pointer;
     }
     .rs-meal.on { background: rgba(214, 138, 166, 0.16); font-weight: 800; border-color: rgba(214, 138, 166, 0.8); }
-    #diet-row-modal .modal-actions { justify-content: stretch; }
+    #diet-row-modal .modal-actions { justify-content: stretch; gap: 12px; }
+    #diet-row-modal .modal-actions + .modal-actions { margin-top: 14px; }
     #diet-row-modal .modal-actions .btn { flex: 1; }
     /* 运动明细：卡片式两行排版，单屏自适应，不横向滚动 */
     .exercise-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1258,6 +1259,8 @@
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; align-items: end; margin: 14px 0; }
     .modal-grid .field { flex: none; min-width: 0; }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    /* 全局约定：弹窗内连续的按钮行块之间保持间隔，不贴合 */
+    .modal-actions + .modal-actions { margin-top: 12px; }
     @media (max-width: 480px) { .modal-grid { grid-template-columns: 1fr; } }
     @keyframes editFlash {
       0% { box-shadow: 0 0 0 6px rgba(214, 138, 166, 0.45), var(--shadow); }
@@ -2348,14 +2351,14 @@
       <p class="hint" id="diet-row-title" data-page-node-id="DietRowTitle">—</p>
       <div class="rs-meal-label" data-page-node-id="DietRowMealLabel">选择进餐时段<br><span class="rs-meal-hint">（可多选，确定后按所选数量平分份量与营养）</span></div>
       <div id="diet-row-meals" class="rs-meals" data-page-node-id="DietRowMeals"></div>
-      <div class="modal-actions" style="margin-top:4px;" data-page-node-id="DietRowMealApplyWrap">
+      <div class="modal-actions" data-page-node-id="DietRowMealApplyWrap">
         <button class="btn primary" id="diet-row-meal-apply" data-page-node-id="DietRowMealApply">应用时段</button>
       </div>
       <div class="modal-actions" data-page-node-id="DietRowActions">
         <button class="btn secondary" id="diet-row-edit" data-page-node-id="DietRowEdit">编辑份量</button>
         <button class="btn danger" id="diet-row-del" data-page-node-id="DietRowDel">删除</button>
       </div>
-      <div class="modal-actions" style="margin-top:8px;" data-page-node-id="DietRowActions2">
+      <div class="modal-actions" data-page-node-id="DietRowActions2">
         <button class="btn secondary" id="diet-row-close" data-page-node-id="DietRowClose">关闭</button>
       </div>
     </div>
