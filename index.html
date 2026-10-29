@@ -946,6 +946,9 @@
     /* 标签文字在方框正上方居中（中上位置），与方框水平对齐 */
     .goal-row-a .field label { display: block; text-align: center; }
     .goal-row-a .field input { width: 100%; font-size: 13px; padding: 0 4px; }
+    /* 糖 / 钠含量：标签同样落在方框正上方的中上位置、水平居中（与蛋白质/碳水/脂肪一致） */
+    .goal-row-b .field { display: flex; flex-direction: column; align-items: center; }
+    .goal-row-b .field label { display: block; text-align: center; }
     /* 区间值比较长（如 220-280 / 100-160）时自动缩字号，保证完整显示不被截断 */
     .goal-row .field input.goal-fit-s { font-size: 11.5px !important; letter-spacing: -0.02em; }
     .goal-row .field input.goal-fit-xs { font-size: 10.5px !important; letter-spacing: -0.04em; padding-left: 2px; padding-right: 2px; }
