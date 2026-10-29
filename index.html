@@ -1664,36 +1664,7 @@
 
     h3 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
 
-    /* ===== 访问授权码锁屏 ===== */
-    .lock-screen { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 28%, #34427e 0%, #1c2350 58%, #141a3a 100%); padding: 20px; }
-    html.needs-lock .lock-screen { display: flex; }
-    .lock-card { width: min(360px, 92vw); background: #fffaf2; border: 1px solid rgba(214,138,166,0.40); border-radius: 20px; box-shadow: 0 24px 70px rgba(8,12,35,0.5); padding: 30px 24px 24px; text-align: center; }
-    .lock-rose { font-size: 30px; line-height: 1; margin-bottom: 6px; }
-    .lock-title { font-size: 18px; font-weight: 700; color: #2b2350; margin: 4px 0 6px; }
-    .lock-sub { font-size: 13px; color: #8a7d92; margin-bottom: 18px; line-height: 1.5; }
-    .lock-input { width: 100%; box-sizing: border-box; padding: 12px 14px; font-size: 16px; border: 1px solid rgba(179,86,125,0.40); border-radius: 12px; background: #fff; color: #2b2350; font-family: inherit; margin-bottom: 10px; text-align: center; letter-spacing: 3px; }
-    .lock-input:focus { outline: none; border-color: #b3567d; box-shadow: 0 0 0 3px rgba(179,86,125,0.18); }
-    .lock-err { min-height: 18px; font-size: 12.5px; color: #d2453f; margin-bottom: 8px; }
-    .lock-btn { width: 100%; padding: 12px; font-size: 15px; font-weight: 600; color: #fff; background: #b3567d; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; }
-    .lock-btn:active { transform: scale(0.98); }
-    .lock-actions { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
-    .lock-link { background: none; border: none; color: #7a6f8a; font-size: 12.5px; cursor: pointer; text-decoration: underline; font-family: inherit; }
-    .lock-link.danger { color: #c0564b; }
-    .lock-shake { animation: lockShake .35s; }
-    @keyframes lockShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
-    .code-box { display:inline-block; padding:6px 12px; font-size:15px; letter-spacing:2px; background:#fff; border:1px dashed rgba(179,86,125,0.5); border-radius:10px; color:#b3567d; font-family:ui-monospace,Menlo,Consolas,monospace; }
   </style>
-  <script>
-    // 提前判定激活状态：已激活则不挂 needs-lock，锁屏从第一帧起就不绘制，消除“先闪授权码页再进 app”的现象
-    (function () {
-      try {
-        var ACT = 'sukiAppActivated_v1';
-        var ok = false;
-        try { ok = localStorage.getItem(ACT) === '1'; } catch (e) {}
-        if (!ok) document.documentElement.classList.add('needs-lock');
-      } catch (e) {}
-    })();
-  </script>
 </head>
 <body data-page-node-id="Ld1VyMmi0nClFmge4e7LeO">
   <!-- ===== 开屏界面 ===== -->
@@ -2501,28 +2472,8 @@
     </div>
   </div>
 
-  <!-- ===== 一次性激活授权码锁屏（放在脚本之前，确保 init 时 DOM 已就绪） ===== -->
-  <div id="lock-screen" class="lock-screen">
-    <div class="lock-card">
-      <div class="lock-rose">🌹</div>
-      <div class="lock-title" id="lock-title">🔒 输入授权码以激活</div>
-      <div class="lock-sub" id="lock-sub">激活后可添加到主屏幕，之后免码进入</div>
-      <input id="lock-input" class="lock-input" type="text" inputmode="text" autocomplete="off" placeholder="授权码" />
-      <div class="lock-err" id="lock-err"></div>
-      <button id="lock-submit" class="lock-btn">激活并进入</button>
-      <div class="lock-actions">
-        <button id="lock-reset" class="lock-link danger">退出激活 / 重置本机（清空数据）</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // ==================== 状态 & 本地存储 ====================
-    // ===== 一次性激活授权码（分享模型） =====
-    // 当前分享授权码：Suki 每次分享给新人前，把下面这个字符串改成新码（联系我改，或自行改这一行）。
-    // 收件人首次打开输入此码即可激活本机，之后免码进入；换码后旧码作废，无法再激活新设备。
-    var ACTIVATION_CODE = '111111';
-    var ACTIVATED_KEY = 'sukiAppActivated_v1';
     const STORAGE_KEY = 'dietTrackerData';
     let state = { foods: [], exercises: [], logs: {}, trash: [], baseline: {}, goals: {}, goalHistory: [], metabolism: {}, mealPeriods: [] };
     // 全局「查看月份」：运动日历与热量记录共用，切换任一处的月份时联动
@@ -8062,7 +8013,6 @@
       // 开屏界面：根据当前数据渲染四张数字卡，绑定「开始管理」进入主界面
       renderSplash();
       setupSplash();
-      setupLock();
 
       // 注册 Service Worker（PWA：可离线、可“添加到主屏幕”当作 App）
       if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
@@ -8173,56 +8123,6 @@
       }, { passive: false });
     })();
 
-    // ===== 一次性激活授权码（分享模型） =====
-    // 行为：收件人首次打开需输入“当前分享授权码”激活本机；激活后不再需要码。
-    // 换新码（改 ACTIVATION_CODE）后，旧码作废，无法再激活新设备；已激活设备不受影响。
-    function isActivated() { return localStorage.getItem(ACTIVATED_KEY) === '1'; }
-    function lockOpen(show) {
-      document.getElementById('lock-screen').style.display = show ? 'flex' : 'none';
-      if (!show) document.documentElement.classList.remove('needs-lock');
-    }
-    function lockErr(msg) {
-      const el = document.getElementById('lock-err');
-      el.textContent = msg || '';
-      if (msg) {
-        const card = document.querySelector('.lock-card');
-        card.classList.remove('lock-shake'); void card.offsetWidth; card.classList.add('lock-shake');
-      }
-    }
-    function lockSubmit() {
-      const code = (document.getElementById('lock-input').value || '').trim();
-      if (code === '') { lockErr('请输入授权码'); return; }
-      if (code === ACTIVATION_CODE) {
-        localStorage.setItem(ACTIVATED_KEY, '1');   // 本机激活：之后免码进入
-        lockErr(''); lockOpen(false);
-        toast('激活成功，可添加到主屏幕 🌹');
-      } else {
-        lockErr('授权码错误，或已失效');
-      }
-    }
-    function lockReset() {
-      if (!confirm('确定重置本机？这会清空全部本地数据并退出激活（之后打开需重新输入授权码）。')) return;
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(ACTIVATED_KEY);
-      location.reload();
-    }
-    function setupLock() {
-      // —— 锁屏事件 ——
-      document.getElementById('lock-submit').addEventListener('click', lockSubmit);
-      document.getElementById('lock-input').addEventListener('keydown', e => { if (e.key === 'Enter') lockSubmit(); });
-      document.getElementById('lock-reset').addEventListener('click', lockReset);
-
-      // —— 已激活：直接放行，不显示锁屏 ——
-      if (isActivated()) { lockOpen(false); return; }
-
-      // —— 未激活：显示激活锁屏 ——
-      document.getElementById('lock-title').textContent = '🔒 输入授权码以激活';
-      document.getElementById('lock-sub').textContent = '激活后可添加到主屏幕，之后免码进入';
-      const i1 = document.getElementById('lock-input');
-      i1.value = ''; i1.placeholder = '授权码'; i1.style.display = '';
-      document.getElementById('lock-submit').textContent = '激活并进入';
-      lockErr(''); lockOpen(true);
-    }
   </script>
 </body>
 </html>
