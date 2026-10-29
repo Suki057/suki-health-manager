@@ -573,7 +573,7 @@
     }
     .section-details > summary::-webkit-details-marker { display: none; }
     .section-details > summary small { color: var(--muted); font-weight: 500; font-size: 13px; margin-left: 8px; }
-    /* 每日营养目标副标题：字号略收、左边距收窄，390 宽刚好与标题同行不折行；320 宽整体换行，不会剩一个字 */
+    /* 每日摄入指标副标题：字号略收、左边距收窄，390 宽刚好与标题同行不折行；320 宽整体换行，不会剩一个字 */
     .section-details > summary small.goal-sum { font-size: 12px; margin-left: 4px; letter-spacing: -0.01em; }
     @media (max-width: 360px) {
       .section-details > summary small.goal-sum { display: block; margin-left: 0; margin-top: 2px; }
@@ -920,7 +920,7 @@
       margin-bottom: 6px;
     }
     .form-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-start; margin-top: 4px; }
-    /* 每日营养目标：蛋白质/碳水/脂肪 并排一行，三个框等分整行宽度、高度与「糖」框一致（38px）；
+    /* 每日摄入指标：蛋白质/碳水/脂肪 并排一行，三个框等分整行宽度、高度与「糖」框一致（38px）；
        糖 / 钠含量为固定区间、不需要填写（糖框 108px、钠框 144px） */
     .goal-nutrient-grid { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px; }
     .goal-row { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; gap: 12px 14px; }
@@ -1814,7 +1814,7 @@
 
       <div class="panel analysis-panel" data-page-node-id="2KSp0ELrlOERGBO3DW4sol">
         <h2 data-page-node-id="atm1DfSGGs1o2MrzyWIEf4">🤖 AI 饮食分析 <small data-page-node-id="NqoAwfZFvkOEMwEIasMgkz">当日摄入合理性评估</small></h2>
-        <p class="hint" data-page-node-id="mMkFtnWFxix8kM2dXBRFbz">请在「身材记录」页输入你的每日营养目标，以便自动评估当日营养是否摄入充足。</p>
+        <p class="hint" data-page-node-id="mMkFtnWFxix8kM2dXBRFbz">请在「身材记录」页输入你的每日摄入指标，以便自动评估当日营养是否摄入充足。</p>
         <div id="diet-analysis" class="analysis-body" data-page-node-id="bDKrteIql2ELy6YzIxOE2t">
           <p class="empty-state" data-page-node-id="8pGU06SXlS8KvFSAOONCWZ">记录完饮食后，这里会给出当日营养合理性分析。</p>
         </div>
@@ -2040,7 +2040,7 @@
       </details>
 
       <details class="panel section-details" style="margin-top:22px;" data-page-node-id="eoBdIeXtzl7sbG1bmA55sj">
-        <summary data-page-node-id="ULdEkB9YmNGEDwP2Trurx2">🎯 每日营养目标 <small class="goal-sum" data-page-node-id="goalSummaryEst">估算热量摄入&amp;营养素/日</small></summary>
+        <summary data-page-node-id="ULdEkB9YmNGEDwP2Trurx2">🎯 每日摄入指标 <small class="goal-sum" data-page-node-id="goalSummaryEst">估算热量摄入&amp;营养素/日</small></summary>
         <p class="hint" data-page-node-id="9cZCeeC9OMNtvitEuiYnKS">请在上面的体重档案和代谢测试的板块输入正确数据，并以此为基础自动计算出：每日的热量与营养素的推荐摄入区间。</p>
         <div class="form-grid" data-page-node-id="qYELEw5Tc2rJX1gvmieXKh">
           <div class="field month-field" data-page-node-id="6fiMz53udzQIwCpTZDsK4M"><label data-page-node-id="VCuxThHGDPTwrhMETyTlAT">目标生效年月</label><input type="month" id="goal-month" data-page-node-id="a5KaQ4SRu0ScQAf9fsPwXY" /></div>
@@ -2581,7 +2581,7 @@
       if (!Array.isArray(state.foodReviews)) state.foodReviews = [];
       if (!state.metabolism || typeof state.metabolism !== 'object') state.metabolism = {};
 
-      // 迁移：每日营养目标支持按「年月」存多份版本（goalsByMonth）。
+      // 迁移：每日摄入指标支持按「年月」存多份版本（goalsByMonth）。
       // 把已有的单一目标作为历史基准放入很早的年月，使所有真实日期都能命中；
       // 之后用户在某月单独设置目标时，不会影响此前已记录的历史数据。
       if (!state.goalsByMonth || typeof state.goalsByMonth !== 'object') {
@@ -4243,8 +4243,8 @@
       actions.querySelector('.act-cancel').addEventListener('click', () => renderToday());
     }
 
-    // ==================== 按「年月」版本化的每日营养目标 ====================
-    // 取某天生效的每日营养目标：合并该天所在月及之前所有版本（向后继承默认值），
+    // ==================== 按「年月」版本化的每日摄入指标 ====================
+    // 取某天生效的每日摄入指标：合并该天所在月及之前所有版本（向后继承默认值），
     // 未填的字段自动沿用更早月份填过的值；这样单独保存某个月份时不会把历史/基准目标清零。
     function getGoalsForDay(day) {
       if (!state.goalsByMonth || typeof state.goalsByMonth !== 'object') return state.goals || {};
@@ -4262,7 +4262,7 @@
       }
       return merged;
     }
-    // 当前「每日营养目标」表单选中的年月
+    // 当前「每日摄入指标」表单选中的年月
     function getCurrentGoalMonth() {
       const el = document.getElementById('goal-month');
       return (el && el.value) ? el.value : getTodayStr().slice(0, 7);
@@ -4563,7 +4563,7 @@
         numericKeys.forEach(k => totals[k] += c[k]);
       });
       log.exercises.forEach(e => totals.burn += computeExerciseKcal(e));
-      // 每日动态消耗（用户在「每日营养目标」按年月设置），取该天当时生效的那份目标，保证历史数据不随后来改目标而变
+      // 每日动态消耗（用户在「每日摄入指标」按年月设置），取该天当时生效的那份目标，保证历史数据不随后来改目标而变
       const dayGoals = getGoalsForDay(day);
       totals.burn += Number(dayGoals.dynamicBurn) || 0;
       return totals;
