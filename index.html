@@ -764,7 +764,7 @@
     #stats-table, #body-stats-table,
     #food-lib-table-100g, #food-lib-table-serving,
     #exercise-lib-table-ana, #exercise-lib-table-aer { min-width: 700px; }
-    /* 饮食明细：每个进餐时段一张独立小表（表头一行：食物 份量 蛋白质 脂肪 碳水 糖 钠） */
+    /* 饮食明细：每个进餐时段一张独立小表（表头一行：食物 份量 热量 蛋白质 脂肪 碳水 糖 钠） */
     .diet-meal-list { display: flex; flex-direction: column; gap: 16px; }
     .diet-meal-block {
       border-radius: 14px; overflow: hidden;
@@ -782,15 +782,28 @@
     .diet-meal-head .dm-title b { color: #7A4E2E; font-weight: 800; font-size: 13px; }
     .diet-meal-head .dm-meta { font-size: 11.5px; font-weight: 700; color: #9A7F6A; white-space: nowrap; }
     .diet-meal-block .table-wrap { border: none; border-radius: 0; box-shadow: none; }
-    /* 7 列数据 + 行尾「⋯」按钮，手机宽度一屏放得下，不横向滚动 */
+    /* 8 列数据 + 行尾「⋯」按钮，手机宽度一屏放得下，不横向滚动 */
     .diet-meal-table th,
-    .diet-meal-table td { padding: 7px 4px; font-size: 12px; }
+    .diet-meal-table td { padding: 6px 2px; font-size: 11px; }
     .diet-meal-table th { white-space: nowrap; }
     .diet-meal-table .c-name,
     .diet-meal-table .c-portion { white-space: nowrap; }
     .diet-meal-table .c-name { font-weight: 700; color: #3a3a3a; }
-    .diet-meal-table .c-name .nm { display: inline-block; max-width: 92px; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
-    .diet-meal-table .c-actions { width: 30px; padding: 4px 2px; text-align: center; }
+    /* 名字列最多两行，长菜名不至于只剩三个字 */
+    .diet-meal-table .c-name .nm {
+      display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+      max-width: 53px; overflow: hidden; text-overflow: ellipsis;
+      white-space: normal; word-break: break-all; line-height: 1.25; vertical-align: middle;
+    }
+    /* 名字列固定宽度，避免自动布局把它压成一条竖线 */
+    .diet-meal-table th:first-child,
+    .diet-meal-table td.c-name { width: 56px; min-width: 56px; }
+    .diet-meal-table td.number { white-space: nowrap; }
+    .diet-meal-table td.number { white-space: nowrap; }
+    .diet-meal-table .c-kcal { color: #B3537A; font-weight: 700; }
+    .diet-meal-table .c-actions { width: 20px; padding: 4px 0; text-align: center; }
+    .diet-meal-table .row-more { width: 100%; padding: 4px 0; font-size: 15px; }
+    .diet-meal-table .row-more { width: 100%; padding: 4px 0; font-size: 15px; }
     .diet-meal-table tbody tr { cursor: pointer; }
     .row-more {
       border: none; background: transparent; color: #B08A6A;
@@ -4714,7 +4727,7 @@
       const log = state.logs[day] || { foods: [], exercises: [] };
       bindMealDropOutside();
 
-      // 饮食明细：每个进餐时段一张独立小表（表头一行：食物 份量 蛋白质 脂肪 碳水 糖 钠）
+      // 饮食明细：每个进餐时段一张独立小表（表头一行：食物 份量 热量 蛋白质 脂肪 碳水 糖 钠）
       const dietList = document.getElementById('diet-meal-list');
       dietList.innerHTML = '';
       if (log.foods.length === 0) {
@@ -4741,7 +4754,7 @@
           + '<span class="dm-meta">' + entries.length + ' 样 · ' + formatNum(mealKcal, 0) + ' kcal</span>'
           + '</div>'
           + '<div class="table-wrap"><table class="diet-meal-table"><thead><tr>'
-          + '<th>食物</th><th>份量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>'
+          + '<th>食物</th><th>份量</th><th>热量</th><th>蛋白质</th><th>脂肪</th><th>碳水</th><th>糖</th><th>钠</th><th></th>'
           + '</tr></thead><tbody></tbody></table></div>';
         const tbody = block.querySelector('tbody');
         entries.forEach(entry => {
@@ -4759,6 +4772,7 @@
         tr.innerHTML = `
           <td class="c-name"><span class="nm">${escapeHtml(c.name)}</span></td>
           <td class="c-portion number">${portionLabel}</td>
+          <td class="c-kcal number">${formatNum(c.kcal, 0)}</td>
           <td class="c-protein number">${formatNum(c.protein)}</td>
           <td class="c-fat number">${formatNum(c.fat)}</td>
           <td class="c-carbs number">${formatNum(c.carbs)}</td>
