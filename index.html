@@ -2512,6 +2512,16 @@
       state.exercises.forEach(x => { if (!x.type) x.type = 'ana'; });
       if (!state.logs || typeof state.logs !== 'object') state.logs = {};
       if (!Array.isArray(state.trash)) state.trash = [];
+      // 迁移：进餐时段「中餐」统一更名为「午餐」（v194+ 改名，兼容旧记录）
+      Object.keys(state.logs).forEach(d => {
+        const lg = state.logs[d];
+        if (!lg || !Array.isArray(lg.foods)) return;
+        lg.foods.forEach(f => {
+          if (!f) return;
+          if (f.meal === '中餐') f.meal = '午餐';
+          else if (Array.isArray(f.meal)) f.meal = f.meal.map(m => m === '中餐' ? '午餐' : m);
+        });
+      });
       if (!state.baseline || typeof state.baseline !== 'object') state.baseline = {};
       if (!state.goals || typeof state.goals !== 'object') state.goals = {};
       if (!Array.isArray(state.goalHistory)) state.goalHistory = [];
@@ -4509,7 +4519,7 @@
       return totals;
     }
 
-    const MEAL_ORDER = ['早餐', '中餐', '下午茶', '晚餐', '宵夜', '零食'];
+    const MEAL_ORDER = ['早餐', '午餐', '下午茶', '晚餐', '宵夜', '零食'];
 
     // 进餐时段选项 = 默认 6 项 + 用户自定义项（持久化在 state.mealPeriods）
     function getMealOptions() {
@@ -4654,7 +4664,7 @@
     function defaultMealByTime() {
       const h = new Date().getHours();
       if (h >= 5 && h < 10) return '早餐';
-      if (h >= 10 && h < 14) return '中餐';
+      if (h >= 10 && h < 14) return '午餐';
       if (h >= 14 && h < 17) return '下午茶';
       if (h >= 17 && h < 21) return '晚餐';
       if (h >= 21) return '宵夜';
@@ -4885,9 +4895,9 @@
     }
 
     // 各进餐时段的图标 / 建议占全天热量比例 / 配色（三餐分配分析用）
-    const MEAL_ICON = { '早餐': '🌅', '中餐': '☀️', '下午茶': '🍵', '晚餐': '🌙', '宵夜': '🌜', '零食': '🍪' };
-    const MEAL_SHARE = { '早餐': 0.28, '中餐': 0.35, '下午茶': 0.07, '晚餐': 0.27, '宵夜': 0.03, '零食': 0.07 };
-    const MEAL_COLOR = { '早餐': '#E9A66B', '中餐': '#D68AA6', '下午茶': '#C3A6D8', '晚餐': '#8FB8D8', '宵夜': '#7F72A6', '零食': '#B8A88A' };
+    const MEAL_ICON = { '早餐': '🌅', '午餐': '☀️', '下午茶': '🍵', '晚餐': '🌙', '宵夜': '🌜', '零食': '🍪' };
+    const MEAL_SHARE = { '早餐': 0.28, '午餐': 0.35, '下午茶': 0.07, '晚餐': 0.27, '宵夜': 0.03, '零食': 0.07 };
+    const MEAL_COLOR = { '早餐': '#E9A66B', '午餐': '#D68AA6', '下午茶': '#C3A6D8', '晚餐': '#8FB8D8', '宵夜': '#7F72A6', '零食': '#B8A88A' };
     function mealIcon(m) { return MEAL_ICON[m] || '🍽'; }
     function mealColor(m) { return MEAL_COLOR[m] || '#B8A88A'; }
 
@@ -4915,7 +4925,7 @@
       });
       if (!bar) bar = '<span class="amb-seg" style="width:100%;background:rgba(61,58,54,0.12)"></span>';
 
-      const MAIN_MEALS = ['早餐', '中餐', '晚餐'];
+      const MAIN_MEALS = ['早餐', '午餐', '晚餐'];
       const rows = [];
       let ok = 0, off = 0, missing = 0;
       order.forEach(m => {
@@ -4952,7 +4962,7 @@
       if (missing >= 2) conclusion = '早中晚有 ' + missing + ' 餐没记录，先把三餐记全，分配分析才有意义。';
       else if (agg['早餐'] && agg['早餐'].count === 0) conclusion = '早餐空着 —— 早餐吃够蛋白质能稳住一天的食欲，建议别跳过。';
       else if (agg['晚餐'] && agg['晚餐'].count === 0) conclusion = '晚餐没记录 —— 如果是有意轻断食，注意全天蛋白质别掉太多；不是的话建议正常吃。';
-      else if (off > 0) conclusion = '有 ' + off + ' 餐偏离建议分配，把热量往早、中餐挪一点、晚餐清淡些，最利于减脂。';
+      else if (off > 0) conclusion = '有 ' + off + ' 餐偏离建议分配，把热量往早、午餐挪一点、晚餐清淡些，最利于减脂。';
       else conclusion = '三餐分配均衡，节奏不错，保持这个结构。';
 
       return {
