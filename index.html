@@ -6211,7 +6211,7 @@
             const label = eff ? formatMonthHeader(eff) : formatMonthHeader(d);
             return `<th class="col-date" data-col-date="${d}" title="点击选择当月日期">${label}</th>`;
           }).join('')}
-          <th class="col-total" title="月热量缺口 + 月缺口情况 的各月合计">热量缺口合计</th>
+          <th class="col-total" title="月热量缺口、月缺口情况 各自各月份数值之和">热量缺口合计</th>
         </tr>
       `;
       // 日期列点击 -> 弹出当月日期选择
@@ -6283,13 +6283,17 @@
         { name: '月热量缺口', unit: 'kcal', values: cols.map(c => ({ text: kcal(c.deficit), cls: cls(c.deficit) })) },
         { name: '月缺口情况', unit: 'kcal', values: cols.map(c => ({ text: kcal(c.gapDiff), cls: diffCls(c.gapDiff) })) },
       ];
-      // 「热量缺口合计」列 = 最下面两行（月热量缺口 + 月缺口情况）各月份数值的总和
-      const totalGapAll = sumOf(cols.map(c => c.deficit)) + sumOf(cols.map(c => c.gapDiff));
-      // 合计只落在最后一行（月缺口情况），其余行不参与 → 显示占位「—」
+      // 「热量缺口合计」列：最下面两行各自汇总本行各月份的数值（其余行不参与 → 占位「—」）
+      // 月热量缺口 = 各月实际月热量缺口之和；月缺口情况 = 各月（实际 − 需求）之和
+      const sumDeficit = sumOf(cols.map(c => c.deficit));
+      const sumGapDiff = sumOf(cols.map(c => c.gapDiff));
       rows.forEach(r => {
-        if (r.name === '月缺口情况') {
-          r.totalText = kcal(totalGapAll);
-          r.totalCls = 'number col-total ' + diffCls(totalGapAll).replace('number ', '');
+        if (r.name === '月热量缺口') {
+          r.totalText = kcal(sumDeficit);
+          r.totalCls = 'number col-total' + (sumDeficit === 0 || Number.isNaN(sumDeficit) ? ' zero' : '');
+        } else if (r.name === '月缺口情况') {
+          r.totalText = kcal(sumGapDiff);
+          r.totalCls = 'number col-total' + (sumGapDiff < 0 ? ' neg' : (sumGapDiff > 0 ? ' pos' : ' zero'));
         }
       });
 
