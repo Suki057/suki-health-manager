@@ -5010,21 +5010,65 @@
 
       // ===== 二、一日摄入热量与消耗 =====
       const kcalItems = [];
-      if (goals.kcal) {
-        const gc = goals.kcal;
-        const p = t.kcal / gc.mid * 100;
-        if (t.kcal > gc.max) kcalItems.push(mk('bad', '🔴', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，超过目标区间 (' + goalText(gc) + ' kcal) 上限，当天偏多。'));
-        else if (t.kcal < gc.min) kcalItems.push(mk('warn', '🟡', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，低于目标区间 (' + goalText(gc) + ' kcal) 下限约 ' + formatNum(100 - p, 0) + '%，长期偏低可能代谢下降。'));
-        else kcalItems.push(mk('ok', '🟢', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，落在目标区间 (' + goalText(gc) + ' kcal) 内，合理。'));
-      }
-      if (t.burn > 0) {
-        const gap = t.burn - t.kcal;
-        if (gap <= 0) kcalItems.push(mk('bad', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b> < 摄入，热量盈余 <b>' + formatNum(-gap, 0) + ' kcal</b>，想减脂要再加运动或减摄入。'));
-        else if (gap > 600) kcalItems.push(mk('warn', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b>，热量缺口 <b>' + formatNum(gap, 0) + ' kcal</b> 偏大，注意蛋白质吃够、别掉肌肉。'));
-        else if (gap < 300) kcalItems.push(mk('warn', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b>，热量缺口仅 <b>' + formatNum(gap, 0) + ' kcal</b>，偏小，可再动一动。'));
-        else kcalItems.push(mk('ok', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b>，热量缺口 <b>' + formatNum(gap, 0) + ' kcal</b>，处在减脂友好区间（300–600）。'));
-      } else {
-        kcalItems.push(mk('warn', '🏃', '今天还没有运动记录，想制造热量缺口可以安排 20–40 分钟快走或力量训练。'));
+      {
+        // 标准摄入热量（女性 1200 / 男性 1500）：若「按目标算出的摄入需求」低于标准，则以标准为基准评估
+        const ymDay = String(day).slice(0, 7);
+        const metDay = computeMetabolismForMonth(ymDay);
+        const stdNum = Number(goals.kcalStd);
+        const stdKcal = (isFinite(stdNum) && stdNum > 0) ? stdNum
+          : (metDay ? (metDay.gender === 'male' ? 1500 : 1200) : null);
+        const dynamicBurn = Number(goals.dynamicBurn) || 0;
+        const tdeeVal = dynamicBurn || (metDay ? metDay.tdee : 0);
+        const intakeMid = goals.kcal ? goals.kcal.mid : null;
+        const belowStd = (stdKcal !== null && intakeMid !== null && intakeMid < stdKcal);
+
+        if (belowStd) {
+          // ① 以标准热量摄入为基准，判断今日摄入是否足够
+          if (t.kcal < stdKcal) {
+            kcalItems.push(mk('warn', '🍚', '今日热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，低于标准摄入 <b>' + stdKcal + ' kcal</b>（按目标算出的需求 ' + formatNum(intakeMid, 0) + ' kcal 低于标准），还差 <b>' + formatNum(stdKcal - t.kcal, 0) + ' kcal</b>，建议补点主食/蛋白质，别长期低于标准🤍'));
+          } else if (t.kcal <= stdKcal + 200) {
+            kcalItems.push(mk('ok', '🍚', '今日热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，已达到标准摄入 <b>' + stdKcal + ' kcal</b> ✅（按目标算出的需求 ' + formatNum(intakeMid, 0) + ' kcal 偏低，已按标准基准评估）'));
+          } else {
+            kcalItems.push(mk('warn', '🍚', '今日热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，超过标准摄入 <b>' + stdKcal + ' kcal</b> 约 <b>' + formatNum(t.kcal - stdKcal, 0) + ' kcal</b>，注意别超太多。'));
+          }
+
+          // ② 标准摄入与动态消耗(TDEE) 之间的缺口，是否达到减脂要求
+          if (tdeeVal > 0) {
+            const gapStd = Math.round(tdeeVal - stdKcal);
+            const exBurn = dynamicBurn > 0 ? Math.max(0, Math.round(t.burn - dynamicBurn)) : Math.max(0, Math.round(t.burn));
+            if (gapStd > 600) {
+              kcalItems.push(mk('warn', '⚠️', '标准摄入 <b>' + stdKcal + ' kcal</b> 与动态消耗 <b>' + formatNum(tdeeVal, 0) + ' kcal</b> 的缺口 <b>' + formatNum(gapStd, 0) + ' kcal</b> 偏大（超过 600），不宜再加大，注意蛋白质吃够、别掉肌肉。'));
+            } else if (gapStd >= 300 || (gapStd + exBurn) >= 300) {
+              kcalItems.push(mk('ok', '🏃', '标准摄入 <b>' + stdKcal + ' kcal</b> 与动态消耗 <b>' + formatNum(tdeeVal, 0) + ' kcal</b> 的缺口 <b>' + formatNum(gapStd, 0) + ' kcal</b>' + (gapStd < 300 ? '，加上今日运动已补足' : '') + '，达到减脂建议的 300–600 区间，无需额外加练 ✅'));
+            } else {
+              const needMore = Math.max(0, 300 - gapStd - exBurn);
+              const w = Number(weight) || 60;
+              const aerobicPerMin = Math.max(4, Math.round(w * 0.095));
+              const anaerobicPerMin = Math.max(3, Math.round(w * 0.07));
+              const minAer = Math.ceil(needMore / aerobicPerMin);
+              const minAna = Math.ceil(needMore / anaerobicPerMin);
+              kcalItems.push(mk('warn', '🏃', '标准摄入 <b>' + stdKcal + ' kcal</b> 与动态消耗 <b>' + formatNum(tdeeVal, 0) + ' kcal</b> 的缺口只有 <b>' + formatNum(gapStd, 0) + ' kcal</b>，不到减脂建议的 300。建议今天再做 <b>' + minAer + ' 分钟</b>有氧（快走/慢跑）或 <b>' + minAna + ' 分钟</b>无氧（力量训练），补出约 <b>' + formatNum(needMore, 0) + ' kcal</b> 缺口，既吃够标准摄入、又能达到减脂缺口。'));
+            }
+          }
+        } else {
+          // 按目标算出的摄入需求 ≥ 标准：沿用原有「目标区间 + 实际消耗」判断
+          if (goals.kcal) {
+            const gc = goals.kcal;
+            const p = t.kcal / gc.mid * 100;
+            if (t.kcal > gc.max) kcalItems.push(mk('bad', '🔴', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，超过目标区间 (' + goalText(gc) + ' kcal) 上限，当天偏多。'));
+            else if (t.kcal < gc.min) kcalItems.push(mk('warn', '🟡', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，低于目标区间 (' + goalText(gc) + ' kcal) 下限约 ' + formatNum(100 - p, 0) + '%，长期偏低可能代谢下降。'));
+            else kcalItems.push(mk('ok', '🟢', '热量摄入 <b>' + formatNum(t.kcal, 0) + ' kcal</b>，落在目标区间 (' + goalText(gc) + ' kcal) 内，合理。'));
+          }
+          if (t.burn > 0) {
+            const gap = t.burn - t.kcal;
+            if (gap <= 0) kcalItems.push(mk('bad', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b> < 摄入，热量盈余 <b>' + formatNum(-gap, 0) + ' kcal</b>，想减脂要再加运动或减摄入。'));
+            else if (gap > 600) kcalItems.push(mk('warn', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b>，热量缺口 <b>' + formatNum(gap, 0) + ' kcal</b> 偏大，注意蛋白质吃够、别掉肌肉。'));
+            else if (gap < 300) kcalItems.push(mk('warn', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b>，热量缺口仅 <b>' + formatNum(gap, 0) + ' kcal</b>，偏小，可再动一动。'));
+            else kcalItems.push(mk('ok', '🔥', '今日消耗 <b>' + formatNum(t.burn, 0) + ' kcal</b>，热量缺口 <b>' + formatNum(gap, 0) + ' kcal</b>，处在减脂友好区间（300–600）。'));
+          } else {
+            kcalItems.push(mk('warn', '🏃', '今天还没有运动记录，想制造热量缺口可以安排 20–40 分钟快走或力量训练。'));
+          }
+        }
       }
 
       // ===== 三、营养素 =====
