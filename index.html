@@ -2068,7 +2068,6 @@
           </div>
         </div>
         <p class="hint goal-auto-hint" id="goal-auto-hint" data-page-node-id="goalAutoHint"></p>
-        <p class="hint" id="goals-hint" data-page-node-id="UkgmNbANT317ja3zEAfRQo"></p>
       </details>
 
       <div class="panel" data-page-node-id="2kipOSRGJLCUNDSEExq6XB">
@@ -4481,7 +4480,7 @@
       return '<span class="gah-warn">⚠️ 日常摄入热量不推荐长期低于标准❗️长期低于基线 ' + r.floor
         + ' kcal 会对身体造成伤害，同时难以达到理想减脂&amp;减重效果。</span>'
         + '<br>📖每日摄入热量要符合标准基线 ' + r.floor
-        + ' kcal，若当日动态消耗-热量摄入基线的差值低于所需热量缺口，可适当增加#运动 完成当日缺口需求。'
+        + ' kcal，若（当日动态消耗-热量摄入基线）差值低于上表所需热量缺口，可适当增加#运动 完成当日缺口需求。'
         + '<br>欲速则不达🤔请保持并享受长期主义～投身于建造自己的身体堡垒🏯';
     }
 
@@ -7342,10 +7341,6 @@
       state.goalsByMonth[ym] = g;
       syncCurrentGoals();
       save();
-      const hintEl = document.getElementById('goals-hint');
-      if (hintEl) {
-        hintEl.textContent = '已自动生成本月目标：热量摄入需求 / 热量缺口 / 动态消耗按身材目标与代谢测试计算，蛋白质 / 脂肪 / 碳水按瘦体重区间计算，摄入基线按性别取 1200 / 1500 kcal。糖 25-50g、钠 2000-2300mg 为固定参考区间。翻看历史数据时，会按当时月份的目标精确计算热量缺口。';
-      }
       if (!o.silent) toast('每日目标已保存');
     }
     // 旧存档里糖 / 钠可能是手填的 50 / 2000，统一纠正为固定区间
