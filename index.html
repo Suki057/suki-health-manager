@@ -1162,6 +1162,9 @@
       cursor: pointer; vertical-align: middle; -webkit-tap-highlight-color: transparent;
     }
     .ref-btn:hover, .ref-btn:active { background: rgba(214, 138, 166, 0.24); border-color: rgba(179, 83, 122, 0.52); }
+    /* 说明文字：第一行「🔢 数据参考值：…」，第二行「状态值」换行且留间隔 */
+    #progress-ref-note { line-height: 1.6; }
+    #progress-ref-note .prn-vals { display: inline-block; margin-top: 5px; }
     .ref-panel { width: min(342px, 92vw); }
     .ref-row { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; }
     .ref-row > label { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: #7a5560; white-space: nowrap; }
@@ -5957,7 +5960,7 @@
       const [y, m, d] = String(dateStr).split('-').map(Number);
       return `${y}年${m}月${d}日`;
     }
-    // 标题下方说明：数据参考值：xx年xx月xx日 「体重 xxkg，体脂率 xx%」
+    // 标题下方说明：第一行「🔢 数据参考值：xx年xx月xx日」，第二行换行并留距「体重 xxkg，体脂率 xx%」
     function renderProgressRefNote(dates, base) {
       const el = document.getElementById('progress-ref-note');
       if (!el) return;
@@ -5965,7 +5968,8 @@
       if (base.weight !== undefined) vals.push('体重 ' + formatNum(base.weight, 1) + 'kg');
       if (base.bodyFat !== undefined) vals.push('体脂率 ' + formatNum(base.bodyFat, 1) + '%');
       const who = base.isBaseline ? '初始数据' : (base.date ? formatDateCn(base.date) : '初始数据');
-      el.textContent = '数据参考值：' + who + (vals.length ? ' 「' + vals.join('，') + '」' : '');
+      el.innerHTML = '🔢 数据参考值：' + who
+        + (vals.length ? '<br><span class="prn-vals">「' + vals.join('，') + '」</span>' : '');
     }
     function getBodyAtEndOfMonth(dateStr) {
       // 找当月最后一天及之前最近一条身材记录
