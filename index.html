@@ -2345,8 +2345,11 @@
     <div class="modal-box" data-page-node-id="DietRowBox">
       <h3 data-page-node-id="DietRowH3">🍽 这条饮食记录</h3>
       <p class="hint" id="diet-row-title" data-page-node-id="DietRowTitle">—</p>
-      <div class="rs-meal-label" data-page-node-id="DietRowMealLabel">改到哪个进餐时段（点一下就移动）</div>
+      <div class="rs-meal-label" data-page-node-id="DietRowMealLabel">选择进餐时段（可多选，确定后按所选数量平分份量与营养）</div>
       <div id="diet-row-meals" class="rs-meals" data-page-node-id="DietRowMeals"></div>
+      <div class="modal-actions" style="margin-top:4px;" data-page-node-id="DietRowMealApplyWrap">
+        <button class="btn primary" id="diet-row-meal-apply" data-page-node-id="DietRowMealApply">应用时段</button>
+      </div>
       <div class="modal-actions" data-page-node-id="DietRowActions">
         <button class="btn secondary" id="diet-row-edit" data-page-node-id="DietRowEdit">编辑份量</button>
         <button class="btn danger" id="diet-row-del" data-page-node-id="DietRowDel">删除</button>
@@ -4663,7 +4666,7 @@
     }
 
     // ===== 饮食明细行操作弹窗：编辑份量 / 换进餐时段 / 删除 =====
-    let __dietRowEntry = null, __dietRowTr = null;
+    let __dietRowEntry = null, __dietRowTr = null, __dietRowSel = [];
     function openDietRowSheet(entry, tr) {
       const modal = document.getElementById('diet-row-modal');
       if (!modal) return;
@@ -4676,22 +4679,32 @@
       document.getElementById('diet-row-title').textContent =
         c.name + (portion ? ' · ' + portion : '') + ' · ' + formatNum(c.kcal, 0) + ' kcal';
       const cur = getEntryMeals(entry);
+      __dietRowSel = cur.slice();
       document.getElementById('diet-row-meals').innerHTML = getMealOptions().map(m =>
         '<button type="button" class="rs-meal' + (cur.indexOf(m) !== -1 ? ' on' : '') + '" data-meal="' + escapeHtml(m) + '">'
         + mealIcon(m) + ' ' + escapeHtml(m) + '</button>').join('');
       openModal('diet-row-modal');
     }
-    // 点胶囊把这条记录整体移到该进餐时段
-    function moveDietRowToMeal(meal) {
+    // 点胶囊：在多选集合里切换（不再点一下就移动）
+    function toggleDietRowMeal(btn) {
+      const meal = btn.dataset.meal;
+      const i = __dietRowSel.indexOf(meal);
+      if (i === -1) { __dietRowSel.push(meal); btn.classList.add('on'); }
+      else { __dietRowSel.splice(i, 1); btn.classList.remove('on'); }
+    }
+    // 应用选中的多个进餐时段：按所选数量把这条记录拆分（份量与营养平分），与录入行的多选语义一致
+    function applyDietRowMeals() {
       const entry = __dietRowEntry;
       if (!entry) return;
+      if (__dietRowSel.length === 0) { toast('请至少选择一个进餐时段'); return; }
       const cur = getEntryMeals(entry);
-      if (cur.length === 1 && cur[0] === meal) { closeModal('diet-row-modal'); return; }
-      splitEntryMeals(entry, [meal]);
+      const same = __dietRowSel.length === cur.length && __dietRowSel.every(m => cur.indexOf(m) !== -1);
+      if (same) { closeModal('diet-row-modal'); return; }
+      splitEntryMeals(entry, __dietRowSel.slice());
       save();
       renderToday();
       closeModal('diet-row-modal');
-      toast('已移动到「' + meal + '」');
+      toast('已更新进餐时段（' + __dietRowSel.length + ' 个，份量与营养已平分）');
     }
     function initDietRowSheet() {
       const modal = document.getElementById('diet-row-modal');
@@ -4700,8 +4713,9 @@
       document.getElementById('diet-row-close').addEventListener('click', () => closeModal('diet-row-modal'));
       document.getElementById('diet-row-meals').addEventListener('click', (e) => {
         const btn = e.target.closest('.rs-meal');
-        if (btn) moveDietRowToMeal(btn.dataset.meal);
+        if (btn) toggleDietRowMeal(btn);
       });
+      document.getElementById('diet-row-meal-apply').addEventListener('click', () => applyDietRowMeals());
       document.getElementById('diet-row-edit').addEventListener('click', () => {
         const entry = __dietRowEntry;
         closeModal('diet-row-modal');
