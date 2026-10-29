@@ -961,15 +961,10 @@
       display: inline-block; margin-left: 3px; padding: 1px 4px;
       font-size: 9.5px; vertical-align: 1px;
     }
-    /* 「摄入基线（kcal）标准」在 390 档刚好一行、320 档会折成两行：给同排两列标签统一两行高度，
-       标题顶线才能对齐（输入框按底对齐，高度一致） */
-    .goal-kcal-row:not(.goal-kcal-pair) .field label { min-height: 32px; }
-    /* 热量缺口 + 动态消耗：沿用上面两列等分，方框尺寸与「热量摄入需求 / 标准摄入热量」完全一致；
-       标题强制单行，保证两个标题在同一水平线上 */
+    /* 标签不再预留两行高度：单行时紧贴方框（间距 5px）；折行时两个标签都会变成两行，顶线自然齐平 */
     .goal-kcal-row.goal-kcal-pair .field label { white-space: nowrap; }
-    /* 🪤月热量缺口需求：单独整行（数字较长），标签单行时不再预留两行高度，避免标签与方框之间空出大缝 */
+    /* 🪤月热量缺口需求：单独整行（数字较长） */
     .goal-kcal-row.goal-kcal-single { grid-template-columns: minmax(0, 1fr); }
-    .goal-kcal-row.goal-kcal-single .field label { min-height: 0; }
     @media (max-width: 360px) {
       .goal-kcal-row { gap: 10px 6px; }
       .goal-kcal-row .field input { font-size: 13px; }
