@@ -288,6 +288,19 @@
     .progress-table td.zero {
       color: #999;
     }
+    /* 月缺口情况：负数=未达当月需求（玫红），正数=超出当月需求（绿） */
+    .progress-table td.neg { color: #B3537A; font-weight: 700; }
+    .progress-table td.pos { color: #2E7D5B; font-weight: 700; }
+    /* 「热量缺口合计」列：始终最后一列，左侧加一道分隔线突出汇总 */
+    .progress-table th.col-total {
+      color: #B3537A;
+      border-left: 2px solid rgba(179, 83, 122, 0.38);
+    }
+    .progress-table td.col-total {
+      font-weight: 700;
+      border-left: 2px solid rgba(179, 83, 122, 0.28);
+    }
+    .progress-table td.col-total-empty { color: rgba(154, 143, 111, 0.55); font-weight: 500; }
     .progress-table tr:nth-child(even) td:not(.row-header) {
       background: rgba(255, 255, 255, 0.04);
     }
@@ -930,6 +943,8 @@
     /* 三框一行：等分整行宽度（390 屏每个约 87px，观感与「糖」框一致），高度 38px 对齐糖框 */
     .goal-row-a { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; width: 100%; }
     .goal-row-a .field { width: 100%; }
+    /* 标签文字在方框正上方居中（中上位置），与方框水平对齐 */
+    .goal-row-a .field label { display: block; text-align: center; }
     .goal-row-a .field input { width: 100%; font-size: 13px; padding: 0 4px; }
     /* 区间值比较长（如 220-280 / 100-160）时自动缩字号，保证完整显示不被截断 */
     .goal-row .field input.goal-fit-s { font-size: 11.5px !important; letter-spacing: -0.02em; }
@@ -4369,30 +4384,38 @@
     // 取某个月的代谢测试结果（BMR / TDEE）；该月没填时回退到最近的更早月份
     function computeMetabolismForMonth(ym) {
       const byMonth = state.metabolismByMonth || {};
-      let key = ym;
-      if (!byMonth[key]) {
-        const keys = Object.keys(byMonth).filter(k => k <= ym).sort();
-        if (!keys.length) return null;
-        key = keys[keys.length - 1];
-      }
-      const m = byMonth[key];
-      if (!m) return null;
-      const weight = Number(m.weight) || 0;
-      const height = Number(m.height) || 0;
-      const age = Number(m.age) || (m.birthYear ? (new Date().getFullYear() - Number(m.birthYear)) : 0);
-      let bmr = Number(m.bmr) || 0;
-      if (!bmr) {
-        if (!weight || !height || !age) return null;
-        bmr = 10 * weight + 6.25 * height - 5 * age + (m.gender === 'male' ? 5 : -161);
-      }
-      const activity = Number(m.activity) || 1.2;
-      const tdee = Number(m.tdee) || Math.round(bmr * activity);
-      return {
-        bmr: Math.round(bmr), tdee: Math.round(tdee), weight, height, age, activity,
-        gender: m.gender || 'female',
-        phase: m.phase === 'maintain' ? 'maintain' : 'fatloss',
-        sourceYm: key
+      // 把某个月份的存档整理成可用结果；缺关键数据（体重/身高/年龄且无 BMR）时返回 null
+      const pick = (key) => {
+        const m = byMonth[key];
+        if (!m) return null;
+        const weight = Number(m.weight) || 0;
+        const height = Number(m.height) || 0;
+        const age = Number(m.age) || (m.birthYear ? (new Date().getFullYear() - Number(m.birthYear)) : 0);
+        let bmr = Number(m.bmr) || 0;
+        if (!bmr) {
+          if (!weight || !height || !age) return null;
+          bmr = 10 * weight + 6.25 * height - 5 * age + (m.gender === 'male' ? 5 : -161);
+        }
+        const activity = Number(m.activity) || 1.2;
+        const tdee = Number(m.tdee) || Math.round(bmr * activity);
+        return {
+          bmr: Math.round(bmr), tdee: Math.round(tdee), weight, height, age, activity,
+          gender: m.gender || 'female',
+          phase: m.phase === 'maintain' ? 'maintain' : 'fatloss',
+          sourceYm: key
+        };
       };
+      // 优先用当月存档；若当月存档不完整（例如只剩 phase），继续往前找最近一份可用数据
+      if (byMonth[ym]) {
+        const exact = pick(ym);
+        if (exact) return exact;
+      }
+      const keys = Object.keys(byMonth).filter(k => k <= ym).sort().reverse();
+      for (let i = 0; i < keys.length; i++) {
+        const v = pick(keys[i]);
+        if (v) return v;
+      }
+      return null;
     }
 
     function getMonthDays(ym) {
@@ -6130,6 +6153,22 @@
       });
       return burn - kcal;
     }
+    // 某月「月热量缺口需求」= 每日摄入指标里该月的热量缺口 × 当月天数
+    // 优先读当月存档（goalsByMonth[ym].kcalGapMonth）；没有就用代谢测试 + 身材目标现算
+    function getMonthGapRequirement(dateStr) {
+      const ym = String(dateStr).slice(0, 7);
+      const g = state.goalsByMonth && state.goalsByMonth[ym];
+      if (g && g.kcalGapMonth !== undefined && g.kcalGapMonth !== null && g.kcalGapMonth !== '') {
+        const v = Number(g.kcalGapMonth);
+        if (!Number.isNaN(v)) return v;
+      }
+      const met = computeMetabolismForMonth(ym);
+      const r = computeAutoKcalTarget(ym);
+      if (!met || !r || !r.ok) return null;
+      const days = getMonthDays(ym) || 0;
+      if (!days) return null;
+      return Math.round((met.tdee - r.intakeRaw) * days);
+    }
     function renderProgress() {
       const tbody = document.getElementById('progress-table-body');
       const thead = document.getElementById('progress-thead');
@@ -6169,6 +6208,7 @@
             const label = eff ? formatMonthHeader(eff) : formatMonthHeader(d);
             return `<th class="col-date" data-col-date="${d}" title="点击选择当月日期">${label}</th>`;
           }).join('')}
+          <th class="col-total" title="月热量缺口 + 月缺口情况 的各月合计">热量缺口合计</th>
         </tr>
       `;
       // 日期列点击 -> 弹出当月日期选择
@@ -6187,6 +6227,8 @@
         const fat = body && body.bodyFat !== undefined ? body.bodyFat : null;
         const fatMass = (weight !== null && fat !== null) ? weight * fat / 100 : null;
         const deficit = getMonthDeficit(date);
+        const gapReq = getMonthGapRequirement(date);          // 当月「月热量缺口需求」
+        const gapDiff = (gapReq === null) ? null : deficit - gapReq; // 实际 − 需求
         const lostFat = (baseFat !== undefined && fat !== null) ? baseFat - fat : null;
         const fatProgress = (baseFat !== undefined && targetFat !== undefined && fat !== null)
           ? (baseFat - fat) / (baseFat - targetFat) * 100
@@ -6198,7 +6240,7 @@
         const cutFat = (baseFat !== undefined && baseWeight !== undefined && weight !== null && fat !== null)
           ? (baseFat * baseWeight / 100) - (fat * weight / 100)
           : null;
-        return { weight, fat, fatMass, lostFat, fatProgress, lostWeight, weightProgress, cutFat, deficit };
+        return { weight, fat, fatMass, lostFat, fatProgress, lostWeight, weightProgress, cutFat, deficit, gapReq, gapDiff };
       });
 
       const fmt = (v, digits = 2) => {
@@ -6214,6 +6256,13 @@
         return formatNum(v, 0);
       };
       const cls = (v) => (v === 0 || v === null || v === undefined || Number.isNaN(v)) ? 'number zero' : 'number';
+      const diffCls = (v) => {
+        if (v === null || v === undefined || Number.isNaN(v)) return 'number zero';
+        if (v < 0) return 'number neg';
+        if (v > 0) return 'number pos';
+        return 'number zero';
+      };
+      const sumOf = (arr) => arr.reduce((acc, v) => acc + (typeof v === 'number' && !Number.isNaN(v) ? v : 0), 0);
 
       if (!dates.length) {
         tbody.innerHTML = '<tr><td class="empty-state" colspan="1">初始数据在 12 月，没有更晚的月份可显示。<br>点击「数据参考值」换一个更早的日期即可。</td></tr>';
@@ -6229,12 +6278,23 @@
         { name: '减重进度', unit: '%', values: cols.map(c => ({ text: fmt(c.weightProgress, 1), cls: cls(c.weightProgress) })) },
         { name: '已减脂肪', unit: 'kg', values: cols.map(c => ({ text: fmt(c.cutFat, 2), cls: cls(c.cutFat) })) },
         { name: '月热量缺口', unit: 'kcal', values: cols.map(c => ({ text: kcal(c.deficit), cls: cls(c.deficit) })) },
+        { name: '月缺口情况', unit: 'kcal', values: cols.map(c => ({ text: kcal(c.gapDiff), cls: diffCls(c.gapDiff) })) },
       ];
+      // 「热量缺口合计」列 = 最下面两行（月热量缺口 + 月缺口情况）各月份数值的总和
+      const totalGapAll = sumOf(cols.map(c => c.deficit)) + sumOf(cols.map(c => c.gapDiff));
+      // 合计只落在最后一行（月缺口情况），其余行不参与 → 显示占位「—」
+      rows.forEach(r => {
+        if (r.name === '月缺口情况') {
+          r.totalText = kcal(totalGapAll);
+          r.totalCls = 'number col-total ' + diffCls(totalGapAll).replace('number ', '');
+        }
+      });
 
       tbody.innerHTML = rows.map(r => `
         <tr>
           <td class="row-header"><span class="rh-name">${r.name}</span><span class="rh-unit">「${r.unit}」</span></td>
           ${r.values.map(v => `<td class="${v.cls}">${v.text}</td>`).join('')}
+          <td class="${r.totalCls || 'number col-total-empty'}">${r.totalText !== undefined ? r.totalText : '—'}</td>
         </tr>
       `).join('');
     }
