@@ -1157,6 +1157,9 @@
     #progress-thead th.col-date { cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
     #progress-thead th.col-date:hover, #progress-thead th.col-date:active { color: #b3537a; }
     #progress-thead th.col-date::after { content: "▾"; font-size: 9px; margin-left: 3px; opacity: 0.5; }
+    /* 「日期」表头也可点：选择查看年份 */
+    #progress-thead th.year-toggle { cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+    #progress-thead th.year-toggle:hover, #progress-thead th.year-toggle:active { color: #b3537a; }
     /* 管理进度 · 数据参考值 */
     .panel h2.progress-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .ref-btn {
@@ -1168,6 +1171,33 @@
       cursor: pointer; vertical-align: middle; -webkit-tap-highlight-color: transparent;
     }
     .ref-btn:hover, .ref-btn:active { background: rgba(214, 138, 166, 0.24); border-color: rgba(179, 83, 122, 0.52); }
+    /* 管理进度 · 查看年份徽章（v186 恢复）：点它选年份，或点表格里的「日期」表头 */
+    .panel h2.progress-head .year-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 10px; border-radius: 999px;
+      border: 1px solid rgba(179, 83, 122, 0.28);
+      background: rgba(214, 138, 166, 0.18);
+      color: #8a4a63; font-size: 12px; font-weight: 700; line-height: 1.5;
+      cursor: pointer; vertical-align: middle; -webkit-tap-highlight-color: transparent;
+    }
+    .panel h2.progress-head .year-badge::after { content: "▾"; font-size: 9px; opacity: 0.65; }
+    .panel h2.progress-head .year-badge:hover,
+    .panel h2.progress-head .year-badge:active { background: rgba(214, 138, 166, 0.3); border-color: rgba(179, 83, 122, 0.5); }
+    .panel h2.progress-head .year-badge.is-follow { background: rgba(255, 255, 255, 0.78); font-weight: 600; }
+    .year-note { flex: 0 1 auto; font-size: 11.5px; font-weight: 500; color: var(--muted); line-height: 1.5; }
+    /* 年份选择弹窗 */
+    .year-panel { width: min(330px, 92vw); }
+    .year-tip { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 8px 0 10px; }
+    .year-list { display: flex; flex-direction: column; gap: 8px; max-height: 52vh; overflow-y: auto; padding-right: 2px; }
+    .year-opt {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+      padding: 9px 12px; border: 1px solid rgba(61, 58, 54, 0.14); border-radius: 12px;
+      background: rgba(255, 255, 255, 0.92); cursor: pointer; text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .year-opt.on { border-color: rgba(179, 83, 122, 0.52); background: rgba(214, 138, 166, 0.18); }
+    .year-opt .yo-name { font-size: 13px; font-weight: 700; color: #3d3a36; white-space: nowrap; }
+    .year-opt .yo-sub { font-size: 11px; color: var(--muted); text-align: right; line-height: 1.45; }
     /* 说明文字：第一行「🔢 数据参考值：…」，第二行「状态值」换行且留间隔 */
     #progress-ref-note { line-height: 1.6; }
     #progress-ref-note .prn-vals { display: inline-block; margin-top: 5px; }
@@ -2040,7 +2070,7 @@
       </details>
 
       <div class="panel" data-page-node-id="2kipOSRGJLCUNDSEExq6XB">
-        <h2 class="progress-head" data-page-node-id="3LXp6Sa1Jk9LE8KripzMM9">📈 管理进度 <button type="button" class="ref-btn" id="progress-ref-btn" data-page-node-id="progressRefBtn">📅 数据参考值</button></h2>
+        <h2 class="progress-head" data-page-node-id="3LXp6Sa1Jk9LE8KripzMM9">📈 管理进度 <button type="button" class="ref-btn" id="progress-ref-btn" data-page-node-id="progressRefBtn">📅 数据参考值</button><button type="button" class="year-badge" id="progress-year-badge" title="点击选择查看年份" data-page-node-id="DXsDYt4bRqoa5y7oC305Kx">2026年</button><span class="year-note" data-page-node-id="yNnote2026">点击表格中的日期可选择年份</span></h2>
         <p class="hint" id="progress-ref-note" data-page-node-id="progressRefNote"></p>
         <div class="progress-table-wrap" id="progress-table-wrap" data-page-node-id="HOq24FEK4fiWVycb3K4VPC">
           <table id="progress-table" class="progress-table" data-page-node-id="NRErrAmHNCaUgaIY8i3x5v">
@@ -5947,6 +5977,41 @@
 
     // ==================== 管理进度 ====================
     let progressColDay = {}; // 某列(月末日期串) -> 选中的当日日期串；无则取月末数据
+    // 查看年份：空 = 跟随「数据参考值」（默认）；选了某年 = 只看该年有记录的月份（v186 徽章功能）
+    function getProgressViewYear() {
+      const y = Number(state.progressViewYear);
+      return (Number.isInteger(y) && y >= 1900 && y <= 2900) ? y : null;
+    }
+    // 某一年有记录数据的月份（1-12）：身材记录 / 饮食记录 / 运动记录任一存在即算
+    function getDataMonthsOfYear(year) {
+      const pre = String(year) + '-';
+      const hit = {};
+      Object.keys(state.logs || {}).forEach(day => {
+        if (String(day).indexOf(pre) !== 0) return;
+        const log = state.logs[day] || {};
+        const b = log.body || {};
+        const hasBody = (b.weight !== undefined && b.weight !== null && b.weight !== '')
+          || (b.bodyFat !== undefined && b.bodyFat !== null && b.bodyFat !== '');
+        const hasFood = Array.isArray(log.foods) && log.foods.length > 0;
+        const hasEx = Array.isArray(log.exercises) && log.exercises.length > 0;
+        if (hasBody || hasFood || hasEx) hit[Number(String(day).slice(5, 7))] = 1;
+      });
+      return Object.keys(hit).map(Number).sort((a, b) => a - b);
+    }
+    // 年份选择弹窗里可选的年份：有记录的年份 + 参考值所在年 + 今年，倒序
+    function getSelectableYears() {
+      const years = {};
+      Object.keys(state.logs || {}).forEach(day => {
+        const y = Number(String(day).slice(0, 4));
+        if (y >= 1900 && y <= 2900) years[y] = 1;
+      });
+      const ref = getProgressRefDate();
+      if (ref !== 'baseline') years[Number(ref.slice(0, 4))] = 1;
+      const days = getBodyRecordDays();
+      if (days.length) years[Number(days[0].slice(0, 4))] = 1;
+      years[new Date().getFullYear()] = 1;
+      return Object.keys(years).map(Number).filter(y => y >= 1900 && y <= 2900).sort((a, b) => b - a);
+    }
     // 有身材记录（体重 / 体脂）的日期，升序
     function getBodyRecordDays() {
       return Object.keys(state.logs || {})
@@ -5978,7 +6043,17 @@
     }
     // 表格列 = 参考值所在月「之后」的每个月月末（同一年，最多到 12 月）
     // 参考值是「初始数据」时没有具体日期，取最早一条身材记录所在月（把已记录的第一个月也显示出来）
+    // 若用户在徽章里选了某一年：列 = 该年有记录的月份（整年都没记录时退回 12 个月，方便对照）
     function getProgressDates() {
+      const viewYear = getProgressViewYear();
+      if (viewYear) {
+        const months = getDataMonthsOfYear(viewYear);
+        const list = months.length ? months : Array.from({ length: 12 }, (_, i) => i + 1);
+        return list.map(m => {
+          const lastDay = new Date(viewYear, m, 0).getDate();
+          return `${viewYear}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        });
+      }
       const ref = getProgressRefDate();
       let year, startMonth;
       if (ref === 'baseline') {
@@ -6062,10 +6137,24 @@
       const dates = getProgressDates();
       renderProgressRefNote(dates, base);
 
-      // 渲染表头：列 = 初始数据所在月之后的每个月月末
+      // 年份徽章：跟随参考值时显示参考值所在年份；选了某年显示该年
+      const yearBadge = document.getElementById('progress-year-badge');
+      if (yearBadge) {
+        const viewYear = getProgressViewYear();
+        const shownYear = viewYear
+          || Number(String(dates[0] || '').slice(0, 4))
+          || new Date().getFullYear();
+        yearBadge.textContent = shownYear + '年';
+        yearBadge.classList.toggle('is-follow', !viewYear);
+        yearBadge.title = viewYear
+          ? '当前只看 ' + shownYear + ' 年有记录的月份，点击可切换年份'
+          : '当前跟随「数据参考值」，点击可选择查看某一年';
+      }
+
+      // 渲染表头：跟随参考值 = 初始数据所在月之后的每个月月末；选定年份 = 该年有记录的月份
       thead.innerHTML = `
         <tr>
-          <th class="row-header year-header">
+          <th class="row-header year-header year-toggle" title="点击选择查看年份">
             <span class="year-label">日期</span>
           </th>
           ${dates.map(d => {
@@ -6079,6 +6168,9 @@
       thead.querySelectorAll('th.col-date').forEach(th => {
         th.addEventListener('click', () => openDatePicker(th.dataset.colDate));
       });
+      // 「日期」表头点击 -> 选择查看年份（v186 的老手势）
+      const yearCell = thead.querySelector('th.year-toggle');
+      if (yearCell) yearCell.addEventListener('click', () => openProgressYear());
 
       // 准备每列数据
       const cols = dates.map(date => {
@@ -6336,6 +6428,53 @@
         toast('数据参考值已设为 ' + (val === 'baseline' ? '初始数据' : formatDateCn(val)));
       });
     }
+    // 「选择查看年份」弹窗：默认跟随数据参考值；选某一年则只列该年有记录的月份
+    function openProgressYear() {
+      const curYear = getProgressViewYear();
+      const ref = getProgressRefDate();
+      const refTxt = (ref === 'baseline') ? '初始数据' : formatDateCn(ref);
+      const years = getSelectableYears();
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      const panel = document.createElement('div');
+      panel.className = 'modal-panel ref-panel year-panel';
+
+      let html = '<div class="dp-head">选择查看年份 <span class="dp-close" data-close="1">✕</span></div>';
+      html += '<p class="year-tip">默认跟随「数据参考值」。选某一年，表格只列该年<b>有记录</b>的月份。</p>';
+      html += '<div class="year-list">';
+      html += '<button type="button" class="year-opt' + (curYear ? '' : ' on') + '" data-year="">'
+        + '<span class="yo-name">跟随数据参考值</span>'
+        + '<span class="yo-sub">当前：' + escapeHtml(refTxt) + '</span></button>';
+      years.forEach(y => {
+        const ms = getDataMonthsOfYear(y);
+        const sub = ms.length ? ms.join('、') + ' 月有记录' : '暂无记录（显示全年 12 个月）';
+        html += '<button type="button" class="year-opt' + (curYear === y ? ' on' : '') + '" data-year="' + y + '">'
+          + '<span class="yo-name">' + y + '年</span>'
+          + '<span class="yo-sub">' + escapeHtml(sub) + '</span></button>';
+      });
+      html += '</div>';
+      panel.innerHTML = html;
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+
+      const close = () => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); };
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.dataset.close) close();
+      });
+      panel.querySelectorAll('.year-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const v = btn.dataset.year;
+          if (v) state.progressViewYear = Number(v);
+          else delete state.progressViewYear;
+          progressColDay = {};
+          save();
+          close();
+          renderProgress();
+          toast(v ? '已切换到 ' + v + ' 年' : '已跟随数据参考值');
+        });
+      });
+    }
     function openDatePicker(monthDateStr) {
       const [y, m] = monthDateStr.split('-').map(Number);
       const lastDay = new Date(y, m, 0).getDate();
@@ -6385,6 +6524,11 @@
       if (refBtn && !refBtn.dataset.bound) {
         refBtn.dataset.bound = '1';
         refBtn.addEventListener('click', (e) => { e.preventDefault(); openProgressRef(); });
+      }
+      const yearBtn = document.getElementById('progress-year-badge');
+      if (yearBtn && !yearBtn.dataset.bound) {
+        yearBtn.dataset.bound = '1';
+        yearBtn.addEventListener('click', (e) => { e.preventDefault(); openProgressYear(); });
       }
       renderProgress();
       // 表格区域拖动滚动
