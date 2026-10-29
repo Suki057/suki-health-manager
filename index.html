@@ -812,6 +812,7 @@
     .row-more:active { transform: scale(0.94); }
     /* 行操作弹窗里的进餐时段胶囊 */
     .rs-meal-label { font-size: 12.5px; font-weight: 700; color: #7A4E2E; margin-top: 6px; }
+    .rs-meal-hint { font-size: 11.5px; font-weight: 400; color: #9A7050; margin-top: 2px; display: inline-block; }
     .rs-meals { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
     .rs-meal {
       border: 1px solid rgba(214, 138, 166, 0.45); background: #fff; color: #7a3b5b;
@@ -2345,7 +2346,7 @@
     <div class="modal-box" data-page-node-id="DietRowBox">
       <h3 data-page-node-id="DietRowH3">🍽 这条饮食记录</h3>
       <p class="hint" id="diet-row-title" data-page-node-id="DietRowTitle">—</p>
-      <div class="rs-meal-label" data-page-node-id="DietRowMealLabel">选择进餐时段（可多选，确定后按所选数量平分份量与营养）</div>
+      <div class="rs-meal-label" data-page-node-id="DietRowMealLabel">选择进餐时段<br><span class="rs-meal-hint">（可多选，确定后按所选数量平分份量与营养）</span></div>
       <div id="diet-row-meals" class="rs-meals" data-page-node-id="DietRowMeals"></div>
       <div class="modal-actions" style="margin-top:4px;" data-page-node-id="DietRowMealApplyWrap">
         <button class="btn primary" id="diet-row-meal-apply" data-page-node-id="DietRowMealApply">应用时段</button>
