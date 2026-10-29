@@ -955,13 +955,14 @@
       width: 100%; height: 38px; box-sizing: border-box;
       text-align: center; font-size: 14px; font-weight: 700;
     }
-    /* 两列各只有 136px：这一行不挂「自动」小标，靠只读底色区分；仅「摄入热量基线」保留「标准」小标 */
+    /* 两列各只有 136px：这一行不挂「自动」小标，靠只读底色区分；仅「摄入基线」保留「标准」小标 */
     .goal-kcal-row .auto-badge { display: none; }
     .goal-kcal-row .auto-badge.std-badge {
       display: inline-block; margin-left: 3px; padding: 1px 4px;
       font-size: 9.5px; vertical-align: 1px;
     }
-    /* 「摄入热量基线（kcal）标准」必然折成两行：给同排两列标签统一两行高度，标题顶线才能对齐 */
+    /* 「摄入基线（kcal）标准」在 390 档刚好一行、320 档会折成两行：给同排两列标签统一两行高度，
+       标题顶线才能对齐（输入框按底对齐，高度一致） */
     .goal-kcal-row:not(.goal-kcal-pair) .field label { min-height: 32px; }
     /* 热量缺口 + 动态消耗：沿用上面两列等分，方框尺寸与「热量摄入需求 / 标准摄入热量」完全一致；
        标题强制单行，保证两个标题在同一水平线上 */
@@ -2047,7 +2048,7 @@
           <div class="field month-field" data-page-node-id="6fiMz53udzQIwCpTZDsK4M"><label data-page-node-id="VCuxThHGDPTwrhMETyTlAT">目标生效年月</label><input type="month" id="goal-month" data-page-node-id="a5KaQ4SRu0ScQAf9fsPwXY" /></div>
           <div class="goal-kcal-row" data-page-node-id="goalKcalRow">
             <div class="field" data-page-node-id="BCasaUB7p0KytzvgOVBBkM"><label data-page-node-id="f1JtViiRGeOR9zReQimHhK">🍽️热量摄入需求（kcal）</label><input type="text" id="goal-kcal" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 本月需减脂肪折算的日均热量缺口" data-page-node-id="NyX2hYwByPp8n9GF3B6KPo" /></div>
-            <div class="field" data-page-node-id="goalStdKcalField"><label data-page-node-id="goalStdKcalLabel">摄入热量基线<br data-page-node-id="goalStdBr">（kcal）<span class="auto-badge std-badge" data-page-node-id="goalStdAuto">标准</span></label><input type="text" id="goal-std-kcal" class="auto-readonly" readonly placeholder="标准" title="按性别自动取值：女性 1200 kcal、男性 1500 kcal（低于该值时开屏与 AI 分析会按基线兜底）" data-page-node-id="goalStdKcalInput" /></div>
+            <div class="field" data-page-node-id="goalStdKcalField"><label data-page-node-id="goalStdKcalLabel">摄入基线（kcal）<span class="auto-badge std-badge" data-page-node-id="goalStdAuto">标准</span></label><input type="text" id="goal-std-kcal" class="auto-readonly" readonly placeholder="标准" title="按性别自动取值：女性 1200 kcal、男性 1500 kcal（低于该值时开屏与 AI 分析会按基线兜底）" data-page-node-id="goalStdKcalInput" /></div>
           </div>
           <div class="goal-kcal-row goal-kcal-pair" data-page-node-id="goalKcalPairRow">
             <div class="field" data-page-node-id="goalKcalGapField"><label data-page-node-id="goalKcalGapLabel">📉热量缺口（kcal）<span class="auto-badge" data-page-node-id="goalGapAuto">自动</span></label><input type="text" id="goal-kcal-gap" class="auto-readonly" readonly placeholder="自动计算" title="自动计算：动态消耗 − 热量摄入需求（当月日均缺口；摄入被最低标准兜住时按实际差值显示）" data-page-node-id="goalKcalGapInput" /></div>
@@ -7336,7 +7337,7 @@
       save();
       const hintEl = document.getElementById('goals-hint');
       if (hintEl) {
-        hintEl.textContent = '已自动生成本月目标：热量摄入需求 / 热量缺口 / 动态消耗按身材目标与代谢测试计算，蛋白质 / 脂肪 / 碳水按瘦体重区间计算，摄入热量基线按性别取 1200 / 1500 kcal。糖 25-50g、钠 2000-2300mg 为固定参考区间。翻看历史数据时，会按当时月份的目标精确计算热量缺口。';
+        hintEl.textContent = '已自动生成本月目标：热量摄入需求 / 热量缺口 / 动态消耗按身材目标与代谢测试计算，蛋白质 / 脂肪 / 碳水按瘦体重区间计算，摄入基线按性别取 1200 / 1500 kcal。糖 25-50g、钠 2000-2300mg 为固定参考区间。翻看历史数据时，会按当时月份的目标精确计算热量缺口。';
       }
       if (!o.silent) toast('每日目标已保存');
     }
